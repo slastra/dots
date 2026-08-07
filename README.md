@@ -90,22 +90,12 @@ These files are not in this repository. The desktop needs them.
 |---|---|
 | `~/.local/bin/tabstrip` | Bottom tab strip. See [slastra/tabstrip](https://github.com/slastra/tabstrip). It needs `tabctl`. |
 | `~/.local/bin/waybar` | Patched waybar. A package update does not replace it. |
-| `~/Projects/Python/kasactl/kasactl.py` | `SUPER+O` office light. |
-| `~/.claude/bin/claude-speak` | Voice for the Claude chips. |
-| `~/.config/hypr/hyprglaze-aws.env` | AWS keys for hyprglaze. Write this file by hand. |
+
+
 
 Packages: `hyprland hyprglaze-git hyprpicker waybar mako rofi kitty hoja-git
 swayidle wttrbar satty grim slurp gpu-screen-recorder playerctl wireplumber
 cliphist wl-clipboard scrcpy jq tabctl rose-pine-icons`
-
-## Warnings
-
-- Do not run `nwg-look -a`. It replaces `~/.config/gtk-4.0/gtk.css` with a symlink.
-- GTK4 applications read the CSS one time at start. Restart the application after
-  you change the CSS.
-- The fish and GTK configurations are not in this repository.
-- The device addresses in `binds.lua` and `scripts/tv-screen.sh` are on a private
-  LAN. Change them for your own network.
 
 ## License
 
