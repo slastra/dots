@@ -70,7 +70,7 @@ There is no reload key, because Hyprland reloads the Lua when you save a file.
 
 ## Colors
 
-The palette is Rosé Pine. Edit these files by hand.
+The palette is [Rosé Pine](https://rosepinetheme.com). Edit these files by hand.
 
 | File | Read by |
 |---|---|
