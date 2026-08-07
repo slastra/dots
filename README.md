@@ -82,13 +82,24 @@ The palette is Rosé Pine. Edit these files by hand.
 
 `mako/config` and `starship.toml` contain their own colors.
 
+## Components
+
+These are separate projects. The desktop uses all of them.
+
+| Project | Function |
+|---|---|
+| [hyprglaze](https://github.com/slastra/hyprglaze) | Shader wallpaper daemon. It draws the wallpaper and the effects. |
+| [hoja](https://github.com/slastra/hoja) | File manager. `SUPER+E` starts it. |
+| [tabctl](https://github.com/slastra/tabctl) | Browser tab control over D-Bus. `tabs.sh` and `tabstrip` need it. |
+| [tabstrip](https://github.com/slastra/tabstrip) | Tab strip for the bottom bar. It owns the favicon cache. |
+
 ## Requirements
 
 These files are not in this repository. The desktop needs them.
 
 | Path | Function |
 |---|---|
-| `~/.local/bin/tabstrip` | Bottom tab strip. See [slastra/tabstrip](https://github.com/slastra/tabstrip). It needs `tabctl`. |
+| `~/.local/bin/tabstrip` | Bottom tab strip. A package update does not replace it. |
 | `~/.local/bin/waybar` | Patched waybar. A package update does not replace it. |
 
 
