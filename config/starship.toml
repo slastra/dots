@@ -1,0 +1,57 @@
+# Rosé Pine palette — hand-maintained (theme-sync generator removed)
+
+palette = "rose_pine"
+
+[character]
+success_symbol = "[🏠 ](mauve)"
+error_symbol = "[🏠 ](red)"
+vimcmd_symbol = "[🏠 ](green)"
+
+[username]
+style_user = "bold maroon"
+show_always = true
+
+[time]
+time_format = "%H:%M"
+format = "$time($style) "
+style = "mauve"
+disabled = false
+
+[hostname]
+ssh_only = false
+format = "[$hostname ]($style)"
+style ="bold pink"
+trim_at = "."
+disabled = false
+
+[directory]
+truncation_length = 4
+style = "bold lavender"
+
+[palettes.rose_pine]
+rosewater = "#EBBCBA"
+flamingo = "#C4A7E7"
+pink = "#C4A7E7"
+mauve = "#C4A7E7"
+red = "#EB6F92"
+maroon = "#EB6F92"
+peach = "#F6C177"
+yellow = "#F6C177"
+green = "#9CCFD8"
+teal = "#EBBCBA"
+sky = "#9CCFD8"
+sapphire = "#31748F"
+blue = "#31748F"
+lavender = "#C4A7E7"
+text = "#E0DEF4"
+subtext1 = "#E0DEF4"
+subtext0 = "#E0DEF4"
+overlay2 = "#6E6A86"
+overlay1 = "#6E6A86"
+overlay0 = "#6E6A86"
+surface2 = "#26233A"
+surface1 = "#26233A"
+surface0 = "#26233A"
+base = "#191724"
+mantle = "#191724"
+crust = "#191724"

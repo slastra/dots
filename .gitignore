@@ -1,0 +1,12 @@
+# Secrets — never commit
+*.env
+
+# Runtime junk
+__pycache__/
+*.pyc
+.claude/settings.local.json
+
+# Backups / working copies — git is the history now
+*.bak
+*.pre-*
+*.backup

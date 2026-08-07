@@ -1,0 +1,27 @@
+# Effects: particles, windowglow, cellbloom, concentric, fluid, aurora,
+#          starfield, visualizer, milkdrop, glitch, buddy, ai-buddy
+effect = "weft"
+theme = "Rosé Pine"
+
+[transition]
+duration = 0.5
+# Mirror hyprland.lua's `springy` curve (spring params aren't exposed
+# over IPC; direction/duration/bezier curves are auto-detected).
+workspace_spring = "1, 71.2633, 15.8273644"
+
+[cursor]
+smoothing = 0.85
+
+[geometry]
+smoothing = 0.85
+
+[particles]
+count = 100
+damping = 0.999
+pop_threshold = 50
+
+[buddy]
+scale = 2.0
+sprite = "sprites/buddy.png"
+ai_cooldown = 5.0
+max_calls_per_minute = 6

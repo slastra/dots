@@ -1,0 +1,327 @@
+@import url("colors.css");
+
+* {
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+  font-family: ShureTechMono Nerd Font;
+  font-size: 16px;
+}
+
+window#waybar {
+  background-color: transparent;
+  transition-property: background-color;
+  transition-duration: 0.5s;
+  padding-bottom: 4px;
+}
+
+
+
+#workspaces {
+  margin-left: 4px;
+  background-color: transparent;
+}
+
+#taskbar button,
+#workspaces button {
+  all: initial;
+  /* Remove GTK theme values (waybar #1351) */
+
+  /* Fix weird spacing in materia (waybar #450) */
+
+  /* Use box-shadow instead of border so the text isn't offset */
+  margin: 0px 4px;
+  padding: 6px 12px;
+  border-radius: 0px 0px 8px 8px;
+  border: solid @overlay;
+  border-bottom-width: 2px;
+  border-left-width: 2px;
+  border-right-width: 2px;
+  background-color: @surface;
+}
+#taskbar button.active,
+#workspaces button.active {
+  border-bottom: 2px solid @rose;
+  border-left: 2px solid @rose;
+  border-right: 2px solid @rose;
+  color: @rose;
+}
+#taskbar button:hover,
+#workspaces button:hover {
+  box-shadow: inherit;
+  text-shadow: inherit;
+  background-color: @overlay;
+  color: @rose;
+}
+
+#workspaces button.urgent {
+  color: @love;
+}
+
+#cpu,
+#memory,
+#disk,
+#temperature,
+#network,
+#wireplumber,
+#custom-recording,
+#clock,
+#window,
+#mpris,
+#tray,
+#custom-weather {
+  border-radius: 0px 0px 8px 8px;
+  margin: 0px 4px;
+  padding: 8px 12px;
+  background-color: @surface;
+  border: solid @overlay;
+  border-bottom-width: 2px;
+  border-left-width: 2px;
+  border-right-width: 2px;
+}
+#window,
+#mpris {
+  color: @text;
+  padding: 6px 12px;
+}
+
+#custom-logo {
+  padding: 6px 12px;
+  margin: 0px 4px;
+  border-radius: 0px 0px 8px 8px;
+  color: @foam;
+  background-color: @surface;
+}
+
+#hyprland-window {
+  background-color: @surface;
+}
+
+#cpu {
+  color: @foam;
+  padding-right: 17px;
+}
+
+#cpu.warning {
+  color: @gold;
+}
+
+#cpu.critical {
+  color: @love;
+}
+#memory.warning {
+  color: @gold;
+}
+
+#memory.critical {
+  color: @love;
+}
+#disk.warning {
+  color: @gold;
+}
+
+#disk.critical {
+  color: @love;
+}
+#memory {
+  color: @foam;
+  padding-right: 17px;
+}
+
+#disk {
+  color: @foam;
+  padding-right: 17px;
+}
+
+#temperature {
+  color: @foam;
+  padding-right: 17px;
+}
+
+#temperature.warning {
+  color: @gold;
+}
+
+#temperature.critical {
+  color: @love;
+}
+
+#network {
+  color: @foam;
+  padding-right: 17px;
+}
+
+#network.disconnected {
+  color: @love;
+}
+
+#wireplumber {
+  padding-right: 17px;
+}
+
+#custom-weather {
+  color: @foam;
+  padding-right: 17px;
+}
+
+#clock {
+  margin-right: 8px;
+  padding-right: 17px;
+}
+
+#custom-recording {
+  color: @love;
+  padding-right: 17px;
+}
+
+#custom-recording.recording {
+  animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0.5; }
+}
+
+tooltip {
+  background-color: @overlay;
+}
+
+
+/* Firefox tab strip — bottom bar (fftabs), favicon-only image chips fed by
+   tabstrip (active tab full brightness, inactive dimmed — baked into the
+   images, image modules have no CSS class states).
+   Chip styling mirrors the top bar's workspace/taskbar buttons, flipped:
+   attached to the bottom edge, rounded at the top, @overlay border. */
+window#waybar.fftabs {
+  background-color: transparent;
+  padding-bottom: 0px;
+}
+window#waybar.fftabs .modules-left {
+  margin-left: 4px;
+}
+window#waybar.fftabs label {
+  color: @text;
+}
+/* Each tab is its own chip, mirroring the top bar's buttons flipped for
+   the bottom edge; active gets the top bar's rose border + text treatment. */
+/* One image module with multiple:true renders every favicon as its own
+   GtkButton; the "marker" field from the exec JSON lands on the button as a
+   CSS class, so .active works natively here (unlike single-image modules). */
+window#waybar.fftabs #image.fftabs button {
+  background-color: @surface;
+  border: solid @overlay;
+  border-top-width: 2px;
+  border-left-width: 2px;
+  border-right-width: 2px;
+  border-bottom-width: 0px;
+  border-radius: 8px 8px 0px 0px;
+  padding: 2px 8px;
+  margin: 0 4px;
+  box-shadow: none;
+  text-shadow: none;
+}
+window#waybar.fftabs #image.fftabs button.active {
+  border-color: @rose;
+}
+window#waybar.fftabs .active {
+  color: @rose;
+  border-color: @rose;
+}
+
+/* Hover for every chip on this bar — browser tabs and Claude session tabs
+   alike — echoing the top bar's `#taskbar button:hover`.
+
+   Background only, deliberately. A `color:` here does nothing: measured on
+   this waybar/GTK build, :hover lands on the module's container while the text
+   colour is fixed by `window#waybar.fftabs label { color: @text }` on the label
+   itself, and even `label:hover` fails to override it. The top bar gets rose
+   hover text because those are real GtkButtons; these custom modules are not.
+   Rose is still reachable via the JSON `class` field, which waybar does apply
+   to the label — that is what makes `.active` work. */
+window#waybar.fftabs #image.fftabs button:hover,
+window#waybar.fftabs #custom-claude1:hover,
+window#waybar.fftabs #custom-claude2:hover,
+window#waybar.fftabs #custom-claude3:hover,
+window#waybar.fftabs #custom-claude4:hover,
+window#waybar.fftabs #custom-claude5:hover,
+window#waybar.fftabs #custom-claude6:hover,
+window#waybar.fftabs #custom-claudedrv:hover {
+  background-color: @overlay;
+}
+
+/* mpris lives in the bottom bar: flip the top-bar chip shape */
+window#waybar.fftabs #mpris {
+  border-radius: 8px 8px 0px 0px;
+  border-top-width: 2px;
+  border-bottom-width: 0px;
+  padding: 6px 12px;
+}
+
+/* Claude Code session tabs — centre of the bottom bar. Same chip shape and
+   border weight as the Firefox tab strip above; a busy session is the Claude
+   equivalent of an active tab, so it reuses the rose border treatment. */
+#custom-claudedrv,
+#custom-claude1, #custom-claude2, #custom-claude3,
+#custom-claude4, #custom-claude5, #custom-claude6 {
+  background-color: @surface;
+  border: solid @overlay;
+  border-top-width: 2px;
+  border-left-width: 2px;
+  border-right-width: 2px;
+  border-bottom-width: 0px;
+  border-radius: 8px 8px 0px 0px;
+  padding: 6px 12px;
+  margin: 0 4px;
+}
+
+/* Focused session is styled by the tab strip's own `window#waybar.fftabs
+   .active` rule above — the modules emit the same class, so there is
+   deliberately no separate rose rule here.
+
+   Keep the window#waybar.fftabs prefix on the rules below: a bare
+   `#custom-claudeN` colour rule (specificity 110) loses to
+   `window#waybar.fftabs label { color: @text }` (112) and silently never
+   lands. The .active rule wins because it computes to 121. */
+/* Usage gauge — reads like the top bar's metrics: @foam base escalating to
+   @gold then @love, in the same `{value}% {icon}` shape as #cpu / #memory.
+
+   Selected by class rather than by #custom-claudedrv so it sits above
+   `window#waybar.fftabs label { color: @text }` (112) on specificity; these
+   compute to 121. Borders stay id-anchored since they paint on the container
+   and there is no competing rule for them. */
+window#waybar.fftabs .normal {
+  color: @foam;
+}
+window#waybar.fftabs .warning {
+  color: @gold;
+}
+window#waybar.fftabs .critical {
+  color: @love;
+}
+/* A session waiting on you (permission prompt or question). @gold matches the
+   .warning treatment used everywhere else on the bar for "needs attention",
+   and the chip also swaps its dot for a ? glyph. Class-selected so it reaches
+   the label. */
+window#waybar.fftabs .waiting {
+  color: @gold;
+}
+window#waybar.fftabs #custom-claude1.waiting,
+window#waybar.fftabs #custom-claude2.waiting,
+window#waybar.fftabs #custom-claude3.waiting,
+window#waybar.fftabs #custom-claude4.waiting,
+window#waybar.fftabs #custom-claude5.waiting,
+window#waybar.fftabs #custom-claude6.waiting {
+  border-color: @gold;
+}
+
+/* Breathing room after the trailing icon — same 17px the top bar's #cpu,
+   #memory, #disk, #temperature and #network already use for this. */
+window#waybar.fftabs #custom-claudedrv {
+  padding-right: 17px;
+}
+window#waybar.fftabs #custom-claudedrv.warning {
+  border-color: @gold;
+}
+window#waybar.fftabs #custom-claudedrv.critical {
+  border-color: @love;
+}

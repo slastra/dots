@@ -1,0 +1,20 @@
+configuration {
+	font:							"Share Tech 16";
+	icon-theme: 					"rose-pine-icons";
+    drun-display-format:            "{name}";
+    disable-history:                false;
+    fullscreen:                     false;
+	hide-scrollbar: 				true;
+	sidebar-mode: 					false;
+}
+window {
+    background-color:               @bg;
+    text-color:                     @fg;
+	width:							18%;
+    height:                         480px;
+    location:                       center;
+}
+
+@import "colors.rasi"
+
+@import "style.rasi"
