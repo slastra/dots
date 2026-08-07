@@ -5,8 +5,7 @@ Arch Linux, Hyprland, Wayland, Rosé Pine.
 
 ![The desktop](docs/demo.gif)
 
-The GIF is a 3 second loop. For the full clip, see
-[docs/demo.mp4](docs/demo.mp4). It is 1080p and 8 seconds.
+[docs/demo.mp4](docs/demo.mp4)
 
 ## Session
 
