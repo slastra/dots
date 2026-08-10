@@ -1,0 +1,50 @@
+/*
+ * Hotkey Cheatsheet Theme
+ * Matches existing rofi themes (Rosé Pine)
+ *
+ * Denser than the shared style: a cheatsheet is for reading a lot of rows at
+ * once, so the element padding and spacing are cut and the window is wide
+ * enough for the monospace key column plus a description.
+ */
+
+configuration {
+	font:							"Share Tech 15";
+    disable-history:                true;
+    fullscreen:                     false;
+	hide-scrollbar: 				true;
+	sidebar-mode: 					false;
+}
+
+window {
+    background-color:               @bg;
+    text-color:                     @fg;
+	width:							62%;
+    height:                         76%;
+    location:                       center;
+}
+
+@import "colors.rasi"
+
+@import "style.rasi"
+
+/* Overrides after the shared style, so they win. */
+
+prompt {
+	font:							"ShureTechMono Nerd Font 15";
+}
+
+listview {
+    lines:                          34;
+    columns:                        2;
+    spacing:                        0px;
+    scrollbar:                      false;
+}
+
+element {
+    padding:                        3px 22px;
+}
+
+element-icon {
+    size:                           0px;
+    padding:                        0px;
+}

@@ -49,7 +49,11 @@ Each script uses the theme with the same name.
 | `SUPER+B` | `effect.sh` | hyprglaze shader effect. |
 | `SUPER+V` | `clipboard.sh` | Clipboard history. |
 | `SUPER+N` | `notifications.sh` | mako history. |
+| `SUPER+/` | `hotkeys.py` | Hotkey cheatsheet. |
 | `Print` | `capture.sh` | Screenshot or screen record. |
+
+`hotkeys.py` parses `binds.lua` when you press the key. It does not hold a
+second copy of the list, so the cheatsheet cannot go out of date.
 
 ## Other keys
 

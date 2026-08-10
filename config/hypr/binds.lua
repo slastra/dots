@@ -82,7 +82,7 @@ hl.define_submap("resize", function()
     hl.bind("Return", hl.dsp.submap("reset"))
 end)
 
--- Volume / media / brightness
+-- Volume and media
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
 hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),      { locked = true, repeating = true })
 hl.bind("XF86AudioMute",        hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),     { locked = true, repeating = true })
@@ -100,3 +100,7 @@ hl.bind("XF86AudioPrev",        hl.dsp.exec_cmd("playerctl previous"),   { locke
 -- Screencast / notifications
 hl.bind(mod .. " + N",          hl.dsp.exec_cmd("bash ~/.config/rofi/scripts/notifications.sh"))
 hl.bind("Print",                hl.dsp.exec_cmd("bash ~/.config/rofi/scripts/capture.sh"))
+
+-- Help
+-- The cheatsheet parses this file, so it never needs updating by hand.
+hl.bind(mod .. " + slash",      hl.dsp.exec_cmd("python ~/.config/rofi/scripts/hotkeys.py"))
