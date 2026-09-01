@@ -26,7 +26,9 @@ file. Do not run `hyprctl reload`.
 
 ## lastshell
 
-`config/quickshell/lastshell` is the shell. Raw Quickshell, no framework.
+`config/quickshell/lastshell` is the shell (a vendored copy of
+[slastra/lastshell](https://github.com/slastra/lastshell)). Raw Quickshell,
+no framework.
 
 The bars are tab chips hanging off the screen edges. Four instruments are
 drawn, not fonted: an analog clock (hour hand only), a thermometer, a
@@ -94,6 +96,7 @@ config/
 
 ## Components
 
+- [lastshell](https://github.com/slastra/lastshell), the shell itself
 - [tabstrip](https://github.com/slastra/tabstrip), the browser-tab daemon
 - [tabctl](https://github.com/slastra/tabctl), the D-Bus mediator underneath
 - [Rosé Pine](https://rosepinetheme.com), the palette everywhere
