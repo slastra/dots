@@ -3,9 +3,9 @@
 Desktop configuration for `desk`.
 Arch Linux, Hyprland, Wayland, Rosé Pine.
 
-![The desktop](docs/demo.gif)
+![The desktop](docs/desktop.png)
 
-[docs/demo.mp4](docs/demo.mp4)
+![The tab switcher](docs/switcher.png)
 
 ## Session
 
