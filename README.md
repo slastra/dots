@@ -1,7 +1,7 @@
 # dots
 
 Desktop configuration for `desk`.
-Arch Linux, Hyprland, Wayland, Rosé Pine.
+Arch Linux, Hyprland, Quickshell, Rosé Pine.
 
 ![The desktop in motion](docs/demo.gif)
 
