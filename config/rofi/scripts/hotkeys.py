@@ -124,6 +124,8 @@ def label_for(dispatcher: str, consts: dict[str, str]) -> str:
         i = re.search(r"ipc call overlays (\w+)", payload)
         if i:
             return IPC.get(i.group(1), i.group(1))
+        if "float-arrange" in payload:
+            return "Gather floating windows"
         b = re.search(r"\.local/bin/([\w-]+)", payload)
         if b:
             return b.group(1).replace("-", " ").capitalize()

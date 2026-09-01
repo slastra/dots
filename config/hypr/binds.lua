@@ -6,6 +6,7 @@ local menu        = "rofi -no-config -no-lazy-grab -show combi -modi combi run -
 -- Apps
 hl.bind(mod .. " + Return",     hl.dsp.exec_cmd(terminal))
 hl.bind(mod .. " + Space",      hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleLauncher"))
+hl.bind(mod .. " + G",          hl.dsp.exec_cmd("python3 ~/.config/hypr/scripts/float-arrange.py")) -- gather floats
 hl.bind(mod .. " + W",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleSwitcher"))
 hl.bind(mod .. " + A",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleAudio"))
 hl.bind(mod .. " + B",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleEffects"))
