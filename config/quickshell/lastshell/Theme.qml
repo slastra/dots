@@ -1,7 +1,7 @@
 pragma Singleton
 import QtQuick
 
-// Rosé Pine — kept in sync by hand with ~/.config/waybar/colors.css while
+// Rosé Pine.
 // both bars coexist; single source of truth once waybar retires.
 QtObject {
     readonly property color base:    "#191724"
