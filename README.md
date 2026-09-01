@@ -85,9 +85,8 @@ API.
 config/
 ├── quickshell/lastshell/   the shell (QML)
 ├── hypr/                   hyprland.lua, binds.lua, theme.lua, idle.sh, scripts/
-├── claude/                 claude-status.py
+├── lastshell/              claude-status.py, lamp.sh (shell-adjacent daemons)
 ├── rofi/scripts/           capture.sh, hotkeys.py (engines, menuless)
-├── mako/scripts/           lamp.sh (notification lamp hook)
 ├── qt6ct/colors/           rose-pine.conf (Qt palette)
 ├── kitty/                  kitty.conf, colors.conf
 ├── nvim/lua/               colors.lua

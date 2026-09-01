@@ -27,7 +27,7 @@ hl.on("hyprland.start", function()
 	-- snapshot (LASTSHELL_STANDALONE disables its die-with-waybar coupling).
 	hl.exec_cmd("env LASTSHELL_NOTIFS=1 qs -c lastshell &")
 	hl.exec_cmd("~/.local/bin/tabstrip daemon &")
-	hl.exec_cmd("env LASTSHELL_STANDALONE=1 ~/.config/waybar/scripts/claude-status.py --daemon &")
+	hl.exec_cmd("env LASTSHELL_STANDALONE=1 ~/.config/lastshell/claude-status.py --daemon &")
 	hl.exec_cmd("hyprglaze &")
 	hl.exec_cmd("~/.config/hypr/idle.sh &")
 	-- Clipboard history store. Without this daemon cliphist records nothing and

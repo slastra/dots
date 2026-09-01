@@ -30,7 +30,7 @@ Scope {
             if (toasts.count > 5) toasts.remove(0)
             history.insert(0, { notif: n, time: Qt.formatTime(new Date(), "hh:mm AP") })
             if (history.count > 50) history.remove(50)
-            const lamp = Quickshell.env("HOME") + "/.config/mako/scripts/lamp.sh"
+            const lamp = Quickshell.env("HOME") + "/.config/lastshell/lamp.sh"
             Quickshell.execDetached(["bash", lamp, n.urgency === 2 ? "alert" : "info"])
         }
     }
