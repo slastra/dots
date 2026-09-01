@@ -22,11 +22,37 @@ get_active_window_geometry() {
     hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"'
 }
 
-# Wait for rofi layer to fully close (deterministic, no sleep timer)
+# Wait for rofi to be gone from the screen, not merely gone from the layer list.
+#
+# Hyprland drops a closing layer out of `hyprctl layers` as soon as the client
+# destroys the surface (measured: 11ms) but keeps compositing a fading snapshot
+# for the whole layersOut animation after that. Polling the layer list alone
+# returns while rofi is still visibly on screen, so grim captures a ghost of the
+# menu. Only Full Screen and Window hit this: Region and Scan run slurp first,
+# which takes far longer than the fade.
+#
+# The fade duration is read from the compositor rather than hardcoded, so
+# retuning `layersOut` in hyprland.lua does not silently reintroduce this.
+# Hyprland's animation speed unit is 100ms.
+#
+# Waiting for the pixels to settle instead is not an option here: the wallpaper
+# is animated, so the screen never stops changing.
+rofi_fade_ms() {
+    local speed
+    speed=$(hyprctl -j animations 2>/dev/null |
+        jq -r '.[0][] | select(.name=="layersOut" and .enabled) | .speed' 2>/dev/null | head -1)
+    [[ -z "$speed" || "$speed" == "null" ]] && { echo 0; return; }
+    # +40ms so the final frame has been presented, not just computed.
+    awk -v s="$speed" 'BEGIN { printf "%d", s * 100 + 40 }'
+}
+
 wait_for_rofi_close() {
     while hyprctl layers -j | jq -e '.. | select(.namespace? == "rofi")' > /dev/null 2>&1; do
         sleep 0.01
     done
+    local ms
+    ms=$(rofi_fade_ms)
+    (( ms > 0 )) && sleep "$(awk -v m="$ms" 'BEGIN { print m / 1000 }')"
 }
 
 # Stop border overlay
@@ -173,10 +199,27 @@ build_menu() {
     echo "󰊓  Full Screen 󰁔  Video"
     echo "󰩬  Region 󰁔  Image"
     echo "󰩬  Region 󰁔  Video"
-    echo "󰩬  Region 󰁔  Scan UPC"
+    echo "󰩬  Region 󰁔  Scan Barcode"
     echo "󰖲  Window 󰁔  Image"
     echo "󰖲  Window 󰁔  Video"
 }
+
+# CLI subcommand path (used by lastshell's capture modal — rofi menu below
+# stays as fallback). "stop" is also safe to call while not recording.
+if [[ -n "${1:-}" ]]; then
+    case "$1" in
+        stop)              stop_recording ;;
+        fullscreen-image)  screenshot_fullscreen ;;
+        fullscreen-video)  record_fullscreen ;;
+        region-image)      screenshot_region ;;
+        region-video)      record_region ;;
+        region-scan)       scan_region ;;
+        window-image)      screenshot_window ;;
+        window-video)      record_window ;;
+        *) echo "unknown capture action: $1" >&2; exit 2 ;;
+    esac
+    exit 0
+fi
 
 # If recording, stop it and exit
 if is_recording; then

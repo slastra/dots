@@ -82,6 +82,18 @@ EXEC = [
     (r"playerctl play-pause",   "Play or pause"),
 ]
 
+# lastshell overlay IPC calls (the binds moved off rofi scripts 2026-08-31).
+IPC = {
+    "toggleLauncher":      "App & window launcher",
+    "toggleSwitcher":      "Browser tabs",
+    "toggleAudio":         "Audio output",
+    "toggleEffects":       "Wallpaper effect",
+    "toggleClipboard":     "Clipboard history",
+    "toggleNotifications": "Notification history",
+    "toggleCapture":       "Screenshot or record",
+    "toggleHotkeys":       "This cheatsheet",
+}
+
 SCRIPTS = {
     "tabs":          "Browser tabs",
     "audio":         "Audio output",
@@ -109,6 +121,12 @@ def label_for(dispatcher: str, consts: dict[str, str]) -> str:
         s = re.search(r"rofi/scripts/(\w+)\.(?:sh|py)", payload)
         if s:
             return SCRIPTS.get(s.group(1), s.group(1).capitalize())
+        i = re.search(r"ipc call overlays (\w+)", payload)
+        if i:
+            return IPC.get(i.group(1), i.group(1))
+        b = re.search(r"\.local/bin/([\w-]+)", payload)
+        if b:
+            return b.group(1).replace("-", " ").capitalize()
         for pat, name in EXEC:
             if name and re.search(pat, payload):
                 return name
@@ -189,6 +207,7 @@ def parse() -> list[tuple[str, list[tuple[str, str]]]]:
                 key = f"  {key}"
 
         key = key.replace("mouse_down", "Scroll down").replace("mouse_up", "Scroll up")
+        key = key.replace("slash", "/").replace("escape", "ESC")
         key = re.sub(r"mouse:272", "Left drag", key)
         key = re.sub(r"mouse:273", "Right drag", key)
 
@@ -220,6 +239,14 @@ def main() -> int:
     if not BINDS.exists():
         print(f"no binds file at {BINDS}", file=sys.stderr)
         return 1
+    if "--json" in sys.argv:
+        # For lastshell's hotkey sheet: same live parse, structured output.
+        import json
+        print(json.dumps([
+            {"section": name, "rows": [{"key": k, "desc": d} for k, d in rows]}
+            for name, rows in parse()
+        ]))
+        return 0
     body = render(parse())
     subprocess.run(
         ["rofi", "-dmenu", "-i", "-markup-rows", "-p", "󰌌 ",
