@@ -383,7 +383,7 @@ PIDFILE = os.path.join(RUNTIME, "claude-status.pid")
 # lastshell runs the daemon standalone; waybar's lifecycle coupling is off.
 STANDALONE = os.environ.get("LASTSHELL_STANDALONE") == "1"
 SLOT_SIGNAL = 10          # waybar RTMIN+10 -> slot modules re-read the state
-IDLE_TICK = 2.0           # seconds between polls for non-push changes
+IDLE_TICK = 5.0           # seconds between polls for non-push changes (socket2 + MQTT push the fast paths)
 
 
 def event_socket():

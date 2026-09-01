@@ -3,7 +3,10 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 
-// gpu-screen-recorder liveness (waybar custom/recording, was a 1s exec).
+// gpu-screen-recorder liveness. capture.sh maintains /tmp/gpu-screen-recorder.pid
+// on every start/stop path, so WATCHING that file replaces the old 2s pgrep
+// (~43k process spawns a day for a feature used minutes a week). One pgrep
+// at startup adopts a recording that predates the shell.
 Singleton {
     id: root
 
@@ -14,15 +17,18 @@ Singleton {
             "pkill -SIGINT -f gpu-screen-recorder; pkill -f recording-border.py"])
     }
 
-    Timer {
-        interval: 2000; running: true; repeat: true
-        triggeredOnStart: true
-        onTriggered: check.running = true
+    FileView {
+        path: "/tmp/gpu-screen-recorder.pid"
+        watchChanges: true
+        onLoaded: root.recording = true
+        onLoadFailed: root.recording = false
+        onFileChanged: reload()
     }
 
     Process {
-        id: check
+        id: adopt
+        running: true
         command: ["pgrep", "-x", "gpu-screen-reco"]
-        onExited: code => root.recording = code === 0
+        onExited: code => { if (code === 0) root.recording = true }
     }
 }

@@ -27,6 +27,15 @@ Singleton {
     FileView { id: stat;    path: "/proc/stat";    blockLoading: true }
     FileView { id: meminfo; path: "/proc/meminfo"; blockLoading: true }
     FileView { id: loadavg; path: "/proc/loadavg"; blockLoading: true }
+    // hwmon path found once at startup; then temp is a plain file read,
+    // replacing a sh|sort|tail pipeline spawned every 5s
+    property string tempPath: ""
+    FileView { id: tempFile; path: root.tempPath; blockLoading: true }
+    Process {
+        running: true
+        command: ["sh", "-c", "for f in /sys/class/hwmon/hwmon*/temp1_input; do echo \"$(cat $f) $f\"; done | sort -rn | head -1 | cut -d' ' -f2"]
+        stdout: StdioCollector { onStreamFinished: root.tempPath = text.trim() }
+    }
 
     Timer {
         interval: 5000; running: true; repeat: true
@@ -34,7 +43,11 @@ Singleton {
         onTriggered: {
             stat.reload(); meminfo.reload(); loadavg.reload()
             root._tick()
-            temp.running = true
+            if (root.tempPath !== "") {
+                tempFile.reload()
+                const v = Number(tempFile.text().trim())
+                if (v > 0) root.tempC = Math.round(v / 1000)
+            }
         }
     }
     Timer {
@@ -65,19 +78,6 @@ Singleton {
             memTotalGiB = m["MemTotal:"] / 1048576
             loadAvg = loadavg.text().split(" ").slice(0, 3).join("  ")
         } catch (e) { /* mid-read; next tick corrects */ }
-    }
-
-    // Package temp: the same k10temp/coretemp source waybar's hwmon autodetect
-    // lands on; grab the max across hwmon temp1 inputs to stay socket-agnostic.
-    Process {
-        id: temp
-        command: ["sh", "-c", "cat /sys/class/hwmon/hwmon*/temp1_input 2>/dev/null | sort -n | tail -1"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const v = Number(text.trim())
-                if (v > 0) root.tempC = Math.round(v / 1000)
-            }
-        }
     }
 
     Process {

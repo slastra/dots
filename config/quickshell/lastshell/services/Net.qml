@@ -18,10 +18,38 @@ Singleton {
 
     property var _prev: null
 
+    // Counters are plain sysfs reads every 5s; the exec probe (ip+jq for
+    // the address and interface discovery) runs only once a minute — the
+    // address changes approximately never.
+    property int _tick: 0
     Timer {
         interval: 5000; running: true; repeat: true
         triggeredOnStart: true
-        onTriggered: probe.running = true
+        onTriggered: {
+            if (root._tick % 12 === 0 || root.iface === "") probe.running = true
+            else if (root.iface !== "") counters()
+            root._tick++
+        }
+    }
+
+    FileView { id: rxF; path: root.iface ? `/sys/class/net/${root.iface}/statistics/rx_bytes` : ""; blockLoading: true }
+    FileView { id: txF; path: root.iface ? `/sys/class/net/${root.iface}/statistics/tx_bytes` : ""; blockLoading: true }
+    FileView { id: opF; path: root.iface ? `/sys/class/net/${root.iface}/operstate` : ""; blockLoading: true }
+
+    function counters() {
+        try {
+            rxF.reload(); txF.reload(); opF.reload()
+            const rx = Number(rxF.text().trim()), tx = Number(txF.text().trim())
+            root.connected = opF.text().trim() === "up" && root.ip !== ""
+            if (root._prev) {
+                root.rxBps = Math.max(0, (rx - root._prev.rx) / 5)
+                root.txBps = Math.max(0, (tx - root._prev.tx) / 5)
+                const h = root.history.slice(-59)
+                h.push([root.rxBps, root.txBps])
+                root.history = h
+            }
+            root._prev = { rx: rx, tx: tx }
+        } catch (e) { /* interface vanished; next probe re-discovers */ }
     }
 
     Process {
