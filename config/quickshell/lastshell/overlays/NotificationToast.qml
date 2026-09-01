@@ -169,7 +169,7 @@ Rectangle {
             // for the body click (which invokes it above), not a chip; it was
             // rendering as an empty button.
             readonly property var shownActions:
-                (root.notif.actions ?? []).filter(a => (a.text ?? "") !== "")
+                (root.notif.actions ?? []).filter(a => (a.text ?? "").trim() !== "")
             visible: shownActions.length > 0
             Repeater {
                 model: parent.shownActions
