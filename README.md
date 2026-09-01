@@ -5,8 +5,6 @@ Arch Linux, Hyprland, Quickshell, Rosé Pine.
 
 ![The desktop in motion](docs/demo.gif)
 
-Launcher → calculator → `SUPER+G` gathers it into the mosaic → the global
-tab switcher jumps workspaces to Hacker News, then Slashdot, then home.
 Full quality: [docs/demo.mp4](docs/demo.mp4).
 
 ## Session
