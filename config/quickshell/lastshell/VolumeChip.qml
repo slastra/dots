@@ -33,7 +33,7 @@ Chip {
             }
             Rectangle { // slider track
                 width: 220; height: 8; radius: 4
-                color: Theme.overlay
+                color: Qt.alpha(Theme.text, 0.22)
                 Rectangle {
                     width: parent.width * Math.min(1, root.vol)
                     height: parent.height; radius: 4
@@ -100,7 +100,7 @@ Chip {
                     ctx.lineWidth = 2
                     ctx.lineCap = "round"
                     ctx.strokeStyle = Theme.love
-                    ctx.beginPath(); ctx.moveTo(10.5, cy - 5); ctx.lineTo(16.5, cy + 5); ctx.stroke()
+                    ctx.beginPath(); ctx.moveTo(1.5, cy - 6.5); ctx.lineTo(12.5, cy + 6.5); ctx.stroke()
                 }
                 // bluetooth tick: small iris dot above the cone
                 if (root.bluetooth && !root.muted) {
