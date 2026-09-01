@@ -32,7 +32,7 @@ The bars are tab chips hanging off the screen edges. Four instruments are
 drawn, not fonted: an analog clock (hour hand only), a thermometer, a
 speaker whose arcs grow with volume, and a usage ring. Icons are
 [Lucide](https://lucide.dev); text is ShureTechMono. Nerd-font icon glyphs
-are banned — Qt renders their private-use codepoints wrong.
+are banned. Qt renders their private-use codepoints wrong.
 
 The modals share one chrome: header with an identity icon and a prompt
 caret, scrolling body with a gliding cursor and gold match highlighting,
@@ -56,22 +56,22 @@ countdown ring around the dismiss button, and a history the center reads.
 
 The shell renders; daemons own data. `tabstrip` (Go,
 [repo](https://github.com/slastra/tabstrip)) watches browsers over D-Bus
-and writes a snapshot the shell's FileView watches — the bar strip is
-workspace-filtered, `tabstrip list` is the global view. `claude-status.py`
+and writes a snapshot the shell's FileView watches. The bar strip is
+workspace-filtered; `tabstrip list` is the global view. `claude-status.py`
 (`config/claude/`) watches Claude Code sessions, usage quotas, Hyprland
 focus, and MQTT face state, and writes one JSON snapshot.
 
 ## Engines
 
 Two rofi-era scripts survive as backends with the menus stripped off:
-`capture.sh` (grim/slurp/satty screenshots, gpu-screen-recorder capture —
+`capture.sh` (grim/slurp/satty screenshots and gpu-screen-recorder capture,
 invoked by subcommand from the capture modal) and `hotkeys.py` (the live
 binds.lua parser behind the hotkey sheet, `--json`).
 
 ## The TV
 
 The display is an LG OLED. `scripts/tv-screen.sh` turns the TV itself off
-and on over the LAN instead of using DPMS — a DPMS wake forces an HDMI
+and on over the LAN instead of using DPMS. A DPMS wake forces an HDMI
 2.1 FRL retrain the NVIDIA driver refuses to retry, which latches the
 desktop at 60 Hz. `scripts/tv-pixel-refresh.sh` runs the panel's pixel
 cleaning nightly by driving the TV's own menus over the remote-control
@@ -94,9 +94,9 @@ config/
 
 ## Components
 
-- [tabstrip](https://github.com/slastra/tabstrip) — browser-tab daemon
-- [tabctl](https://github.com/slastra/tabctl) — the D-Bus mediator underneath
-- [Rosé Pine](https://rosepinetheme.com) — the palette everywhere
+- [tabstrip](https://github.com/slastra/tabstrip), the browser-tab daemon
+- [tabctl](https://github.com/slastra/tabctl), the D-Bus mediator underneath
+- [Rosé Pine](https://rosepinetheme.com), the palette everywhere
 
 ## License
 
