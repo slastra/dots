@@ -2,7 +2,6 @@ pragma Singleton
 import QtQuick
 
 // Rosé Pine.
-// both bars coexist; single source of truth once waybar retires.
 QtObject {
     readonly property color base:    "#191724"
     readonly property color surface: "#201D2F"
