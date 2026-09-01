@@ -25,16 +25,17 @@ Item {
         visible: root.state === "waiting"
 
         property real p: 0
-        Timer { // 12fps stepped ping — same reasoning as the breathing timer
+        property real phase: 0
+        Timer { // 12fps stepped ping, same reasoning as the breathing timer
             interval: 83
             running: root.state === "waiting"
             repeat: true
             onTriggered: {
-                const lin = (ping.p___raw = ((ping.p___raw ?? 0) + 83 / 1100) % 1)
-                ping.p = 1 - Math.pow(1 - lin, 3) // OutCubic by hand
+                ping.phase = (ping.phase + 83 / 1100) % 1
+                ping.p = 1 - Math.pow(1 - ping.phase, 3) // OutCubic by hand
             }
+            onRunningChanged: if (!running) ping.phase = 0
         }
-        property var p___raw: 0
         onPChanged: requestPaint()
 
         onPaint: {

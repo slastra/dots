@@ -12,7 +12,7 @@ Row {
     spacing: 8
 
     FileView {
-        path: "/run/user/1000/waybar-fftabs.json"
+        path: Quickshell.env("XDG_RUNTIME_DIR") + "/waybar-fftabs.json"
         watchChanges: true
         onFileChanged: reload()
         onLoaded: parse()
