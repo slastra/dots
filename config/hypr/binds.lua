@@ -5,15 +5,15 @@ local menu        = "rofi -no-config -no-lazy-grab -show combi -modi combi run -
 
 -- Apps
 hl.bind(mod .. " + Return",     hl.dsp.exec_cmd(terminal))
-hl.bind(mod .. " + Space",      hl.dsp.exec_cmd(menu))
-hl.bind(mod .. " + W",          hl.dsp.exec_cmd("bash ~/.config/rofi/scripts/tabs.sh"))
-hl.bind(mod .. " + A",          hl.dsp.exec_cmd("bash ~/.config/rofi/scripts/audio.sh"))
-hl.bind(mod .. " + B",          hl.dsp.exec_cmd("bash ~/.config/rofi/scripts/effect.sh"))
+hl.bind(mod .. " + Space",      hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleLauncher"))
+hl.bind(mod .. " + W",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleSwitcher"))
+hl.bind(mod .. " + A",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleAudio"))
+hl.bind(mod .. " + B",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleEffects"))
 hl.bind(mod .. " + C",          hl.dsp.exec_cmd("hyprpicker -a"))
 hl.bind(mod .. " + E",          hl.dsp.exec_cmd(fileManager))
 -- Clipboard history. cliphist only has content because hyprland.lua starts a
 -- `wl-paste --watch cliphist store` daemon; without it the picker is empty.
-hl.bind(mod .. " + V",          hl.dsp.exec_cmd("bash ~/.config/rofi/scripts/clipboard.sh"))
+hl.bind(mod .. " + V",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleClipboard"))
 -- Office light: toggle the Kasa HS210 directly over the LAN (no cloud/IFTTT).
 -- SUPER+L was the old binding but it now means focus-right, so SUPER+O ("Office").
 hl.bind(mod .. " + O",          hl.dsp.exec_cmd("python /home/shaun/Projects/Python/kasactl/kasactl.py toggle 192.168.11.97"))
@@ -21,6 +21,10 @@ hl.bind(mod .. " + O",          hl.dsp.exec_cmd("python /home/shaun/Projects/Pyt
 -- phone reboot; plug in USB once and run `adb tcpip 5555` to re-arm. --no-audio keeps
 -- sound on the phone; drop it to pipe audio to the desktop.
 hl.bind(mod .. " + P",          hl.dsp.exec_cmd("sh -c 'pkill -x scrcpy || scrcpy --tcpip=192.168.11.131:5555 --no-audio'"))
+-- Read aloud ("T" for talk): speaks the primary selection, falling back to the
+-- clipboard, through piper-tts. Pressing it again while something is playing
+-- replaces the queue with the new selection rather than opening a second window.
+hl.bind(mod .. " + T",          hl.dsp.exec_cmd("/home/shaun/.local/bin/piper-reader"))
 
 -- Window management
 hl.bind(mod .. " + SHIFT + C",  hl.dsp.window.close())
@@ -98,9 +102,9 @@ hl.bind("XF86AudioPrev",        hl.dsp.exec_cmd("playerctl previous"),   { locke
 -- brightness lives on the TV and in scripts/tv-screen.sh.
 
 -- Screencast / notifications
-hl.bind(mod .. " + N",          hl.dsp.exec_cmd("bash ~/.config/rofi/scripts/notifications.sh"))
-hl.bind("Print",                hl.dsp.exec_cmd("bash ~/.config/rofi/scripts/capture.sh"))
+hl.bind(mod .. " + N",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleNotifications"))
+hl.bind("Print",                hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleCapture"))
 
 -- Help
 -- The cheatsheet parses this file, so it never needs updating by hand.
-hl.bind(mod .. " + slash",      hl.dsp.exec_cmd("python ~/.config/rofi/scripts/hotkeys.py"))
+hl.bind(mod .. " + slash",      hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleHotkeys"))

@@ -1,0 +1,15 @@
+Overlay 1.0 Overlay.qml
+SearchOverlay 1.0 SearchOverlay.qml
+TabSwitcher 1.0 TabSwitcher.qml
+Overlays 1.0 Overlays.qml
+VolumeOsd 1.0 VolumeOsd.qml
+Launcher 1.0 Launcher.qml
+singleton Frecency 1.0 Frecency.qml
+NotificationToast 1.0 NotificationToast.qml
+NotificationPopups 1.0 NotificationPopups.qml
+AudioPicker 1.0 AudioPicker.qml
+EffectPicker 1.0 EffectPicker.qml
+ClipboardPicker 1.0 ClipboardPicker.qml
+NotificationCenter 1.0 NotificationCenter.qml
+CapturePicker 1.0 CapturePicker.qml
+HotkeySheet 1.0 HotkeySheet.qml

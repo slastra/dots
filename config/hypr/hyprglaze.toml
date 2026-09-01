@@ -1,6 +1,6 @@
 # Effects: particles, windowglow, cellbloom, concentric, fluid, aurora,
 #          starfield, visualizer, milkdrop, glitch, buddy, ai-buddy
-effect = "weft"
+effect = "fluid"
 theme = "Rosé Pine"
 
 [transition]

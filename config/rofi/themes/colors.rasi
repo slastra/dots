@@ -1,9 +1,0 @@
-/* Rosé Pine palette — hand-maintained (theme-sync generator removed) */
-* {
-  al:   #00000000;
-  bg:   #191724ff;
-  bga:  #26233Aff;
-  bar:  #E0DEF4ff;
-  fg:   #E0DEF4ff;
-  ac:   #EBBCBAff;
-}

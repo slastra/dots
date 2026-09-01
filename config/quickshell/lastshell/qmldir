@@ -1,0 +1,33 @@
+singleton Theme 1.0 Theme.qml
+Chip 1.0 Chip.qml
+ChipText 1.0 ChipText.qml
+BarWindow 1.0 BarWindow.qml
+TabStrip 1.0 TabStrip.qml
+TopBar 1.0 TopBar.qml
+BottomBar 1.0 BottomBar.qml
+Workspaces 1.0 Workspaces.qml
+WindowTitle 1.0 WindowTitle.qml
+Taskbar 1.0 Taskbar.qml
+VolumeChip 1.0 VolumeChip.qml
+BatteryChip 1.0 BatteryChip.qml
+Tray 1.0 Tray.qml
+ClockChip 1.0 ClockChip.qml
+SysChips 1.0 SysChips.qml
+singleton SysStat 1.0 services/SysStat.qml
+singleton Net 1.0 services/Net.qml
+singleton Weather 1.0 services/Weather.qml
+singleton Recorder 1.0 services/Recorder.qml
+Popout 1.0 Popout.qml
+Calendar 1.0 Calendar.qml
+NetGraph 1.0 NetGraph.qml
+ClaudeStrip 1.0 ClaudeStrip.qml
+ClaudeChip 1.0 ClaudeChip.qml
+QuotaChip 1.0 QuotaChip.qml
+singleton Claude 1.0 services/Claude.qml
+MprisChip 1.0 MprisChip.qml
+ChipTip 1.0 ChipTip.qml
+StateDot 1.0 StateDot.qml
+singleton Lucide 1.0 Lucide.qml
+LucideIcon 1.0 LucideIcon.qml
+TrayMenu 1.0 TrayMenu.qml
+ValueText 1.0 ValueText.qml

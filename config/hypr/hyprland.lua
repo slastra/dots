@@ -21,9 +21,14 @@ hl.monitor({
 -----------------
 
 hl.on("hyprland.start", function()
-	hl.exec_cmd("waybar &")
+	-- lastshell (Quickshell) replaced waybar and mako on 2026-08-31; see
+	-- ~/Projects/Quickshell/lastshell. Its two data daemons run standalone:
+	-- tabstrip writes the browser-tab snapshot, claude-status the session
+	-- snapshot (LASTSHELL_STANDALONE disables its die-with-waybar coupling).
+	hl.exec_cmd("env LASTSHELL_NOTIFS=1 qs -c lastshell &")
+	hl.exec_cmd("~/.local/bin/tabstrip daemon &")
+	hl.exec_cmd("env LASTSHELL_STANDALONE=1 ~/.config/waybar/scripts/claude-status.py --daemon &")
 	hl.exec_cmd("hyprglaze &")
-	hl.exec_cmd("mako &")
 	hl.exec_cmd("~/.config/hypr/idle.sh &")
 	-- Clipboard history store. Without this daemon cliphist records nothing and
 	-- the SUPER+V picker comes up empty.
@@ -34,6 +39,12 @@ end)
 -----------------------------
 --- ENVIRONMENT VARIABLES ---
 -----------------------------
+
+-- Qt6 apps need the qt6ct platformtheme plugin; /etc/environment still says
+-- qt5ct (pam-level, needs sudo to fix), which Qt6 cannot load — so every Qt6
+-- app fell back to unthemed Fusion. This override wins for everything
+-- Hyprland spawns. Palette: ~/.config/qt6ct/colors/rose-pine.conf.
+hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
 
 hl.env("XCURSOR_SIZE", "36")
 hl.env("HYPRCURSOR_SIZE", "36")
@@ -259,15 +270,29 @@ hl.window_rule({
 	center = true,
 })
 hl.window_rule({
-	name = "nautilus-float",
-	match = { class = "^(org.gnome.Nautilus)$" },
+	name = "hoja-float",
+	match = { class = "^(hoja)$" },
 	float = true,
 	size = "900 600",
 	center = true,
 })
 hl.window_rule({
+	name = "piper-reader-float",
+	match = { class = "^(us\\.lastra\\.PiperReader)$" },
+	float = true,
+	pin = true, -- follows across workspaces; it reads while you work elsewhere
+	size = "560 500",
+	center = true,
+})
+hl.window_rule({
 	name = "calculator-float",
 	match = { class = "^(org.gnome.Calculator)$" },
+	float = true,
+	center = true,
+})
+hl.window_rule({
+	name = "image-viewer-float",
+	match = { class = "^(feh|swayimg|imv)$" },
 	float = true,
 	center = true,
 })
@@ -288,6 +313,9 @@ hl.window_rule({
 -- window focused. Plain no_focus would go one step further and make it
 -- permanently unclickable, which would stop you from clicking into it to
 -- watch a run by hand.
+-- Sent to workspace 2, and `silent` so the view does not follow it there: a
+-- test run opens and closes one of these every couple of minutes, and each one
+-- would otherwise land on top of whatever is being worked on.
 hl.window_rule({
 	name = "nested-wlroots",
 	match = { class = "^(wlroots)$" },
@@ -295,6 +323,12 @@ hl.window_rule({
 	size = "1400 900",
 	center = true,
 	no_initial_focus = true,
+	workspace = "2 silent",
+	-- Without this the tests stop dead. A window on a workspace that is not
+	-- being looked at gets no frame callbacks, so the nested compositor paints
+	-- nothing, so hoja inside it never renders past its first frame and every
+	-- assertion times out against a listing that is permanently empty.
+	render_unfocused = true,
 })
 
 hl.window_rule({

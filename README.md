@@ -10,112 +10,94 @@ Arch Linux, Hyprland, Wayland, Rosé Pine.
 ## Session
 
 greetd starts tuigreet. tuigreet starts Hyprland.
-`hyprland.lua` then starts four programs.
+`hyprland.lua` then starts the desktop.
 
 | Program | Function |
 |---|---|
-| `waybar` | Two bars. Status on the top. Tabs and Claude chips on the bottom. |
+| `lastshell` | The shell. Two bars, eight modals, notifications. Quickshell. |
+| `tabstrip` | Browser-tab daemon. Feeds the bar strip and the tab switcher. |
+| `claude-status.py` | Claude Code session daemon. Feeds the session chips. |
 | `hyprglaze` | Shader wallpaper daemon. It draws the wallpaper. |
-| `mako` | Notifications. |
 | `idle.sh` | Idle timers. It calls `scripts/tv-screen.sh`. |
 | `wl-paste` | Clipboard watcher. It stores history in `cliphist`. |
 
 Hyprland reads the Lua files. Hyprland reloads the configuration when you save a
 file. Do not run `hyprctl reload`.
 
+## lastshell
+
+`config/quickshell/lastshell` is the shell. Raw Quickshell, no framework.
+
+The bars are tab chips hanging off the screen edges. Four instruments are
+drawn, not fonted: an analog clock (hour hand only), a thermometer, a
+speaker whose arcs grow with volume, and a usage ring. Icons are
+[Lucide](https://lucide.dev); text is ShureTechMono. Nerd-font icon glyphs
+are banned — Qt renders their private-use codepoints wrong.
+
+The modals share one chrome: header with an identity icon and a prompt
+caret, scrolling body with a gliding cursor and gold match highlighting,
+hint footer, animated backdrop mask.
+
+| Bind | Modal |
+|---|---|
+| `SUPER + Space` | Launcher. Open windows first, by focus recency, then apps by frecency. |
+| `SUPER + W` | Tab switcher. Every tab in every browser window, globally. |
+| `SUPER + A` | Audio sink picker. |
+| `SUPER + B` | Wallpaper effect picker. |
+| `SUPER + V` | Clipboard history. |
+| `SUPER + N` | Notification center. |
+| `SUPER + /` | Hotkey sheet, parsed live from `binds.lua`. It cannot drift. |
+| `Print` | Capture menu. Stops a recording instantly if one is running. |
+
+Notifications are lastshell's own server: urgency-washed toasts with a
+countdown ring around the dismiss button, and a history the center reads.
+
+## Daemons
+
+The shell renders; daemons own data. `tabstrip` (Go,
+[repo](https://github.com/slastra/tabstrip)) watches browsers over D-Bus
+and writes a snapshot the shell's FileView watches — the bar strip is
+workspace-filtered, `tabstrip list` is the global view. `claude-status.py`
+(`config/claude/`) watches Claude Code sessions, usage quotas, Hyprland
+focus, and MQTT face state, and writes one JSON snapshot.
+
+## Engines
+
+Two rofi-era scripts survive as backends with the menus stripped off:
+`capture.sh` (grim/slurp/satty screenshots, gpu-screen-recorder capture —
+invoked by subcommand from the capture modal) and `hotkeys.py` (the live
+binds.lua parser behind the hotkey sheet, `--json`).
+
+## The TV
+
+The display is an LG OLED. `scripts/tv-screen.sh` turns the TV itself off
+and on over the LAN instead of using DPMS — a DPMS wake forces an HDMI
+2.1 FRL retrain the NVIDIA driver refuses to retry, which latches the
+desktop at 60 Hz. `scripts/tv-pixel-refresh.sh` runs the panel's pixel
+cleaning nightly by driving the TV's own menus over the remote-control
+API.
+
 ## Layout
 
 ```
 config/
-├── hypr/      hyprland.lua, binds.lua, theme.lua, hyprglaze.toml, idle.sh, scripts/
-├── waybar/    config, style.css, colors.css, scripts/
-├── rofi/      scripts/, themes/
-├── kitty/     kitty.conf, colors.conf
-├── mako/      config, scripts/lamp.sh
-├── nvim/lua/  colors.lua
+├── quickshell/lastshell/   the shell (QML)
+├── hypr/                   hyprland.lua, binds.lua, theme.lua, idle.sh, scripts/
+├── claude/                 claude-status.py
+├── rofi/scripts/           capture.sh, hotkeys.py (engines, menuless)
+├── mako/scripts/           lamp.sh (notification lamp hook)
+├── qt6ct/colors/           rose-pine.conf (Qt palette)
+├── kitty/                  kitty.conf, colors.conf
+├── nvim/lua/               colors.lua
 └── starship.toml
 ```
 
-## rofi
-
-Each script uses the theme with the same name.
-`themes/colors.rasi` and `themes/style.rasi` are shared.
-
-| Key | Script | Function |
-|---|---|---|
-| `SUPER+Space` | | Application launcher. It uses `themes/launcher.rasi`. |
-| `SUPER+W` | `tabs.sh` | Browser tab switcher. |
-| `SUPER+A` | `audio.sh` | PipeWire sink switcher. |
-| `SUPER+B` | `effect.sh` | hyprglaze shader effect. |
-| `SUPER+V` | `clipboard.sh` | Clipboard history. |
-| `SUPER+N` | `notifications.sh` | mako history. |
-| `SUPER+/` | `hotkeys.py` | Hotkey cheatsheet. |
-| `Print` | `capture.sh` | Screenshot or screen record. |
-
-`hotkeys.py` parses `binds.lua` when you press the key. It does not hold a
-second copy of the list, so the cheatsheet cannot go out of date.
-
-## Other keys
-
-`binds.lua` holds all keybinds. These are the ones that call other programs.
-
-| Key | Function |
-|---|---|
-| `SUPER+Return` | Terminal. `kitty`. |
-| `SUPER+E` | File manager. `hoja`. |
-| `SUPER+C` | Colour picker. `hyprpicker`. |
-| `SUPER+O` | Office light. It calls `kasactl.py`. |
-| `SUPER+P` | Phone mirror. It starts or stops `scrcpy`. |
-| `SUPER+D` | Show or hide the scratchpad. |
-| `SUPER+SHIFT+D` | Move the window to the scratchpad. |
-
-This box has no backlight device. There are no brightness keys.
-There is no reload key, because Hyprland reloads the Lua when you save a file.
-
-## Colors
-
-The palette is [Rosé Pine](https://rosepinetheme.com). Edit these files by hand.
-
-| File | Read by |
-|---|---|
-| `hypr/theme.lua` | `hyprland.lua` |
-| `kitty/colors.conf` | `kitty.conf` |
-| `waybar/colors.css` | `style.css` |
-| `rofi/themes/colors.rasi` | all other `.rasi` files |
-| `nvim/lua/colors.lua` | `nvim/init.lua` |
-
-`mako/config` and `starship.toml` contain their own colors.
-
 ## Components
 
-These are separate projects. The desktop uses all of them.
-
-| Project | Function |
-|---|---|
-| [hyprglaze](https://github.com/slastra/hyprglaze) | Shader wallpaper daemon. It draws the wallpaper and the effects. |
-| [hoja](https://github.com/slastra/hoja) | File manager. `SUPER+E` starts it. |
-| [tabctl](https://github.com/slastra/tabctl) | Browser tab control over D-Bus. `tabs.sh` and `tabstrip` need it. |
-| [tabstrip](https://github.com/slastra/tabstrip) | Tab strip for the bottom bar. It owns the favicon cache. |
-
-## Requirements
-
-These files are not in this repository. The desktop needs them.
-
-| Path | Function |
-|---|---|
-| `~/.local/bin/tabstrip` | Bottom tab strip. A package update does not replace it. |
-| `~/.local/bin/waybar` | Patched waybar. A package update does not replace it. |
-
-
-
-Packages: `hyprland hyprglaze-git hyprpicker waybar mako rofi kitty hoja-git
-swayidle wttrbar satty grim slurp gpu-screen-recorder playerctl wireplumber
-cliphist wl-clipboard scrcpy jq tabctl rose-pine-icons`
+- [tabstrip](https://github.com/slastra/tabstrip) — browser-tab daemon
+- [tabctl](https://github.com/slastra/tabctl) — the D-Bus mediator underneath
+- [Rosé Pine](https://rosepinetheme.com) — the palette everywhere
 
 ## License
 
-GPL-3.0. See [LICENSE](LICENSE).
-
-The rofi themes in `config/rofi/themes/` derive from
-[adi1090x/rofi](https://github.com/adi1090x/rofi) by Aditya Shakya, which is
-GPL-3.0. The original author headers are kept in each file.
+MIT
