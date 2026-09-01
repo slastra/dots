@@ -29,6 +29,13 @@ Row {
                     anchors.centerIn: parent
                     width: 18; height: 18
                     source: {
+                        // referencing .applications.values makes this binding
+                        // re-evaluate when the desktop-entry scan lands: the
+                        // taskbar binds at startup, BEFORE the scan finishes,
+                        // and a bare heuristicLookup call gives QML nothing
+                        // notifiable to watch — every icon stayed blank. (The
+                        // launcher never hit this only because it's lazy.)
+                        void DesktopEntries.applications.values
                         const e = DesktopEntries.heuristicLookup(task.modelData.appId)
                         return e?.icon ? Quickshell.iconPath(e.icon, "image-missing") : ""
                     }
