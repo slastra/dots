@@ -7,7 +7,8 @@ VIDEOS_DIR="$HOME/Videos"
 PID_FILE="/tmp/gpu-screen-recorder.pid"
 BORDER_PID_FILE="/tmp/recording-border.pid"
 BORDER_SCRIPT="$HOME/.config/hypr/scripts/recording-border.py"
-MONITOR="HDMI-A-1"
+# the focused output: HDMI-A-1 on the desk, eDP-1 on the laptop
+focused_monitor() { hyprctl monitors -j | jq -r '.[] | select(.focused) | .name'; }
 
 # Rosé Pine colors for slurp
 SLURP_ARGS='-b 191724cc -c eb6f92ff -w 2'
@@ -168,7 +169,7 @@ record_fullscreen() {
         notify-send "Recording" "Already recording!"
         return
     fi
-    start_recording_monitor "$MONITOR"
+    start_recording_monitor "$(focused_monitor)"
 }
 
 record_region() {

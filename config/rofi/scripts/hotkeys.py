@@ -37,6 +37,8 @@ XF86 = {
     "XF86AudioPrev": ("Prev", "Previous track"),
     "XF86AudioPlay": ("Play", "Play or pause"),
     "XF86AudioPause": ("Pause", "Play or pause"),
+    "XF86MonBrightnessUp": ("Bri +", "Brightness up"),
+    "XF86MonBrightnessDown": ("Bri -", "Brightness down"),
     "Print": ("Print", "Screenshot or record"),
 }
 
@@ -73,6 +75,13 @@ EXEC = [
     (r"hyprpicker",             "Pick a colour"),
     (r"kasactl",                "Toggle the office light"),
     (r"scrcpy",                 "Mirror the phone"),
+    (r"float-arrange",          "Gather floating windows"),
+    (r"piper-reader",           "Read selection aloud"),
+    (r"hyprlock",               "Lock screen"),
+    (r"systemctl poweroff",     "Shut down"),
+    (r"systemctl reboot",       "Reboot"),
+    (r"brightnessctl.*%\+",     "Brightness up"),
+    (r"brightnessctl.*%-",      "Brightness down"),
     (r"wpctl set-volume.*%\+",  "Volume up"),
     (r"wpctl set-volume.*%-",   "Volume down"),
     (r"wpctl set-mute.*SOURCE", "Mute microphone"),
