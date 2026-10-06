@@ -18,7 +18,7 @@ greetd starts tuigreet. tuigreet starts Hyprland.
 | `tabstrip` | Browser-tab daemon. Feeds the bar strip and the tab switcher. |
 | `claude-status.py` | Claude Code session daemon. Feeds the session chips. |
 | `hyprglaze` | Shader wallpaper daemon. It draws the wallpaper. |
-| `idle.sh` | Idle timers. It calls `scripts/tv-screen.sh`. |
+| `hypridle` | Idle timers (`hypridle.conf`). They report input to `deskpresence` and run `scripts/tv-watchdog.sh`. |
 | `wl-paste` | Clipboard watcher. It stores history in `cliphist`. |
 
 Hyprland reads the Lua files. Hyprland reloads the configuration when you save a
@@ -27,7 +27,7 @@ file. Do not run `hyprctl reload`.
 ## lastshell
 
 `config/quickshell/lastshell` is the shell (a vendored copy of
-[slastra/lastshell](https://github.com/slastra/lastshell)). Raw Quickshell,
+[slastra/lastshell](https://github.com/slastra/lastshell), last synced at `9026a64`). Raw Quickshell,
 no framework.
 
 The bars are tab chips hanging off the screen edges. Four instruments are
@@ -60,7 +60,7 @@ The shell renders; daemons own data. `tabstrip` (Go,
 [repo](https://github.com/slastra/tabstrip)) watches browsers over D-Bus
 and writes a snapshot the shell's FileView watches. The bar strip is
 workspace-filtered; `tabstrip list` is the global view. `claude-status.py`
-(`config/claude/`) watches Claude Code sessions, usage quotas, Hyprland
+(`config/lastshell/`) watches Claude Code sessions, usage quotas, Hyprland
 focus, and MQTT face state, and writes one JSON snapshot.
 
 ## Engines
@@ -77,7 +77,13 @@ and on over the LAN instead of using DPMS. A DPMS wake forces an HDMI
 2.1 FRL retrain the NVIDIA driver refuses to retry, which latches the
 desktop at 60 Hz. `scripts/tv-pixel-refresh.sh` runs the panel's pixel
 cleaning nightly by driving the TV's own menus over the remote-control
-API.
+API. `scripts/lg-ipctl.py` speaks the TV's encrypted IP-control protocol;
+its key lives in `~/.config/lgtv/ipcontrol.key`, outside this repo.
+
+`deskpresence` (radar presence) owns blanking the TV. `scripts/tv-watchdog.sh`
+is the fallback: if `deskpresence` has died, it blanks the TV after 10
+minutes without input. `scripts/unblank.sh` lifts lastshell's blackout
+shader on input if a crash left it applied.
 
 ## Layout
 

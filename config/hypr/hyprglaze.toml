@@ -1,6 +1,6 @@
 # Effects: particles, windowglow, cellbloom, concentric, fluid, aurora,
 #          starfield, visualizer, milkdrop, glitch, buddy, ai-buddy
-effect = "fluid"
+effect = "amorphous"
 theme = "Rosé Pine"
 
 [transition]
@@ -8,12 +8,15 @@ duration = 0.5
 # Mirror hyprland.lua's `springy` curve (spring params aren't exposed
 # over IPC; direction/duration/bezier curves are auto-detected).
 workspace_spring = "1, 71.2633, 15.8273644"
+# Same spring on window moves/resizes, which hyprglaze replays because
+# Hyprland only reports where a window is going.
+window_spring = "1, 71.2633, 15.8273644"
 
 [cursor]
-smoothing = 0.85
+smoothing = 0.0   # sampled directly each frame; no lag needed
 
 [geometry]
-smoothing = 0.85
+smoothing = 0.0   # window animation is mirrored; no lag needed
 
 [particles]
 count = 100
@@ -25,3 +28,11 @@ scale = 2.0
 sprite = "sprites/buddy.png"
 ai_cooldown = 5.0
 max_calls_per_minute = 6
+
+[amorphous]
+opacity = 1.0
+front = 2   # Rosé Pine pink
+back = 6    # Rosé Pine lavender
+
+[fur]
+length = 60.0   # hair length in px (default 30, up to 200)

@@ -570,8 +570,12 @@ def write_state(face=None):
              "tabs": [tab(s, q, focused, idx, face) for s in shown]}
     # Skip the rewrite when nothing changed (written_at aside): the daemon
     # ticks every 2s and was rewriting both snapshots each time, forcing a
-    # FileView wake in the shell for identical content.
-    fingerprint = json.dumps(state["tabs"], sort_keys=True) + json.dumps(q, sort_keys=True, default=str)
+    # FileView wake in the shell for identical content. q["age"] is a fresh
+    # float every call, so it is left out; the shell only cares whether it
+    # crossed STALE_SECS, and that flip is kept in.
+    q_fp = {k: v for k, v in q.items() if k != "age"}
+    q_fp["stale"] = float(q.get("age") or 0) > STALE_SECS
+    fingerprint = json.dumps(state["tabs"], sort_keys=True) + json.dumps(q_fp, sort_keys=True, default=str)
     if fingerprint == getattr(write_state, "_last", None):
         return gauge(q, len(ses))
     write_state._last = fingerprint

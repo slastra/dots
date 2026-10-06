@@ -1,7 +1,6 @@
 local mod = "SUPER"
 local terminal    = "kitty"
 local fileManager = "hoja"
-local menu        = "rofi -no-config -no-lazy-grab -show combi -modi combi run -show-icons -theme ~/.config/rofi/themes/launcher.rasi"
 
 -- Apps
 hl.bind(mod .. " + Return",     hl.dsp.exec_cmd(terminal))
@@ -42,6 +41,14 @@ hl.bind(mod .. " + H",          hl.dsp.focus({ direction = "left" }))
 hl.bind(mod .. " + L",          hl.dsp.focus({ direction = "right" }))
 hl.bind(mod .. " + K",          hl.dsp.focus({ direction = "up" }))
 hl.bind(mod .. " + J",          hl.dsp.focus({ direction = "down" }))
+
+-- Dwindle split control. Dwindle picks the split axis from the focused
+-- window's shape, so a wide window always gets a neighbour beside it and
+-- fights any attempt to stack. SUPER+U says "the next window opens UNDER
+-- this one" (a one-shot preselect, consumed by the next open); SUPER+SHIFT+U
+-- flips the split the focused window already sits in, for after the fact.
+hl.bind(mod .. " + U",          hl.dsp.layout("preselect d"))
+hl.bind(mod .. " + SHIFT + U",  hl.dsp.layout("togglesplit"))
 
 -- Move window (vim keys)
 hl.bind(mod .. " + SHIFT + H",  hl.dsp.window.move({ direction = "left" }))

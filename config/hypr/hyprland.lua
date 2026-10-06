@@ -13,7 +13,7 @@ hl.monitor({
 	scale = 1.25,
 	bitdepth = 10,
 	cm = "hdredid", -- HDR, luminance ranges from the TV's EDID ("auto" resolved to wide-gamut SDR)
-	sdrbrightness = 1.2, -- lift SDR content a bit against the HDR range; tune to taste
+	sdrbrightness = 1, -- lift SDR content a bit against the HDR range; tune to taste
 })
 
 -----------------
@@ -25,15 +25,25 @@ hl.on("hyprland.start", function()
 	-- ~/Projects/Quickshell/lastshell. Its two data daemons run standalone:
 	-- tabstrip writes the browser-tab snapshot, claude-status the session
 	-- snapshot (LASTSHELL_STANDALONE disables its die-with-waybar coupling).
-	hl.exec_cmd("env LASTSHELL_NOTIFS=1 qs -c lastshell &")
+	hl.exec_cmd("qs -c lastshell &")
 	hl.exec_cmd("~/.local/bin/tabstrip daemon &")
 	hl.exec_cmd("env LASTSHELL_STANDALONE=1 ~/.config/lastshell/claude-status.py --daemon &")
 	hl.exec_cmd("hyprglaze &")
-	hl.exec_cmd("~/.config/hypr/idle.sh &")
 	-- Clipboard history store. Without this daemon cliphist records nothing and
 	-- the SUPER+V picker comes up empty.
 	hl.exec_cmd("wl-paste --watch cliphist store &")
+	-- AI-generated startup jingle (GLM 5.3 Flash via OpenRouter → sclang);
+	-- falls back to ~/.cache/boot-jingle/known-good.scd when offline.
+	hl.exec_cmd("~/.local/bin/boot-jingle &")
 	hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
+	-- Input idle for the TV burn-in guard, after the environment import it
+	-- needs (graphical-session.target is not used here, so the unit's
+	-- WantedBy never fires). Replaced idle.sh/swayidle on 2026-09-27:
+	-- swayidle cannot ignore idle inhibitors. See ~/.config/hypr/hypridle.conf.
+	hl.exec_cmd("systemctl --user restart hypridle.service")
+	-- Polkit agent, same story: its WantedBy=graphical-session.target never
+	-- fires here. 1Password's system-auth unlock (and pkexec etc.) need it.
+	hl.exec_cmd("systemctl --user start hyprpolkitagent.service")
 end)
 
 -----------------------------
@@ -46,6 +56,13 @@ end)
 -- Hyprland spawns. Palette: ~/.config/qt6ct/colors/rose-pine.conf.
 hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
 
+-- Simp1e Rosé Pine (gitlab.com/cursors/simp1e), built into
+-- ~/.local/share/icons with 30/36/40/45/54 px frames for the 1.25 scale.
+-- Xcursor only: hyprcursor finds no manifest and Hyprland falls back to the
+-- Xcursor files, the same ones GTK, Qt and XWayland draw.
+-- Bibata-Modern-RosePine (2026-09-28) is still installed beside it.
+hl.env("XCURSOR_THEME", "Simp1e-Rose-Pine")
+hl.env("HYPRCURSOR_THEME", "Simp1e-Rose-Pine")
 hl.env("XCURSOR_SIZE", "36")
 hl.env("HYPRCURSOR_SIZE", "36")
 hl.env("GDK_SCALE", "2")
@@ -61,10 +78,13 @@ hl.env("MOZ_DISABLE_RDD_SANDBOX", "1")
 
 hl.config({
 	general = {
-		gaps_in = 4,
-		gaps_out = 8,
-		border_size = 2,
-		col = {
+		gaps_in = theme.brutal and 12 or 4,
+		gaps_out = theme.brutal and 20 or 8,
+		border_size = theme.brutal and 4 or 2,
+		col = theme.brutal and {
+			active_border = theme.brutal_active,
+			inactive_border = theme.brutal_inactive,
+		} or {
 			active_border = { colors = { theme.border_1, theme.border_2, theme.border_3 }, angle = 45 },
 			inactive_border = theme.border_inactive,
 		},
@@ -74,14 +94,21 @@ hl.config({
 	},
 
 	decoration = {
-		rounding = 8,
+		rounding = theme.brutal and 0 or 12, -- 12 = libadwaita --window-radius default
 		active_opacity = 1.0,
-		inactive_opacity = 0.99,
+		inactive_opacity = 0.90,
 		dim_inactive = false,
 		dim_strength = 0.4,
-		shadow = { enabled = false },
-		blur = {
+		shadow = theme.brutal and {
 			enabled = true,
+			range = 2,        -- near-hard edge; 0 renders nothing
+			render_power = 1,
+			offset = "8 8",
+			color = theme.brutal_shadow,
+			color_inactive = theme.brutal_shadow_inactive,
+		} or { enabled = false },
+		blur = {
+			enabled = not theme.brutal,
 			size = 5,
 			passes = 4,
 			vibrancy = 0.1696,
@@ -104,7 +131,7 @@ hl.config({
 	misc = {
 		force_default_wallpaper = -1,
 		disable_hyprland_logo = true,
-		vrr = 2, -- VRR on for fullscreen apps only (safest for mixed-content desktop)
+		vrr =  0, -- VRR off: LG OLED gamma/brightness flicker under VRR in fullscreen games (was 2, 2026-09-04)
 		background_color = "rgb(13111e)",
 	},
 
@@ -118,7 +145,7 @@ hl.config({
 		use_shader_blur_blend = true,
 	},
 
-	xwayland = { force_zero_scaling = true },
+xwayland = { force_zero_scaling = true },
 
 	input = {
 		kb_layout = "us",
@@ -171,7 +198,7 @@ hl.animation({ leaf = "fadeLayersOut", enabled = true, speed = 1.5, bezier = "ea
 hl.animation({ leaf = "workspaces", enabled = true, speed = 1.94, spring = "springy", style = "slide" })
 hl.animation({ leaf = "workspacesIn", enabled = true, speed = 1.94, spring = "springy", style = "slide" })
 hl.animation({ leaf = "workspacesOut", enabled = true, speed = 1.94, spring = "springy", style = "slide" })
-hl.animation({ leaf = "borderangle", enabled = true, speed = 30, bezier = "linear", style = "loop" })
+hl.animation({ leaf = "borderangle", enabled = not theme.brutal, speed = 30, bezier = "linear", style = "loop" })
 
 ---------------
 --- GESTURE ---
@@ -240,6 +267,13 @@ hl.window_rule({
 	no_initial_focus = true,
 	no_focus = true,
 	no_anim = true,
+	-- Off-screen from birth: a special workspace nothing ever toggles, so a
+	-- test run never appears, not even for the frame before a move. It still
+	-- needs frame callbacks there or grim/wlrctl inside it hang (same lesson
+	-- as the hoja rule above). `hyprctl dispatch 'hl.dsp.workspace.toggle_special({ name = "harness" })'`
+	-- shows it if you want to watch a run.
+	workspace = "special:harness silent",
+	render_unfocused = true,
 })
 
 -- Picture-in-Picture

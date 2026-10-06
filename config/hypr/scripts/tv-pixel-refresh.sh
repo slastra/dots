@@ -45,6 +45,15 @@ if [[ "$state" == *"'state': 'Active'"* ]]; then
   exit 0
 fi
 
+# Take the same lock tv-screen.sh uses, so a 4am wake and this menu walk can
+# never drive the TV at once. Non-blocking: if the user is waking the TV right
+# now, presence wins and the clean is skipped (as it would have been by the
+# Active guard a second later anyway). Released before the ~20 min watch loop
+# below so it never holds a wake hostage.
+LOCK="${XDG_RUNTIME_DIR:-/tmp}/tv-screen.lock"
+exec 9>"$LOCK"
+flock -n 9 || { log "pixel-clean: skipped - a tv-screen action is in progress"; exit 0; }
+
 log "pixel-clean: waking tv for cleaning run"
 wol "$TV_MAC" >> "$LOG" 2>&1
 for i in $(seq 1 40); do
@@ -102,6 +111,8 @@ if timeout 8 "${LG[@]}" get_power_state 2>/dev/null | grep -q "'Active'"; then
   exit 1
 fi
 log "pixel-clean: started - tv off for ~10 min, will self-power-on"
+
+exec 9>&-  # release the lock: the wait below must not block a user wake
 
 # The clean ends with the TV turning itself ON. Wait for that, then put it
 # back to standby so 4:20am doesn't leave a lit OLED playing to an empty room.
