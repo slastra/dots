@@ -11,9 +11,11 @@ Rectangle {
     required property var notif
 
     readonly property int urgency: notif.urgency ?? 1
-    readonly property color urgencyColor:
-        urgency === 2 ? Theme.love : urgency === 0 ? Theme.foam : Theme.rose
-    readonly property int timeout: 6000
+    readonly property color urgencyColor: body.tone
+    // the sender's expire_timeout when it gave one (2-30 s); 0 and -1 both
+    // fall to the default, since plenty of senders pass 0 unconditionally
+    readonly property int timeout: notif.expireTimeout > 0
+        ? Math.min(30000, Math.max(2000, notif.expireTimeout)) : 6000
     readonly property bool sticky: urgency === 2
 
     width: 380
@@ -22,13 +24,17 @@ Rectangle {
     // surface washed with the urgency tone — enough to read at a glance,
     // faint enough that Rosé Pine still owns the card
     color: Qt.tint(Theme.surface, Qt.alpha(urgencyColor, 0.09))
-    border.color: Qt.tint(Theme.overlay, Qt.alpha(urgencyColor, 0.18))
+    border.color: Qt.tint(Theme.border, Qt.alpha(urgencyColor, 0.18))
     border.width: 2
     clip: true
 
     // Motion is owned by the ListView (add/remove/displaced transitions);
     // the card only decides WHEN to go and asks the stack to remove it.
     signal wantsOut(bool dismissToo)
+    // Body click. The action invoke + window focus + dismiss all happen in
+    // the stable Popups scope: they are async and this delegate is gone
+    // once the toast leaves the stack.
+    signal activated()
 
     Timer {
         id: expiry
@@ -38,13 +44,7 @@ Rectangle {
     }
     HoverHandler { id: hover }
 
-    TapHandler {
-        onTapped: {
-            const def = root.notif.actions?.find(a => a.identifier === "default") ?? root.notif.actions?.[0]
-            if (def) def.invoke()
-            root.wantsOut(true)
-        }
-    }
+    TapHandler { onTapped: root.activated() }
 
     Item { // close, with the countdown as a ring draining around it
         anchors.top: parent.top
@@ -127,38 +127,11 @@ Rectangle {
                         ? n.appIcon : Quickshell.iconPath(n.appIcon, "")
                 }
             }
-            Column {
+            NotifBody {
+                id: body
                 width: headRow.width - (appImage.visible ? appImage.width + headRow.spacing : 0) - 28
-                spacing: 2
-                Row {
-                    spacing: 8
-                    Text {
-                        id: appName
-                        text: root.notif.appName ?? ""
-                        color: Qt.alpha(root.urgencyColor, 0.9)
-                        font.family: Theme.fontFamily; font.pixelSize: 12
-                        visible: text !== ""
-                    }
-                    Text {
-                        anchors.baseline: appName.baseline
-                        text: Qt.formatTime(new Date(), "hh:mm AP")
-                        color: Qt.alpha(Theme.text, 0.35)
-                        font.family: Theme.fontFamily; font.pixelSize: 11
-                    }
-                }
-                Text {
-                    text: root.notif.summary ?? ""
-                    color: Theme.text; font.family: Theme.fontFamily; font.pixelSize: 15
-                    font.bold: true; width: parent.width; elide: Text.ElideRight
-                }
-                Text {
-                    text: root.notif.body ?? ""
-                    color: Qt.alpha(Theme.text, 0.75)
-                    font.family: Theme.fontFamily; font.pixelSize: 13
-                    width: parent.width; wrapMode: Text.Wrap; maximumLineCount: 3
-                    elide: Text.ElideRight; visible: text !== ""
-                    textFormat: Text.StyledText
-                }
+                notif: root.notif
+                time: Qt.formatTime(new Date(), "hh:mm AP")
             }
         }
 
@@ -175,7 +148,7 @@ Rectangle {
                 model: parent.shownActions
                 Rectangle {
                     required property var modelData
-                    width: actionText.implicitWidth + 22; height: 26; radius: 6
+                    width: actionText.implicitWidth + 22; height: 26; radius: Theme.innerRadius
                     color: actionHover.hovered ? Theme.overlay : "transparent"
                     border.color: Qt.alpha(Theme.iris, 0.5)
                     border.width: 1
@@ -187,7 +160,7 @@ Rectangle {
                         text: parent.modelData.text
                         color: Theme.iris; font.family: Theme.fontFamily; font.pixelSize: 12
                     }
-                    TapHandler { onTapped: { parent.modelData.invoke(); root.wantsOut(true) } }
+                    TapHandler { onTapped: { if (root.notif.tracked) parent.modelData.invoke(); root.wantsOut(true) } }
                 }
             }
         }

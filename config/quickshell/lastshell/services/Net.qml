@@ -3,14 +3,15 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 
-// Wired interface state (waybar network with interface enp*): ip + up/down
-// throughput, 5s cadence, with a ring buffer feeding the popout graph.
+// Default-route interface state (wired on the desk, wifi on the laptop): ip +
+// up/down throughput, 5s cadence, with a ring buffer feeding the popout graph.
 Singleton {
     id: root
 
     property string iface: ""
     property string ip: ""
     property bool connected: false
+    property bool wireless: false
     property real rxBps: 0
     property real txBps: 0
     // last 60 samples of [rx, tx] for the graph
@@ -41,23 +42,33 @@ Singleton {
             rxF.reload(); txF.reload(); opF.reload()
             const rx = Number(rxF.text().trim()), tx = Number(txF.text().trim())
             root.connected = opF.text().trim() === "up" && root.ip !== ""
-            if (root._prev) {
-                root.rxBps = Math.max(0, (rx - root._prev.rx) / 5)
-                root.txBps = Math.max(0, (tx - root._prev.tx) / 5)
-                const h = root.history.slice(-59)
-                h.push([root.rxBps, root.txBps])
-                root.history = h
-            }
-            root._prev = { rx: rx, tx: tx }
+            sample(rx, tx)
         } catch (e) { /* interface vanished; next probe re-discovers */ }
+    }
+
+    // one counter reading -> rates against the previous one (5 s apart)
+    function sample(rx, tx) {
+        if (root._prev) {
+            root.rxBps = Math.max(0, (rx - root._prev.rx) / 5)
+            root.txBps = Math.max(0, (tx - root._prev.tx) / 5)
+            const h = root.history.slice(-59)
+            h.push([root.rxBps, root.txBps])
+            root.history = h
+        }
+        root._prev = { rx: rx, tx: tx }
     }
 
     Process {
         id: probe
         command: ["sh", "-c",
-            "for i in /sys/class/net/enp*; do [ -d \"$i\" ] || continue; n=$(basename $i); " +
+            // the default route's device, falling back to the first enp* so
+            // an unplugged desk still names its port
+            "n=$(ip -j route show default | jq -r '.[0].dev // empty'); " +
+            "[ -n \"$n\" ] || { i=$(ls -d /sys/class/net/enp* 2>/dev/null | head -n1); n=${i##*/}; }; " +
+            "[ -n \"$n\" ] || exit 0; i=/sys/class/net/$n; " +
             "ip -j -4 addr show $n | jq -r --arg n \"$n\" '.[0].addr_info[0].local // \"\" | $n+\" \"+.' ; " +
-            "cat $i/statistics/rx_bytes $i/statistics/tx_bytes $i/operstate; break; done"]
+            "cat $i/statistics/rx_bytes $i/statistics/tx_bytes $i/operstate; " +
+            "[ -d $i/wireless ] && echo wireless || echo wired"]
         stdout: StdioCollector {
             onStreamFinished: {
                 const lines = text.trim().split("\n")
@@ -67,14 +78,8 @@ Singleton {
                 root.iface = name
                 root.ip = addr ?? ""
                 root.connected = lines[3] === "up" && !!addr
-                if (root._prev) {
-                    root.rxBps = Math.max(0, (rx - root._prev.rx) / 5)
-                    root.txBps = Math.max(0, (tx - root._prev.tx) / 5)
-                    const h = root.history.slice(-59)
-                    h.push([root.rxBps, root.txBps])
-                    root.history = h
-                }
-                root._prev = { rx: rx, tx: tx }
+                root.wireless = lines[4] === "wireless"
+                root.sample(rx, tx)
             }
         }
     }

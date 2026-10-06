@@ -13,11 +13,7 @@ Chip {
 
     SystemClock { id: clock; precision: SystemClock.Minutes } // display is hh:mm; second-ticks were 86k wasted evals a day
 
-    Row {
-        height: root.height - 2
-        spacing: 9
-        leftPadding: 12
-        rightPadding: 12
+    ChipBody {
 
         ValueText {
             color: Theme.text
@@ -65,8 +61,6 @@ Chip {
 
     Popout {
         owner: root
-        edge: "top"
-        ownerHovered: root.hovered
-        Calendar {}
+        Calendar { today: clock.date }
     }
 }

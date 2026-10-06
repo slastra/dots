@@ -17,12 +17,13 @@ Singleton {
     // follows every 30-min refresh, and Clear flips sun/moon by hour.
     readonly property string icon: {
         const c = (now.condition ?? "").toLowerCase()
-        const night = new Date().getHours() < 6 || new Date().getHours() >= 20
+        const hour = new Date().getHours()
+        const night = hour < 6 || hour >= 20
         if (c.includes("thunder") || c.includes("lightning")) return "cloud-lightning"
         if (c.includes("snow") || c.includes("sleet") || c.includes("blizzard")) return "cloud-snow"
         if (c.includes("drizzle")) return "cloud-drizzle"
         if ((c.includes("rain") || c.includes("shower")) && c.includes("partly"))
-            return (new Date().getHours() < 6 || new Date().getHours() >= 20) ? "cloud-moon-rain" : "cloud-sun-rain"
+            return night ? "cloud-moon-rain" : "cloud-sun-rain"
         if (c.includes("rain") || c.includes("shower")) return "cloud-rain"
         if (c.includes("haze")) return "haze"
         if (c.includes("fog") || c.includes("mist")) return "cloud-fog"

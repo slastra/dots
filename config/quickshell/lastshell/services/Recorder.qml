@@ -12,9 +12,11 @@ Singleton {
 
     property bool recording: false
 
+    // Through capture.sh: it owns the pid file this watches, and its stop
+    // path also clears the border and posts the saved-to notification.
     function stop() {
-        Quickshell.execDetached(["sh", "-c",
-            "pkill -SIGINT -f gpu-screen-recorder; pkill -f recording-border.py"])
+        Quickshell.execDetached(["bash",
+            Quickshell.env("HOME") + "/.config/rofi/scripts/capture.sh", "stop"])
     }
 
     FileView {

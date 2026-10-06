@@ -18,30 +18,8 @@ Overlay {
         focus: true
         Keys.onEscapePressed: root.dismiss()
 
-        Rectangle { // header
-            width: parent.width
-            height: 54
-            topLeftRadius: 6
-            topRightRadius: 6
-            color: Theme.overlay
-
-            Row {
-                anchors.verticalCenter: parent.verticalCenter
-                x: 18
-                spacing: 12
-                LucideIcon {
-                    anchors.verticalCenter: parent.verticalCenter
-                    name: "bell"
-                    font.pixelSize: 18
-                    color: Theme.rose
-                }
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "Notifications"
-                    color: Theme.text; font.family: Theme.fontFamily
-                    font.pixelSize: 16; font.bold: true
-                }
-            }
+        ModalHeader {
+            icon: "bell"; title: "Notifications"; showQuery: false
 
             Rectangle { // clear all
                 visible: root.history.count > 0
@@ -50,7 +28,7 @@ Overlay {
                 anchors.verticalCenter: parent.verticalCenter
                 width: clearRow.implicitWidth + 20
                 height: 28
-                radius: 6
+                radius: Theme.innerRadius
                 color: clearHover.hovered ? Qt.alpha(Theme.love, 0.15) : "transparent"
                 border.color: Qt.alpha(Theme.love, 0.5)
                 border.width: 1
@@ -80,8 +58,6 @@ Overlay {
             }
         }
 
-        Rectangle { width: parent.width; height: 1; color: Qt.alpha("#000000", 0.35) }
-
         ListView { // body
             id: list
             width: parent.width
@@ -105,59 +81,28 @@ Overlay {
                 width: list.width
                 implicitHeight: rowCol.implicitHeight + 20
 
-                readonly property color tone:
-                    notif.urgency === 2 ? Theme.love : notif.urgency === 0 ? Theme.foam : Theme.rose
-
                 Rectangle {
                     anchors.fill: parent
                     color: Qt.alpha(Theme.overlay, 0.6)
                     opacity: rowHover.hovered ? 1 : 0
                     // opacity, not color: fading a fixed fill moves smoothly
                     // between rows where restarting color animations stuttered
-                    Behavior on opacity { NumberAnimation { duration: 100 } }
+                    Behavior on opacity { NumberAnimation { duration: Theme.animDuration } }
                 }
                 HoverHandler { id: rowHover }
 
-                Column {
+                NotifBody {
                     id: rowCol
                     x: 18; y: 10
                     width: parent.width - 60
-                    spacing: 2
-                    Row {
-                        spacing: 8
-                        Text {
-                            id: rowApp
-                            text: row.notif.appName ?? ""
-                            color: Qt.alpha(row.tone, 0.9)
-                            font.family: Theme.fontFamily; font.pixelSize: 11
-                        }
-                        Text {
-                            anchors.baseline: rowApp.baseline
-                            text: row.time
-                            color: Qt.alpha(Theme.text, 0.35)
-                            font.family: Theme.fontFamily; font.pixelSize: 11
-                        }
-                    }
-                    Text {
-                        text: row.notif.summary ?? ""
-                        color: Theme.text; font.family: Theme.fontFamily
-                        font.pixelSize: 14; font.bold: true
-                        width: parent.width; elide: Text.ElideRight
-                    }
-                    Text {
-                        text: row.notif.body ?? ""
-                        color: Qt.alpha(Theme.text, 0.65)
-                        font.family: Theme.fontFamily; font.pixelSize: 12
-                        width: parent.width; wrapMode: Text.Wrap
-                        maximumLineCount: 2; elide: Text.ElideRight
-                        visible: text !== ""
-                        textFormat: Text.StyledText
-                    }
+                    notif: row.notif
+                    time: row.time
+                    compact: true
                 }
 
                 Text { // per-row dismiss — fades rather than popping
                     opacity: rowHover.hovered ? 1 : 0
-                    Behavior on opacity { NumberAnimation { duration: 100 } }
+                    Behavior on opacity { NumberAnimation { duration: Theme.animDuration } }
                     anchors.right: parent.right
                     anchors.rightMargin: 16
                     anchors.verticalCenter: parent.verticalCenter
@@ -194,30 +139,6 @@ Overlay {
             }
         }
 
-        Rectangle { width: parent.width; height: 1; color: Qt.alpha("#000000", 0.35) }
-
-        Rectangle { // footer
-            width: parent.width
-            height: 30
-            bottomLeftRadius: 6
-            bottomRightRadius: 6
-            color: Qt.alpha(Theme.overlay, 0.55)
-            Text {
-                anchors.left: parent.left
-                anchors.leftMargin: 18
-                anchors.verticalCenter: parent.verticalCenter
-                text: "esc close"
-                color: Qt.alpha(Theme.iris, 0.55)
-                font.family: Theme.fontFamily; font.pixelSize: 12
-            }
-            Text {
-                anchors.right: parent.right
-                anchors.rightMargin: 18
-                anchors.verticalCenter: parent.verticalCenter
-                text: `${root.history.count}`
-                color: Qt.alpha(Theme.text, 0.4)
-                font.family: Theme.fontFamily; font.pixelSize: 12
-            }
-        }
+        ModalFooter { hint: "esc close"; count: `${root.history.count}` }
     }
 }

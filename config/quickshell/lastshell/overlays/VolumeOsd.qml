@@ -1,5 +1,4 @@
 import Quickshell
-import Quickshell.Services.Pipewire
 import Quickshell.Wayland
 import QtQuick
 import ".."  // root module: Theme and friends
@@ -10,14 +9,11 @@ import ".."  // root module: Theme and friends
 PanelWindow {
     id: root
 
-    readonly property PwNode sink: Pipewire.defaultAudioSink
-    PwObjectTracker { objects: [root.sink] }
-
     property bool shown: false
     property bool armed: false  // suppress the startup ghost while props populate
 
-    readonly property real vol: sink?.audio?.volume ?? 0
-    readonly property bool muted: sink?.audio?.muted ?? false
+    readonly property real vol: Audio.vol
+    readonly property bool muted: Audio.muted
 
     onVolChanged: ping()
     onMutedChanged: ping()
@@ -40,12 +36,9 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     mask: Region {} // click-through, always
 
-    Rectangle {
+    Card {
         id: pill
-        width: 280; height: 44; radius: 10
-        color: Theme.surface
-        border.color: Theme.overlay
-        border.width: 2
+        width: 280; height: 44
         opacity: root.shown ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 150 } }
 
@@ -58,16 +51,11 @@ PanelWindow {
                 color: root.muted ? Theme.love : Theme.text
                 text: root.muted ? "󰝟" : root.vol < 0.34 ? "󰕿" : root.vol < 0.67 ? "󰖀" : "󰕾"
             }
-            Rectangle {
+            SliderTrack {
                 anchors.verticalCenter: parent.verticalCenter
-                width: 170; height: 8; radius: 4
-                color: Theme.overlay
-                Rectangle {
-                    width: parent.width * Math.min(1, root.vol)
-                    height: parent.height; radius: 4
-                    color: root.muted ? Theme.love : Theme.pine
-                    Behavior on width { NumberAnimation { duration: 80 } }
-                }
+                width: 170
+                frac: root.vol
+                fill: root.muted ? Theme.love : Theme.pine
             }
             Text {
                 anchors.verticalCenter: parent.verticalCenter

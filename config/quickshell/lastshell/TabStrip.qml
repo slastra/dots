@@ -5,10 +5,10 @@ import QtQuick
 // Browser tab strip content (bottom bar, left). Pure view: tabstrip (the Go
 // daemon) owns discovery, favicon fetch/processing, and ordering; this
 // renders its snapshot and sends clicks back through the same CLI.
-Row {
+ChipRow {
     id: root
 
-    property var tabs: []
+    SyncedList { id: tabs }
     spacing: 8
 
     FileView {
@@ -18,23 +18,51 @@ Row {
         onLoaded: parse()
         function parse() {
             try {
-                root.tabs = JSON.parse(text()).tabs ?? []
+                tabs.sync(JSON.parse(text()).tabs ?? [], "id")
             } catch (e) {
                 // mid-write read; the rename lands momentarily
             }
         }
     }
 
+    // Leading static chip: a plus, click for a new default-browser
+    // window. Sits ahead of the tabs so it never moves as they come and go.
+    Chip {
+        id: newWin
+        edge: "bottom"
+        contentPadding: 0   // fixed-width icon slot
+        anchors.bottom: parent.bottom
+        onClicked: Quickshell.execDetached(["firefox", "--new-window"])
+
+        Item {
+            implicitWidth: 34
+            height: newWin.height - 2
+            LucideIcon {
+                anchors.centerIn: parent
+                name: "plus"
+                font.pixelSize: 16
+                color: Theme.text
+            }
+        }
+        ChipTip {
+            owner: newWin
+            text: "New Firefox window"
+        }
+    }
+
     Repeater {
-        model: root.tabs
+        model: tabs.model
 
         Chip {
             id: chip
-            required property var modelData
+            required property var item
+            required property bool gone
             required property int index
+            present: !gone
 
             edge: "bottom"
-            active: modelData.active
+            contentPadding: 0   // fixed-width icon slot
+            active: item.active
             anchors.bottom: parent.bottom
 
             onClicked: Quickshell.execDetached(
@@ -46,25 +74,13 @@ Row {
             onWheelDown: Quickshell.execDetached(
                 [Quickshell.env("HOME") + "/.local/bin/tabstrip", "prev"])
 
-            Item {
-                implicitWidth: 34
-                height: chip.height - 2
-                Image {
-                    anchors.centerIn: parent
-                    width: 18; height: 18
-                    source: "file://" + chip.modelData.icon
-                    sourceSize: Qt.size(36, 36) // decode above device pixels
-                    smooth: true
-                    // brightness is baked into the chip the daemon picked
-                    // (bright vs -dim.png, by window focus) — don't re-dim
-                }
-            }
+            // brightness is baked into the chip the daemon picked (bright vs
+            // -dim.png, by window focus) — don't re-dim
+            IconChipBody { source: "file://" + chip.item.icon }
 
             ChipTip {
                 owner: chip
-                edge: "bottom"
-                ownerHovered: chip.hovered
-                text: chip.modelData.label ?? ""
+                text: chip.item.label ?? ""
             }
         }
     }

@@ -1,6 +1,6 @@
 import QtQuick
 
-// The bottom bar: browser tabs left, (mpris + claude strip to come) right.
+// The bottom bar: browser tabs left, claude strip centre, mpris + volume right.
 // One window, one exclusive zone — content items only below here.
 BarWindow {
     anchors.bottom: true
@@ -13,12 +13,20 @@ BarWindow {
 
     ClaudeStrip {
         anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
+        // positioned by binding, not anchor, so a width change (a chip
+        // coming or going) glides the whole strip instead of jumping it
+        x: Math.round((parent.width - width) / 2)
+        Behavior on x { NumberAnimation { duration: Theme.slideDuration; easing.type: Easing.OutCubic } }
     }
 
-    MprisChip {
+    ChipRow {
         anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        anchors.rightMargin: 8
+        // positioned by binding, not anchor, so a width change (a chip
+        // coming or going) glides the whole strip instead of jumping it
+        x: parent.width - width - 8
+        Behavior on x { NumberAnimation { duration: Theme.slideDuration; easing.type: Easing.OutCubic } }
+        spacing: 8
+        MprisChip {}
+        VolumeChip {}
     }
 }

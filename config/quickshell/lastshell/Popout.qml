@@ -4,13 +4,13 @@ import QtQuick
 // Hover popout attached to a chip: a floating card just off the bar edge.
 // Shows while the chip OR the card is hovered, with a grace timer so the
 // pointer can travel across the gap. Never QtQuick ToolTip — that renders
-// inside the 26px bar window and clips.
+// inside the bar window and clips.
 PopupWindow {
     id: root
 
-    required property Item owner   // the chip
-    property string edge: "top"    // which bar the owner lives on
-    property bool ownerHovered: false
+    required property Chip owner          // the chip; edge and hover follow it
+    property string edge: owner.edge
+    property bool ownerHovered: owner.hovered
     default property alias content: inner.data
 
     readonly property bool shouldShow: ownerHovered || cardHover.hovered
@@ -32,20 +32,16 @@ PopupWindow {
     }
     Timer {
         id: hideTimer
-        interval: 250
+        interval: Theme.popoutGrace
         onTriggered: if (!root.shouldShow) card.open = false
     }
 
-    Rectangle {
+    Card {
         id: card
         property bool open: false
         anchors.centerIn: parent
         implicitWidth: inner.childrenRect.width + 24
         implicitHeight: inner.childrenRect.height + 24
-        radius: Theme.overlayRadius
-        color: Theme.surface
-        border.color: Theme.overlay
-        border.width: 2
 
         opacity: open ? 1 : 0
         scale: open ? 1 : 0.96

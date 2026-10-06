@@ -1,5 +1,4 @@
 import Quickshell
-import Quickshell.Io
 import QtQuick
 import ".."  // root module: Theme and friends
 
@@ -16,28 +15,21 @@ SearchOverlay {
 
     onOpenChanged: if (open) lister.running = true
 
-    Process {
+    JsonProcess {
         id: lister
         command: [Quickshell.env("HOME") + "/.local/bin/tabstrip", "list"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try { root.raw = JSON.parse(text) } catch (e) { root.raw = [] }
-            }
-        }
+        onResult: tabs => root.raw = tabs
     }
 
     // Action rows: open a fresh window per known browser. Tiny negative
     // weight sorts them under real tabs on an empty query.
-    readonly property var browsers: [
-        { name: "Firefox", cmd: ["firefox", "--new-window"] },
-        { name: "Chrome",  cmd: ["google-chrome-stable", "--new-window"] },
-    ]
+    readonly property var browsers: Browsers.newWindow
 
     items: raw.map(t => ({
             key: t.id,
             label: t.title,
             sublabel: t.browser,
-            iconSource: "file://" + t.icon,
+            iconSource: t.icon ? "file://" + t.icon : "",
             current: t.active,
         }))
         .concat(browsers.map(b => ({

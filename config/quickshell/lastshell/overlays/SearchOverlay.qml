@@ -19,14 +19,27 @@ Overlay {
     contentPadding: 2  // sections run full-bleed inside the card border
     readonly property int rowH: 40
 
+    // Order: tier, then match band (Fuzzy.band), then the caller's weight
+    // (usage/recency), then fuzzy score, then label for a stable list.
+    // An item's optional `tier` lifts it above every lower tier, but only
+    // while a word in its text starts with the query (band 3+): a loose
+    // hit in a long title ("fire" across "linkify-…-firmware", any lone
+    // letter mid-word) is noise and has to compete like everything else.
     readonly property var filtered: {
         const out = []
         for (const it of items) {
             const m = Fuzzy.match(query, it.label + " " + (it.sublabel ?? ""))
-            if (m.score > 0)
-                out.push(Object.assign({ _score: m.score, _idx: m.idx }, it))
+            if (m.score > 0) {
+                const band = Fuzzy.band(query, it.label, it.sublabel)
+                out.push(Object.assign({
+                    _score: m.score, _idx: m.idx, _band: band,
+                    _tier: it.tier && band >= 3 ? it.tier : 0,
+                }, it))
+            }
         }
-        out.sort((a, b) => b._score - a._score || (b.weight ?? 0) - (a.weight ?? 0))
+        out.sort((a, b) => b._tier - a._tier || b._band - a._band
+            || (b.weight ?? 0) - (a.weight ?? 0) || b._score - a._score
+            || a.label.localeCompare(b.label))
         return out   // no truncation — the list scrolls
     }
     property int cursor: 0
@@ -59,58 +72,7 @@ Overlay {
             event.accepted = true
         }
 
-        Rectangle { // ── header: identity + input
-            width: parent.width
-            height: 54
-            topLeftRadius: 6
-            topRightRadius: 6
-            color: Theme.overlay
-
-            Row {
-                anchors.verticalCenter: parent.verticalCenter
-                x: 18
-                spacing: 12
-
-                LucideIcon {
-                    anchors.verticalCenter: parent.verticalCenter
-                    name: root.typeIcon
-                    font.pixelSize: 18
-                    color: Theme.rose
-                }
-
-                LucideIcon { // chevron leads from identity into the input
-                    anchors.verticalCenter: parent.verticalCenter
-                    name: "chevron-right"
-                    font.pixelSize: 14
-                    color: Qt.alpha(Theme.text, 0.35)
-                }
-
-                Row { // text + caret hug (outer Row spacing pushed the caret away)
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 2
-
-                    Text {
-                        anchors.verticalCenter: parent.verticalCenter
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 17
-                        color: Theme.text
-                        text: root.query
-                    }
-
-                    Rectangle { // caret: rides the query's right edge
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: 2; height: 22; color: Theme.rose
-                        SequentialAnimation on opacity {
-                            running: root.open; loops: Animation.Infinite
-                            NumberAnimation { to: 0; duration: 500 }
-                            NumberAnimation { to: 1; duration: 500 }
-                        }
-                    }
-                }
-            }
-        }
-
-        Rectangle { width: parent.width; height: 1; color: Qt.alpha("#000000", 0.35) }
+        ModalHeader { icon: root.typeIcon; query: root.query; active: root.open }
 
         Item { // ── body: a real ListView — wheel scrolls, cursor follows,
                //    the rose outline is the view's own gliding highlight
@@ -130,7 +92,7 @@ Overlay {
                 boundsBehavior: Flickable.StopAtBounds
 
                 highlight: Rectangle {
-                    radius: 6
+                    radius: Theme.innerRadius
                     color: Theme.overlay
                     border.width: 2
                     border.color: Qt.alpha(Theme.rose, 0.8)
@@ -225,31 +187,9 @@ Overlay {
             }
         }
 
-        Rectangle { width: parent.width; height: 1; color: Qt.alpha("#000000", 0.35) }
-
-        Rectangle { // ── footer: hints + count
-            width: parent.width
-            height: 32
-            bottomLeftRadius: 6
-            bottomRightRadius: 6
-            color: Qt.alpha(Theme.overlay, 0.55)
-
-            Text {
-                anchors.left: parent.left
-                anchors.leftMargin: 18
-                anchors.verticalCenter: parent.verticalCenter
-                text: "↑↓ navigate   ↵ open   esc close"
-                color: Qt.alpha(Theme.iris, 0.55)
-                font.family: Theme.fontFamily; font.pixelSize: 12
-            }
-            Text {
-                anchors.right: parent.right
-                anchors.rightMargin: 18
-                anchors.verticalCenter: parent.verticalCenter
-                text: root.query === "" ? `${root.items.length}` : `${root.filtered.length}/${root.items.length}`
-                color: Qt.alpha(Theme.text, 0.4)
-                font.family: Theme.fontFamily; font.pixelSize: 12
-            }
+        ModalFooter {
+            hint: "↑↓ navigate   ↵ open   esc close"
+            count: root.query === "" ? `${root.items.length}` : `${root.filtered.length}/${root.items.length}`
         }
     }
 }

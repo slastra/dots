@@ -1,11 +1,18 @@
 Overlay 1.0 Overlay.qml
 SearchOverlay 1.0 SearchOverlay.qml
+QueryInput 1.0 QueryInput.qml
+ModalHeader 1.0 ModalHeader.qml
+ModalFooter 1.0 ModalFooter.qml
 TabSwitcher 1.0 TabSwitcher.qml
 Overlays 1.0 Overlays.qml
 VolumeOsd 1.0 VolumeOsd.qml
+BrightnessOsd 1.0 BrightnessOsd.qml
 Launcher 1.0 Launcher.qml
 singleton Frecency 1.0 Frecency.qml
 NotificationToast 1.0 NotificationToast.qml
+NotifBody 1.0 NotifBody.qml
+JsonProcess 1.0 JsonProcess.qml
+singleton Browsers 1.0 Browsers.qml
 NotificationPopups 1.0 NotificationPopups.qml
 AudioPicker 1.0 AudioPicker.qml
 EffectPicker 1.0 EffectPicker.qml
@@ -13,3 +20,4 @@ ClipboardPicker 1.0 ClipboardPicker.qml
 NotificationCenter 1.0 NotificationCenter.qml
 CapturePicker 1.0 CapturePicker.qml
 HotkeySheet 1.0 HotkeySheet.qml
+DimOverlay 1.0 DimOverlay.qml

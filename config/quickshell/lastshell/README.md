@@ -67,7 +67,15 @@ daemons, and the engine scripts, lives in
 
 `scripts/test-harness.sh` runs the shell inside a nested Hyprland so
 development never touches the session you are sitting in. grim, wtype,
-and wlrctl all scope to the nested compositor.
+and wlrctl all scope to the nested compositor. The nested output is
+painted black so screenshots diff cleanly between runs, and
+`LASTSHELL_PATH=<checkout>` runs another tree (a `git worktree` at an
+older commit) for a before/after baseline.
+
+On the host, give the `aquamarine` window class a rule with
+`workspace = "special:harness silent"` and `render_unfocused = true`:
+the first keeps a run off your screen entirely, the second keeps the
+frame callbacks flowing so grim and wlrctl inside it do not hang.
 
 ## License
 

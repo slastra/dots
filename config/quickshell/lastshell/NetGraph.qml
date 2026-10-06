@@ -1,10 +1,12 @@
 import QtQuick
 
-// Throughput sparkline over Net.history: rx foam, tx iris, log-ish scale.
-Canvas {
+// Throughput sparkline over Net.history: rx foam, tx iris. Peak-relative
+// sqrt scale rather than the fixed one the base offers, so a quiet link
+// still shows its shape.
+Sparkline {
     id: canvas
 
-    Connections { target: Net; function onHistoryChanged() { canvas.requestPaint() } }
+    Connections { target: Net; function onHistoryChanged() { canvas.repaint() } }
 
     onPaint: {
         const ctx = getContext("2d")
@@ -17,7 +19,7 @@ Canvas {
             ctx.lineWidth = 1.5
             ctx.beginPath()
             h.forEach((s, i) => {
-                const x = i / (h.length - 1) * width
+                const x = xFor(i, h.length)
                 const y = height - Math.pow(s[ch] / peak, 0.5) * (height - 2) - 1
                 i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
             })

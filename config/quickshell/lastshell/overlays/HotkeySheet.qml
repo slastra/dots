@@ -1,5 +1,4 @@
 import Quickshell
-import Quickshell.Io
 import QtQuick
 import ".."  // root module
 
@@ -20,29 +19,21 @@ Overlay {
         if (open) { query = ""; loader.running = true }
     }
 
-    Process {
+    JsonProcess {
         id: loader
         command: ["python3", Quickshell.env("HOME") + "/.config/rofi/scripts/hotkeys.py", "--json"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try { root.sections = JSON.parse(text) } catch (e) { root.sections = [] }
-            }
-        }
+        onResult: sections => root.sections = sections
     }
 
-    readonly property var filtered: {
-        if (query === "") return sections
-        const q = query.toLowerCase()
-        const out = []
-        for (const sec of sections) {
-            const rows = sec.rows.filter(r =>
-                (r.key + " " + r.desc + " " + sec.section).toLowerCase().includes(q))
-            if (rows.length > 0)
-                out.push({ section: sec.section, rows: rows })
-        }
-        return out
+    // Filtering hides rows rather than rebuilding them: the model stays
+    // fixed, so a keystroke toggles `visible` on ~300 existing delegates
+    // instead of tearing them down (Column and Flow skip hidden children).
+    readonly property string q: query.toLowerCase()
+    function hit(row, section) {
+        return q === "" || (row.key + " " + row.desc + " " + section).toLowerCase().includes(q)
     }
-    readonly property int shownCount: filtered.reduce((n, s) => n + s.rows.length, 0)
+    readonly property int shownCount: sections.reduce((n, s) =>
+        n + s.rows.reduce((m, r) => m + (hit(r, s.section) ? 1 : 0), 0), 0)
 
     Column {
         width: parent.width
@@ -60,55 +51,7 @@ Overlay {
             event.accepted = true
         }
 
-        Rectangle { // header
-            width: parent.width
-            height: 54
-            topLeftRadius: 6
-            topRightRadius: 6
-            color: Theme.overlay
-
-            Row {
-                anchors.verticalCenter: parent.verticalCenter
-                x: 18
-                spacing: 12
-                LucideIcon {
-                    anchors.verticalCenter: parent.verticalCenter
-                    name: "keyboard"; font.pixelSize: 18; color: Theme.rose
-                }
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "Hotkeys"
-                    color: Theme.text; font.family: Theme.fontFamily
-                    font.pixelSize: 16; font.bold: true
-                }
-                LucideIcon {
-                    anchors.verticalCenter: parent.verticalCenter
-                    name: "chevron-right"; font.pixelSize: 14
-                    color: Qt.alpha(Theme.text, 0.35)
-                }
-                Row {
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 2
-                    Text {
-                        anchors.verticalCenter: parent.verticalCenter
-                        font.family: Theme.fontFamily; font.pixelSize: 16
-                        color: Theme.text
-                        text: root.query
-                    }
-                    Rectangle {
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: 2; height: 20; color: Theme.rose
-                        SequentialAnimation on opacity {
-                            running: root.open; loops: Animation.Infinite
-                            NumberAnimation { to: 0; duration: 500 }
-                            NumberAnimation { to: 1; duration: 500 }
-                        }
-                    }
-                }
-            }
-        }
-
-        Rectangle { width: parent.width; height: 1; color: Qt.alpha("#000000", 0.35) }
+        ModalHeader { icon: "keyboard"; title: "Hotkeys"; query: root.query; active: root.open }
 
         Flow { // body: sections flow into columns
             width: parent.width - 36
@@ -118,10 +61,13 @@ Overlay {
             spacing: 26
 
             Repeater {
-                model: root.filtered
+                model: root.sections
 
                 Column {
+                    id: section
                     required property var modelData
+                    readonly property int hits: modelData.rows.reduce((m, r) => m + (root.hit(r, modelData.section) ? 1 : 0), 0)
+                    visible: hits > 0
                     width: 356
                     spacing: 3
 
@@ -134,10 +80,11 @@ Overlay {
                     }
 
                     Repeater {
-                        model: parent.modelData.rows
+                        model: section.modelData.rows
                         Item {
                             id: bindRow
                             required property var modelData
+                            visible: root.hit(modelData, section.modelData.section)
                             width: 356; height: 26
                             // one block per key, joined by quiet "+" glue —
                             // "SUPER + SHIFT + C" reads as three caps
@@ -162,7 +109,7 @@ Overlay {
                                         }
                                         Rectangle { // keycap
                                             width: capText.implicitWidth + 14
-                                            height: 21; radius: 5
+                                            height: 21; radius: Theme.innerRadius
                                             anchors.verticalCenter: parent.verticalCenter
                                             color: Theme.overlay
                                             border.color: Qt.alpha(Theme.rose, 0.35)
@@ -194,30 +141,6 @@ Overlay {
             }
         }
 
-        Rectangle { width: parent.width; height: 1; color: Qt.alpha("#000000", 0.35) }
-
-        Rectangle { // footer
-            width: parent.width
-            height: 30
-            bottomLeftRadius: 6
-            bottomRightRadius: 6
-            color: Qt.alpha(Theme.overlay, 0.55)
-            Text {
-                anchors.left: parent.left
-                anchors.leftMargin: 18
-                anchors.verticalCenter: parent.verticalCenter
-                text: "type to filter   esc close"
-                color: Qt.alpha(Theme.iris, 0.55)
-                font.family: Theme.fontFamily; font.pixelSize: 12
-            }
-            Text {
-                anchors.right: parent.right
-                anchors.rightMargin: 18
-                anchors.verticalCenter: parent.verticalCenter
-                text: `${root.shownCount} binds`
-                color: Qt.alpha(Theme.text, 0.4)
-                font.family: Theme.fontFamily; font.pixelSize: 12
-            }
-        }
+        ModalFooter { hint: "type to filter   esc close"; count: `${root.shownCount} binds` }
     }
 }

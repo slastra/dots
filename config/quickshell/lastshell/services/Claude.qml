@@ -2,6 +2,7 @@ pragma Singleton
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import ".."
 
 // Claude Code session state, from the slimmed claude-status.py daemon's
 // snapshot. The daemon owns liveness, MQTT face state, quota parsing and
@@ -9,7 +10,8 @@ import QtQuick
 Singleton {
     id: root
 
-    property var sessions: []
+    // keyed so a changed snapshot only touches the sessions that came or went
+    readonly property SyncedList sessions: SyncedList {}
     property var quota: ({ frames: [], worstPct: 0, stale: false })
 
     FileView {
@@ -20,7 +22,7 @@ Singleton {
         function parse() {
             try {
                 const j = JSON.parse(text())
-                root.sessions = j.sessions ?? []
+                root.sessions.sync(j.sessions ?? [], "pid")
                 root.quota = j.quota ?? { frames: [], worstPct: 0, stale: false }
             } catch (e) { /* mid-write */ }
         }

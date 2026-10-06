@@ -2,73 +2,47 @@ import QtQuick
 
 // The foam-family stat cluster: network, cpu, temp, disk, memory, recording,
 // weather — thin views over the polled singletons, waybar thresholds kept.
-Row {
+ChipRow {
     spacing: 8
 
-    Chip {
+    StatChip {
         id: net
         edge: "top"
-        visible: true
+        tone: Net.connected ? Theme.foam : Theme.love
+        value: Net.connected ? Net.ip : "Disconnected"
+        icon: Net.wireless ? (Net.connected ? "wifi" : "wifi-off")
+            : Net.connected ? "ethernet-port" : "unplug"
 
         Popout {
+            id: netPop
             owner: net
-            edge: "top"
-            ownerHovered: net.hovered
             Column {
                 spacing: 6
-                Text {
+                PopText {
                     text: `${Net.iface}: ${Net.ip}`
-                    color: Theme.text; font.family: Theme.fontFamily; font.pixelSize: 14
+                    size: 14
                 }
-                Text {
+                PopText {
                     function fmt(b) {
                         return b > 1e6 ? `${(b / 1e6).toFixed(1)} MB/s`
                              : b > 1e3 ? `${(b / 1e3).toFixed(0)} kB/s` : `${b.toFixed(0)} B/s`
                     }
                     text: `↓ ${fmt(Net.rxBps)}   ↑ ${fmt(Net.txBps)}`
-                    color: Theme.foam; font.family: Theme.fontFamily; font.pixelSize: 14
+                    color: Theme.foam; size: 14
                 }
-                NetGraph { width: 240; height: 60 }
-            }
-        }
-
-        Row {
-            height: net.height - 2
-            spacing: 8
-            leftPadding: 12
-            rightPadding: 12
-            ValueText {
-                color: Net.connected ? Theme.foam : Theme.love
-                text: Net.connected ? Net.ip : "Disconnected"
-            }
-            LucideIcon {
-                anchors.verticalCenter: parent.verticalCenter
-                name: Net.connected ? "ethernet-port" : "unplug"
-                color: Net.connected ? Theme.foam : Theme.love
+                NetGraph { width: 240; height: 60; live: netPop.visible }
             }
         }
     }
 
-    Chip {
+    StatChip {
         id: cpu
         edge: "top"
-        Row {
-            height: cpu.height - 2
-            spacing: 8
-            leftPadding: 12
-            rightPadding: 12
-            ValueText {
-                color: Theme.level(SysStat.cpuPct, 25, 50)
-                text: `${SysStat.cpuPct}%`
-            }
-            LucideIcon {
-                anchors.verticalCenter: parent.verticalCenter
-                name: "cpu"
-                color: Theme.level(SysStat.cpuPct, 25, 50)
-            }
-        }
+        tone: Theme.level(SysStat.cpuPct, 25, 50)
+        value: `${SysStat.cpuPct}%`
+        icon: "cpu"
         ChipTip {
-            owner: cpu; edge: "top"; ownerHovered: cpu.hovered
+            owner: cpu
             text: `CPU ${SysStat.cpuPct}%\nload ${SysStat.loadAvg}`
         }
     }
@@ -77,12 +51,7 @@ Row {
         id: temp
         edge: "top"
 
-        Row {
-            height: temp.height - 2
-            spacing: 8
-            leftPadding: 12
-            rightPadding: 12
-
+        ChipBody {
             ValueText {
                 color: Theme.level(SysStat.tempC, 70, 80)
                 text: `${SysStat.tempC}°C`
@@ -127,56 +96,56 @@ Row {
             }
         }
 
-        ChipTip {
-            owner: temp; edge: "top"; ownerHovered: temp.hovered
-            text: `package temperature ${SysStat.tempC}°C\nwarning 70°C · critical 80°C`
+        Popout {
+            id: tempPop
+            owner: temp
+            Column {
+                spacing: 6
+                Row {
+                    spacing: 8
+                    PopText {
+                        text: "package temperature"
+                        size: 14
+                    }
+                    PopText {
+                        text: `${SysStat.tempC}°C`
+                        color: Theme.level(SysStat.tempC, 70, 80)
+                        size: 14
+                    }
+                }
+                PopText {
+                    readonly property var h: SysStat.tempHistory
+                    text: h.length > 1
+                        ? `5 min: low ${Math.min(...h)}°  ·  high ${Math.max(...h)}°`
+                        : "collecting…"
+                    dim: 0.6
+                    size: 12
+                }
+                TempGraph { width: 240; height: 60; live: tempPop.visible }
+            }
         }
     }
 
-    Chip {
+    StatChip {
         id: disk
         edge: "top"
-        Row {
-            height: disk.height - 2
-            spacing: 8
-            leftPadding: 12
-            rightPadding: 12
-            ValueText {
-                color: Theme.level(SysStat.diskPct, 70, 90)
-                text: `${SysStat.diskPct}%`
-            }
-            LucideIcon {
-                anchors.verticalCenter: parent.verticalCenter
-                name: "hard-drive"
-                color: Theme.level(SysStat.diskPct, 70, 90)
-            }
-        }
+        tone: Theme.level(SysStat.diskPct, 70, 90)
+        value: `${SysStat.diskPct}%`
+        icon: "hard-drive"
         ChipTip {
-            owner: disk; edge: "top"; ownerHovered: disk.hovered
+            owner: disk
             text: `/ — ${SysStat.diskUsed} of ${SysStat.diskTotal} used`
         }
     }
 
-    Chip {
+    StatChip {
         id: mem
         edge: "top"
-        Row {
-            height: mem.height - 2
-            spacing: 8
-            leftPadding: 12
-            rightPadding: 12
-            ValueText {
-                color: Theme.level(SysStat.memPct, 50, 75)
-                text: `${SysStat.memPct}%`
-            }
-            LucideIcon {
-                anchors.verticalCenter: parent.verticalCenter
-                name: "memory-stick"
-                color: Theme.level(SysStat.memPct, 50, 75)
-            }
-        }
+        tone: Theme.level(SysStat.memPct, 50, 75)
+        value: `${SysStat.memPct}%`
+        icon: "memory-stick"
         ChipTip {
-            owner: mem; edge: "top"; ownerHovered: mem.hovered
+            owner: mem
             text: `${SysStat.memUsedGiB.toFixed(1)} / ${SysStat.memTotalGiB.toFixed(1)} GiB`
         }
     }
@@ -184,14 +153,10 @@ Row {
     Chip {
         id: rec
         edge: "top"
-        visible: Recorder.recording
+        present: Recorder.recording
         onClicked: Recorder.stop()
-        Row {
+        ChipBody {
             id: recRow
-            height: rec.height - 2
-            spacing: 8
-            leftPadding: 12
-            rightPadding: 12
             LucideIcon {
                 anchors.verticalCenter: parent.verticalCenter
                 name: "circle-dot"
@@ -204,79 +169,63 @@ Row {
             SequentialAnimation on opacity {
                 running: Recorder.recording
                 loops: Animation.Infinite
-                NumberAnimation { to: 0.5; duration: 500 }
-                NumberAnimation { to: 1.0; duration: 500 }
+                NumberAnimation { to: 0.5; duration: Theme.blinkDuration }
+                NumberAnimation { to: 1.0; duration: Theme.blinkDuration }
             }
         }
     }
 
-    Chip {
+    StatChip {
         id: weather
         edge: "top"
-        visible: Weather.text !== ""
+        tone: Theme.foam
+        value: `${Weather.now.temp ?? "?"}°F`
+        icon: Weather.icon
+        present: Weather.text !== ""
 
         Popout {
             owner: weather
-            edge: "top"
-            ownerHovered: weather.hovered
 
             Column {
                 spacing: 8
 
                 Row {
                     spacing: 8
-                    Text {
+                    PopText {
                         text: `${Weather.now.condition ?? "—"}`
-                        color: Theme.text; font.family: Theme.fontFamily
-                        font.pixelSize: 15; font.bold: true
+                        size: 14; font.bold: true
                     }
-                    Text {
+                    PopText {
                         text: `${Weather.now.temp ?? "?"}°`
-                        color: Theme.foam; font.family: Theme.fontFamily
-                        font.pixelSize: 15
+                        color: Theme.foam
+                        size: 14
                     }
                 }
-                Text {
+                PopText {
                     text: `feels ${Weather.now.feels ?? "?"}°  ·  ${Weather.now.wind ?? ""}  ·  ${Weather.now.humidity ?? ""}`
-                    color: Qt.alpha(Theme.text, 0.6)
-                    font.family: Theme.fontFamily; font.pixelSize: 12
+                    dim: 0.6
+                    size: 12
                 }
-                Rectangle { width: 200; height: 1; color: Theme.overlay }
+                Divider { width: 200 }
                 Repeater {
                     model: Weather.days
                     Item {
                         required property var modelData
                         width: 200; height: 20
-                        Text {
+                        PopText {
                             anchors.left: parent.left
                             text: modelData.name
-                            color: Qt.alpha(Theme.text, 0.8)
-                            font.family: Theme.fontFamily; font.pixelSize: 13
+                            dim: 0.8
+                            size: 13
                         }
-                        Text {
+                        PopText {
                             anchors.right: parent.right
                             text: `${modelData.hi}° / ${modelData.lo}°`
                             color: Theme.foam
-                            font.family: Theme.fontFamily; font.pixelSize: 13
+                            size: 13
                         }
                     }
                 }
-            }
-        }
-
-        Row {
-            height: weather.height - 2
-            spacing: 8
-            leftPadding: 12
-            rightPadding: 12
-            ValueText {
-                color: Theme.foam
-                text: `${Weather.now.temp ?? "?"}°F`
-            }
-            LucideIcon {
-                anchors.verticalCenter: parent.verticalCenter
-                name: Weather.icon
-                color: Theme.foam
             }
         }
     }

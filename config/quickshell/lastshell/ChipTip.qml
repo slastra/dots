@@ -2,14 +2,14 @@ import Quickshell
 import QtQuick
 
 // Tooltip as a real popup window: QtQuick Controls ToolTip renders inside
-// the 30px bar window and clips, so every chip tooltip goes through this.
+// the bar window and clips, so every chip tooltip goes through this.
 // Delay-on-hover, instant hide, multi-line capable.
 PopupWindow {
     id: root
 
-    required property Item owner
-    property string edge: "top"
-    property bool ownerHovered: false
+    required property Chip owner          // edge and hover follow it
+    property string edge: owner.edge
+    property bool ownerHovered: owner.hovered
     property string text: ""
 
     visible: false
@@ -28,26 +28,20 @@ PopupWindow {
     function hide() { showTimer.stop(); visible = false }
     Timer {
         id: showTimer
-        interval: 400
+        interval: Theme.tipDelay
         onTriggered: if (root.ownerHovered && root.text !== "") root.visible = true
     }
 
-    Rectangle {
+    Card {
         id: card
         width: tip.implicitWidth + 20
         height: tip.implicitHeight + 14
-        radius: 6
-        color: Theme.surface
-        border.color: Theme.overlay
-        border.width: 2
 
-        Text {
+        PopText {
             id: tip
             anchors.centerIn: parent
             text: root.text
-            color: Theme.text
-            font.family: Theme.fontFamily
-            font.pixelSize: 13
+            size: 13
             textFormat: Text.PlainText
         }
     }

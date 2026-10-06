@@ -1,6 +1,8 @@
 singleton Theme 1.0 Theme.qml
 Chip 1.0 Chip.qml
-ChipText 1.0 ChipText.qml
+ChipBody 1.0 ChipBody.qml
+StatChip 1.0 StatChip.qml
+IconChipBody 1.0 IconChipBody.qml
 BarWindow 1.0 BarWindow.qml
 TabStrip 1.0 TabStrip.qml
 TopBar 1.0 TopBar.qml
@@ -18,8 +20,17 @@ singleton Net 1.0 services/Net.qml
 singleton Weather 1.0 services/Weather.qml
 singleton Recorder 1.0 services/Recorder.qml
 Popout 1.0 Popout.qml
+PopText 1.0 PopText.qml
+Divider 1.0 Divider.qml
+Card 1.0 Card.qml
+PopoutHeader 1.0 PopoutHeader.qml
+KeyValueRow 1.0 KeyValueRow.qml
+Badge 1.0 Badge.qml
+SliderTrack 1.0 SliderTrack.qml
 Calendar 1.0 Calendar.qml
+Sparkline 1.0 Sparkline.qml
 NetGraph 1.0 NetGraph.qml
+TempGraph 1.0 TempGraph.qml
 ClaudeStrip 1.0 ClaudeStrip.qml
 ClaudeChip 1.0 ClaudeChip.qml
 QuotaChip 1.0 QuotaChip.qml
@@ -31,3 +42,17 @@ singleton Lucide 1.0 Lucide.qml
 LucideIcon 1.0 LucideIcon.qml
 TrayMenu 1.0 TrayMenu.qml
 ValueText 1.0 ValueText.qml
+HdrChip 1.0 HdrChip.qml
+singleton Hdr 1.0 services/Hdr.qml
+singleton Audio 1.0 services/Audio.qml
+DeskwatchChip 1.0 DeskwatchChip.qml
+singleton Deskwatch 1.0 services/Deskwatch.qml
+SyncedList 1.0 SyncedList.qml
+ChipRow 1.0 ChipRow.qml
+PresenceChip 1.0 PresenceChip.qml
+singleton Presence 1.0 services/Presence.qml
+PresenceGraph 1.0 PresenceGraph.qml
+singleton Host 1.0 services/Host.qml
+singleton Media 1.0 services/Media.qml
+singleton Backlight 1.0 services/Backlight.qml
+BrightnessChip 1.0 BrightnessChip.qml

@@ -28,11 +28,15 @@ Singleton {
         return e.count * Math.pow(0.5, ageDays / 14)
     }
 
+    // A record that lands while a write is in flight is not lost: `dirty`
+    // queues one more write once the current one exits.
+    property bool dirty: false
     function record(id) {
         const d = Object.assign({}, data)
         d[id] = { count: (d[id]?.count ?? 0) + 1, last: Date.now() }
         data = d
-        write.running = true
+        dirty = true
+        if (!write.running) write.running = true
     }
 
     // Serialized through one Process; mkdir -p covers first run.
@@ -41,6 +45,7 @@ Singleton {
         command: ["sh", "-c",
             `mkdir -p "$(dirname '${root.path}')" && cat > '${root.path}.tmp' && mv '${root.path}.tmp' '${root.path}'`]
         stdinEnabled: true
-        onStarted: { write.write(JSON.stringify(root.data)); write.stdinEnabled = false }
+        onStarted: { root.dirty = false; write.write(JSON.stringify(root.data)); write.stdinEnabled = false }
+        onExited: { write.stdinEnabled = true; if (root.dirty) write.running = true }
     }
 }

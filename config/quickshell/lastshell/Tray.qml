@@ -6,8 +6,8 @@ import QtQuick
 // per-icon pattern. Interaction goes through Chip's own signals — content
 // MouseAreas never fire, because Chip's MouseArea sits above the content
 // (that's why the first version's clicks went nowhere).
-Row {
-    spacing: 4
+ChipRow {
+    spacing: 8
     visible: SystemTray.items.values.length > 0
 
     Repeater {
@@ -18,6 +18,7 @@ Row {
             required property SystemTrayItem modelData
 
             edge: "top"
+            contentPadding: 0   // fixed-width icon slot
 
             onClicked: modelData.onlyMenu ? menu.show() : modelData.activate()
             onRightClicked: if (modelData.hasMenu) menu.show()
@@ -28,21 +29,10 @@ Row {
                 handle: slot.modelData.menu
             }
 
-            Item {
-                implicitWidth: 34
-                height: slot.height - 2
-                Image {
-                    anchors.centerIn: parent
-                    width: 18; height: 18
-                    source: slot.modelData.icon
-                    sourceSize: Qt.size(36, 36)
-                }
-            }
+            IconChipBody { source: slot.modelData.icon }
 
             ChipTip {
                 owner: slot
-                edge: "top"
-                ownerHovered: slot.hovered
                 text: slot.modelData.tooltipTitle || slot.modelData.title || ""
             }
         }

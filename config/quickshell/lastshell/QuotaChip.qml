@@ -6,7 +6,7 @@ import QtQuick
 Chip {
     id: root
     edge: "bottom"
-    visible: Claude.quota.frames.length > 0
+    present: Claude.quota.frames.length > 0
 
     property int frame: 0
     onClicked: frame = (frame + 1) % Math.max(1, Claude.quota.frames.length)
@@ -17,15 +17,11 @@ Chip {
     // The animated value the arc actually draws — sweeps on frame change
     // and on live quota movement alike.
     property real drawnPct: 0
-    Behavior on drawnPct { NumberAnimation { duration: 320; easing.type: Easing.OutCubic } }
+    Behavior on drawnPct { NumberAnimation { duration: Theme.sweepDuration; easing.type: Easing.OutCubic } }
     onShownChanged: drawnPct = shown.pct ?? 0
     Component.onCompleted: drawnPct = shown.pct ?? 0
 
-    Row {
-        height: root.height - 2
-        spacing: 8
-        leftPadding: 12
-        rightPadding: 12
+    ChipBody {
 
         Canvas { // the ring
             id: ring
@@ -58,7 +54,6 @@ Chip {
         ValueText {
             color: root.accent
             text: `${Math.round(root.shown.pct ?? 0)}%`
-            Behavior on color { ColorAnimation { duration: Theme.animDuration } }
         }
 
         LucideIcon { // frame marker: hourglass for the 5h window, calendar for weeklies
@@ -68,20 +63,24 @@ Chip {
             name: root.shown.id === "5h" ? "hourglass" : "calendar-days"
         }
 
-        Text { // model name, only where the calendar alone is ambiguous
+        PopText { // model name, only where the calendar alone is ambiguous
             visible: root.shown.id !== "5h" && root.shown.id !== "wk"
             anchors.verticalCenter: parent.verticalCenter
-            font.family: Theme.fontFamily
-            font.pixelSize: 12
-            color: Qt.alpha(Theme.text, 0.5)
+            size: 12
+            dim: 0.5
             text: root.shown.id
         }
     }
 
+    // "resets in" is recomputed against this, refreshed once a minute while
+    // the card is up, instead of a Date.now() that only re-ran on new frames
+    property double now: Date.now()
+    Timer { interval: 60000; running: pop.visible; repeat: true; onTriggered: root.now = Date.now() }
+
     Popout {
+        id: pop
         owner: root
-        edge: "bottom"
-        ownerHovered: root.hovered
+        onVisibleChanged: if (visible) root.now = Date.now()
 
         Column {
             spacing: 10
@@ -94,16 +93,15 @@ Chip {
                     color: Theme.rose
                     font.pixelSize: 14
                 }
-                Text {
+                PopText {
                     anchors.verticalCenter: parent.verticalCenter
                     text: "Claude Code Usage"
-                    color: Theme.text; font.family: Theme.fontFamily
-                    font.pixelSize: 14; font.bold: true
+                    size: 14; font.bold: true
                     font.letterSpacing: 0.5
                 }
             }
 
-            Rectangle { width: 264; height: 1; color: Theme.overlay }
+            Divider { width: 264 }
 
             Repeater {
                 model: Claude.quota.frames
@@ -119,7 +117,7 @@ Chip {
                     function resetsIn(v) {
                         if (!v) return ""
                         const t = typeof v === "number" ? v * 1000 : Date.parse(v)
-                        const s = (t - Date.now()) / 1000
+                        const s = (t - root.now) / 1000
                         if (!(s > 0)) return ""
                         if (s < 5400) return `resets in ${Math.round(s / 60)}m`
                         if (s < 129600) return `resets in ${Math.round(s / 3600)}h`
@@ -140,59 +138,54 @@ Chip {
                                     color: Qt.alpha(Theme.text, 0.55)
                                     font.pixelSize: 13
                                 }
-                                Text {
+                                PopText {
                                     text: frameRow.names[frameRow.modelData.id] ?? frameRow.modelData.id
-                                    color: Qt.alpha(Theme.text, 0.85)
-                                    font.family: Theme.fontFamily; font.pixelSize: 13
+                                    dim: 0.85
+                                    size: 13
                                 }
-                                Text {
+                                PopText {
                                     visible: text !== ""
                                     text: {
                                         const r = frameRow.resetsIn(frameRow.modelData.resets)
                                         return r ? `(${r})` : ""
                                     }
-                                    color: Qt.alpha(Theme.text, 0.4)
-                                    font.family: Theme.fontFamily; font.pixelSize: 12
+                                    dim: 0.4
+                                    size: 12
                                 }
                             }
-                            Text {
+                            PopText {
                                 anchors.right: parent.right
                                 text: `${frameRow.modelData.pct.toFixed(0)}%`
                                 color: frameRow.tone
-                                font.family: Theme.fontFamily; font.pixelSize: 13; font.bold: true
+                                size: 13; font.bold: true
                             }
                         }
 
-                        Rectangle {
-                            width: 264; height: 6; radius: 3
-                            // same neutral track as the ring on the chip
-                            color: Qt.alpha(Theme.text, 0.22)
-                            Rectangle {
-                                width: parent.width * Math.min(1, frameRow.modelData.pct / 100)
-                                height: parent.height; radius: 3
-                                color: frameRow.tone
-                                Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
-                            }
+                        SliderTrack { // same neutral track as the ring on the chip
+                            width: 264; height: 6
+                            frac: frameRow.modelData.pct / 100
+                            fill: frameRow.tone
+                            sweep: Theme.sweepDuration
                         }
                     }
                 }
             }
 
-            Rectangle { width: 264; height: 1; color: Theme.overlay }
+            Divider { width: 264 }
 
             Item { // freshness footer
                 width: 264; height: 14
-                Text {
+                PopText {
                     anchors.left: parent.left
-                    text: `${Claude.sessions.length} session${Claude.sessions.length === 1 ? "" : "s"}`
-                    color: Qt.alpha(Theme.text, 0.45)
-                    font.family: Theme.fontFamily; font.pixelSize: 11
+                    text: `${Claude.sessions.count} session${Claude.sessions.count === 1 ? "" : "s"}`
+                    dim: 0.45
+                    size: 11
                 }
-                Text {
+                PopText {
                     anchors.right: parent.right
                     text: Claude.quota.stale ? "stale data" : "live"
                     color: Claude.quota.stale ? Qt.alpha(Theme.gold, 0.8) : Qt.alpha(Theme.foam, 0.6)
-                    font.family: Theme.fontFamily; font.pixelSize: 11
+                    size: 11
                     font.italic: Claude.quota.stale
                 }
             }

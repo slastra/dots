@@ -11,6 +11,8 @@ Singleton {
     property real cpuPct: 0
     property real memPct: 0
     property real tempC: 0
+    // last 60 temp samples (5 min at the 5s cadence) for the popout graph
+    property var tempHistory: []
     property real diskPct: 0
     // tooltip detail
     property string loadAvg: ""
@@ -46,7 +48,12 @@ Singleton {
             if (root.tempPath !== "") {
                 tempFile.reload()
                 const v = Number(tempFile.text().trim())
-                if (v > 0) root.tempC = Math.round(v / 1000)
+                if (v > 0) {
+                    root.tempC = Math.round(v / 1000)
+                    const h = root.tempHistory.slice(-59)
+                    h.push(root.tempC)
+                    root.tempHistory = h
+                }
             }
         }
     }

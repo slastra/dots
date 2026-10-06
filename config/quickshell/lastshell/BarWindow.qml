@@ -2,11 +2,10 @@ import Quickshell
 import QtQuick
 
 // A bar shell: full-width transparent panel reserving its strip of the
-// screen. (`reserve: false` existed for the parallel run with waybar.)
+// screen.
 PanelWindow {
-    property bool reserve: true
     implicitHeight: Theme.barHeight
     color: "transparent"
-    exclusiveZone: reserve ? Theme.barHeight : 0
+    exclusiveZone: Theme.barHeight
     anchors { left: true; right: true }
 }

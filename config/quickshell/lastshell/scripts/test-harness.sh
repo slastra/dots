@@ -70,15 +70,29 @@ done
 
 echo "nested: HIS=$HIS  WAYLAND_DISPLAY=$NWL  out=$OUT"
 
+# A flat black background first: the nested output is otherwise whatever
+# shows through the host window (wallpaper, or black if a window sits
+# behind it), which makes screenshot diffs between runs meaningless.
+WAYLAND_DISPLAY="$NWL" swaybg -c '#000000' >/dev/null 2>&1 &
+BG_PID=$!
+
 # Launch the shell inside the nested session.
+# LASTSHELL_PATH=<dir> runs another checkout (a worktree at an older
+# commit makes a before/after screenshot baseline).
+if [ -n "${LASTSHELL_PATH:-}" ]; then QS_ARGS=(-p "$LASTSHELL_PATH/shell.qml"); else QS_ARGS=(-c lastshell); fi
 env WAYLAND_DISPLAY="$NWL" HYPRLAND_INSTANCE_SIGNATURE="$HIS" \
-    qs -c lastshell >"$OUT/qs.log" 2>&1 &
+    qs "${QS_ARGS[@]}" >"$OUT/qs.log" 2>&1 &
 QS_PID=$!
 
-cleanup() { kill $QS_PID $HYPR_PID 2>/dev/null; }
+cleanup() { kill $QS_PID $BG_PID $HYPR_PID 2>/dev/null; }
 trap cleanup EXIT INT TERM
 
-sleep 3
+# The host rule for class aquamarine (hyprland.lua "nested-aquamarine")
+# sends this window to special:harness silently, so a run never shows;
+# render_unfocused there keeps the frame callbacks grim/wlrctl need.
+# Toggle that special workspace on the host to watch one.
+
+sleep 4
 # Hyprland paints a "started without start-hyprland" error banner over the top
 # edge in debug environments — exactly where the top bar lives. Dismiss it.
 hyp dismissnotify >/dev/null 2>&1

@@ -40,15 +40,11 @@ PanelWindow {
         }
     }
 
-    Rectangle {
+    Card {
         id: card
         anchors.centerIn: parent
         anchors.verticalCenterOffset: root.open ? 0 : 10
         implicitHeight: inner.childrenRect.height + root.contentPadding * 2
-        radius: Theme.overlayRadius
-        color: Theme.surface
-        border.color: Theme.overlay
-        border.width: 2
 
         opacity: root.open ? 1 : 0
         scale: root.open ? 1 : 0.97
