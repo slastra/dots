@@ -35,7 +35,7 @@ hl.on("hyprland.start", function()
 	-- AI-generated startup jingle (GLM 5.3 Flash via OpenRouter → sclang);
 	-- falls back to ~/.cache/boot-jingle/known-good.scd when offline.
 	hl.exec_cmd("~/.local/bin/boot-jingle &")
-	hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
+	hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XCURSOR_THEME XCURSOR_SIZE HYPRCURSOR_THEME HYPRCURSOR_SIZE")
 	-- Input idle for the TV burn-in guard, after the environment import it
 	-- needs (graphical-session.target is not used here, so the unit's
 	-- WantedBy never fires). Replaced idle.sh/swayidle on 2026-09-27:
@@ -56,13 +56,14 @@ end)
 -- Hyprland spawns. Palette: ~/.config/qt6ct/colors/rose-pine.conf.
 hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
 
--- Simp1e Rosé Pine (gitlab.com/cursors/simp1e), built into
--- ~/.local/share/icons with 30/36/40/45/54 px frames for the 1.25 scale.
--- Xcursor only: hyprcursor finds no manifest and Hyprland falls back to the
--- Xcursor files, the same ones GTK, Qt and XWayland draw.
--- Bibata-Modern-RosePine (2026-09-28) is still installed beside it.
-hl.env("XCURSOR_THEME", "Simp1e-Rose-Pine")
-hl.env("HYPRCURSOR_THEME", "Simp1e-Rose-Pine")
+-- BreezeX Rosé Pine (rose-pine/cursor), one theme dir in ~/.local/share/icons
+-- holding both formats: hyprcursors/ is ndom91's SVG build plus the animated
+-- wait/progress it lacks (built in ~/Projects/Scratch/cursors/build-breezex),
+-- cursors/ is the stock Xcursor release for GTK, Qt and XWayland. Its Xcursor
+-- frames stop at 40/48, so 36 at 1.25 scale draws the 48 there.
+-- Simp1e-Rose-Pine (2026-10-04) and Bibata-Modern-RosePine are still installed.
+hl.env("XCURSOR_THEME", "BreezeX-RosePine")
+hl.env("HYPRCURSOR_THEME", "BreezeX-RosePine")
 hl.env("XCURSOR_SIZE", "36")
 hl.env("HYPRCURSOR_SIZE", "36")
 hl.env("GDK_SCALE", "2")
@@ -308,14 +309,6 @@ hl.window_rule({
 	match = { class = "^(hoja)$" },
 	float = true,
 	size = "900 600",
-	center = true,
-})
-hl.window_rule({
-	name = "piper-reader-float",
-	match = { class = "^(us\\.lastra\\.PiperReader)$" },
-	float = true,
-	pin = true, -- follows across workspaces; it reads while you work elsewhere
-	size = "560 500",
 	center = true,
 })
 hl.window_rule({

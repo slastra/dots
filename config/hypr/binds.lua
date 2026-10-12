@@ -16,7 +16,7 @@ hl.bind(mod .. " + E",          hl.dsp.exec_cmd(fileManager))
 hl.bind(mod .. " + V",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleClipboard"))
 -- Office light: toggle the Kasa HS210 directly over the LAN (no cloud/IFTTT).
 -- SUPER+L was the old binding but it now means focus-right, so SUPER+O ("Office").
-hl.bind(mod .. " + O",          hl.dsp.exec_cmd("python /home/shaun/Projects/Python/kasactl/kasactl.py toggle 192.168.11.97"))
+hl.bind(mod .. " + O",          hl.dsp.exec_cmd("python /home/shaun/Projects/Python/kasactl/kasactl.py toggle 192.168.11.98"))
 -- Phone mirror: toggle scrcpy over wireless adb (Pixel 8a). adb tcpip mode resets on
 -- phone reboot; plug in USB once and run `adb tcpip 5555` to re-arm. --no-audio keeps
 -- sound on the phone; drop it to pipe audio to the desktop.
@@ -24,7 +24,9 @@ hl.bind(mod .. " + P",          hl.dsp.exec_cmd("sh -c 'pkill -x scrcpy || scrcp
 -- Read aloud ("T" for talk): speaks the primary selection, falling back to the
 -- clipboard, through piper-tts. Pressing it again while something is playing
 -- replaces the queue with the new selection rather than opening a second window.
-hl.bind(mod .. " + T",          hl.dsp.exec_cmd("/home/shaun/.local/bin/piper-reader"))
+hl.bind(mod .. " + T",          hl.dsp.exec_cmd("qs -c lastshell ipc call reader read"))
+hl.bind(mod .. " + SHIFT + T",  hl.dsp.exec_cmd("qs -c lastshell ipc call reader toggle"))
+hl.bind(mod .. " + CTRL + T",   hl.dsp.exec_cmd("qs -c lastshell ipc call reader stop"))
 
 -- Window management
 hl.bind(mod .. " + SHIFT + C",  hl.dsp.window.close())
@@ -116,3 +118,6 @@ hl.bind("Print",                hl.dsp.exec_cmd("qs -c lastshell ipc call overla
 -- Help
 -- The cheatsheet parses this file, so it never needs updating by hand.
 hl.bind(mod .. " + slash",      hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleHotkeys"))
+
+-- Voice dictation: tap to start, tap again to stop (lastshell overlays/Dictation.qml)
+hl.bind(mod .. " + X",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleDictation"))

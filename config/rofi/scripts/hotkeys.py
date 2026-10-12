@@ -101,6 +101,15 @@ IPC = {
     "toggleNotifications": "Notification history",
     "toggleCapture":       "Screenshot or record",
     "toggleHotkeys":       "This cheatsheet",
+    "toggleEco":           "Eco mode",
+    "toggleDictation":     "Dictation",
+}
+
+# other lastshell IPC targets: `ipc call <target> <function>`
+IPC_TARGETS = {
+    ("reader", "read"):    "Read selection aloud",
+    ("reader", "toggle"):  "Pause or resume reading",
+    ("reader", "stop"):    "Stop reading",
 }
 
 SCRIPTS = {
@@ -133,6 +142,11 @@ def label_for(dispatcher: str, consts: dict[str, str]) -> str:
         i = re.search(r"ipc call overlays (\w+)", payload)
         if i:
             return IPC.get(i.group(1), i.group(1))
+        t = re.search(r"ipc call (\w+) (\w+)", payload)
+        if t:
+            return IPC_TARGETS.get((t.group(1), t.group(2)), f"{t.group(1)} {t.group(2)}")
+        if "scripts/eco.sh" in payload:
+            return "Eco mode on/off"
         if "float-arrange" in payload:
             return "Gather floating windows"
         b = re.search(r"\.local/bin/([\w-]+)", payload)
