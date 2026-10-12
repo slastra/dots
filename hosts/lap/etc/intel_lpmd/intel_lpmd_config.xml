@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!-- lap (i7-1360P): E-cores are CPUs 8-15. Stock file: /etc/intel_lpmd/intel_lpmd_config.xml.orig -->
+<Configuration>
+	<lp_mode_cpus>8-15</lp_mode_cpus>
+	<Mode>0</Mode>
+	<PerformanceDef>-1</PerformanceDef>
+	<BalancedDef>-1</BalancedDef>
+	<PowersaverDef>0</PowersaverDef>
+	<HfiLpmEnable>0</HfiLpmEnable>
+	<HfiSuvEnable>0</HfiSuvEnable>
+	<util_entry_threshold>10</util_entry_threshold>
+	<util_exit_threshold>95</util_exit_threshold>
+	<EntryDelayMS>0</EntryDelayMS>
+	<ExitDelayMS>0</ExitDelayMS>
+	<EntryHystMS>0</EntryHystMS>
+	<ExitHystMS>0</ExitHystMS>
+	<IgnoreITMT>0</IgnoreITMT>
+</Configuration>

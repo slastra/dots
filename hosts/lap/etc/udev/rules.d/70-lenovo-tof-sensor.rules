@@ -1,0 +1,18 @@
+# Lenovo Slim 7 14IRP8: the ST VL53L1 time-of-flight presence sensor behind
+# the Intel sensor hub, exposed by hid_sensor_custom. Give the input group
+# read access to the event streams and write access to the enable switch, so
+# a user daemon can drive it without root.
+
+# /dev/HID-SENSOR-2000e1.*.auto — the raw event streams
+SUBSYSTEM=="misc", KERNEL=="HID-SENSOR-2000e1.*", GROUP="input", MODE="0660"
+
+# /sys/.../enable_sensor — appears when the driver binds
+SUBSYSTEM=="platform", DRIVER=="hid_sensor_custom", ACTION=="add|bind", \
+  RUN+="/bin/sh -c 'chgrp input /sys%p/enable_sensor && chmod g+w /sys%p/enable_sensor'"
+
+# Report latency (HID 0x20031B): the hub buffers samples and delivers them
+# once a second instead of ~9 times, so the CPU wakes far less. The report
+# interval (0x20030E) is only a floor; the firmware ignores it for rate.
+# Both take effect the next time enable_sensor goes to 1.
+SUBSYSTEM=="platform", DRIVER=="hid_sensor_custom", KERNEL=="HID-SENSOR-2000e1.*", ACTION=="add|bind", \
+  RUN+="/bin/sh -c 'for f in /sys%p/feature-*-20031b/feature-*-20031b-value; do [ -e \"$f\" ] && echo 1000 > \"$f\"; done'"

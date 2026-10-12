@@ -1,0 +1,9 @@
+# systemd-boot entry (/boot/loader/entries/arch.conf), `options` line:
+#
+#   root=UUID=<root> rw pcie_aspm.policy=powersupersave
+#
+# pcie_aspm.policy=powersupersave: the NVMe (Samsung PM9B1) only reaches
+# L1.1/L1.2 with it, and without those s2idle never got to S0ix (0 s of
+# hardware sleep vs ~28 s of 30 in an A/B test). The entry used to carry
+# pcie_aspm=off, origin unknown; if NVMe or Wi-Fi ever turns flaky, ASPM is
+# the first suspect.

@@ -1,0 +1,6 @@
+#!/bin/bash
+# Simple TTS script using piper
+# Clean up backslashes and escape sequences. Plays through PipeWire (pw-play):
+# aplay opened the card directly, and when PipeWire woke the speaker while
+# aplay held it, the Speaker sink failed with EBUSY and dropped out.
+printf '%s\n' "$*" | sed 's/\\//g' | piper-tts --model /usr/share/piper-voices/en/en_US/danny/low/en_US-danny-low.onnx --output_raw 2>/dev/null | pw-play --raw --rate 16000 --channels 1 --format s16 -

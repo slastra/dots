@@ -102,7 +102,48 @@ config/
 ├── kitty/                  kitty.conf, colors.conf
 ├── nvim/lua/               colors.lua
 └── starship.toml
+hosts/lap/                  the laptop (below)
 ```
+
+## Laptop (hosts/lap)
+
+`lap` is a Lenovo Slim 7 14IRP8 (i7-1360P, 2880×1800 40–120 Hz panel). It
+runs the same lastshell checkout as the desk (one tree; `services/Host.qml`
+switches the desk-only chips off) and the files under `hosts/lap/config/`
+in place of the desk's `config/hypr`. `capture.sh` and `hotkeys.py` are the
+desk's, unchanged.
+
+Presence comes from the ST VL53L1 time-of-flight sensor on the Intel sensor
+hub, through [deskpresence](https://github.com/slastra/deskpresence)
+(`systemd/deskpresence-tof.service`): away 30 s fades and blanks the panel
+through `scripts/laptop-screen.sh`; hypridle's timeouts go through
+`scripts/presence-guard.sh`, so reading without touching anything isn't
+idle.
+
+Battery: idle went from ~9.7 W to ~2.5 W (screen dim, nothing working).
+Eco mode (`scripts/eco.sh`, Super+Shift+E; the lastshell dialog on
+Super+Ctrl+E) drops to power-saver, 60 Hz, no blur, animation or animated
+border, and switches Bluetooth and the keyboard light off. On battery
+without eco, `scripts/power-watch.sh` still turns 120 Hz, blur and
+hyprglaze off. VRR stays off: it disables the panel's PSR2 self-refresh.
+
+`hosts/lap/etc/` holds copies of the root-owned tweaks, installed by hand
+with `sudo install -Dm644 <file> /etc/<same path>` (nothing here installs
+them):
+
+| File | Why |
+|---|---|
+| `udev/rules.d/70-lenovo-tof-sensor.rules` | The ToF sensor's streams and enable switch for the `input` group, and report latency 1000 ms so the hub batches samples (~9 wakeups/s → ~1). |
+| `udev/rules.d/80-pci-runtime-pm.rules` | PCI runtime PM `auto` for every device. |
+| `sysctl.d/80-power.conf` | NMI watchdog off, dirty writeback every 15 s. |
+| `modprobe.d/80-audio-power.conf` | HDA codec power saving. |
+| `intel_lpmd/intel_lpmd_config.xml` | intel-lpmd parks onto the E-cores (8–15) when lightly loaded, in power-saver only (~0.2 W). |
+| `boot/kernel-params` | `pcie_aspm.policy=powersupersave`: without it the NVMe never reaches L1.2 and s2idle never reaches S0ix. |
+
+`local/bin/say` is the piper one-liner Claude Code speaks through; it plays
+via PipeWire (`pw-play`), since `aplay` opening the card directly knocked
+the speaker sink out with EBUSY. The OpenRouter key dictation and the
+reader use stays out of the repo (`~/.config/lastshell/openrouter.key`).
 
 ## Components
 

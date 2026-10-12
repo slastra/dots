@@ -1,0 +1,2 @@
+# Let idle PCI devices suspend (runtime PM). Replaces what laptop-mode-tools did.
+ACTION=="add|bind", SUBSYSTEM=="pci", ATTR{power/control}="auto"

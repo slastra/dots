@@ -1,0 +1,29 @@
+{
+  "stt_model": "openai/whisper-large-v3-turbo",
+  "cleanup_model": "google/gemini-2.5-flash",
+  "language": "en",
+  "vocabulary": [
+    "Hyprland",
+    "Quickshell",
+    "lastshell",
+    "deskpresence",
+    "Hoja",
+    "GPUI",
+    "Zed",
+    "OpenRouter",
+    "Claude Code",
+    "PipeWire",
+    "wireplumber",
+    "systemd",
+    "udev",
+    "QML",
+    "Lua",
+    "Rust",
+    "Go",
+    "Arch",
+    "pacman",
+    "kitty",
+    "fish",
+    "nvim"
+  ]
+}
