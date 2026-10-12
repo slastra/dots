@@ -14,7 +14,7 @@ greetd starts tuigreet. tuigreet starts Hyprland.
 
 | Program | Function |
 |---|---|
-| `lastshell` | The shell. Two bars, eight modals, notifications. Quickshell. |
+| `lastshell` | The shell. Two bars, nine modals, notifications, a narrator. Quickshell. |
 | `tabstrip` | Browser-tab daemon. Feeds the bar strip and the tab switcher. |
 | `claude-status.py` | Claude Code session daemon. Feeds the session chips. |
 | `hyprglaze` | Shader wallpaper daemon. It draws the wallpaper. |
@@ -27,7 +27,7 @@ file. Do not run `hyprctl reload`.
 ## lastshell
 
 `config/quickshell/lastshell` is the shell (a vendored copy of
-[slastra/lastshell](https://github.com/slastra/lastshell), last synced at `9026a64`). Raw Quickshell,
+[slastra/lastshell](https://github.com/slastra/lastshell), last synced at `0d7388e`). Raw Quickshell,
 no framework.
 
 The bars are tab chips hanging off the screen edges. Four instruments are
@@ -50,6 +50,11 @@ hint footer, animated backdrop mask.
 | `SUPER + N` | Notification center. |
 | `SUPER + /` | Hotkey sheet, parsed live from `binds.lua`. It cannot drift. |
 | `Print` | Capture menu. Stops a recording instantly if one is running. |
+| `SUPER + X` | Dictation. Tap to talk, tap to stop; the transcript comes back cleaned up for the window it is headed to, and Enter pastes it there. |
+
+`SUPER + T` reads the selection (else the clipboard) aloud. The player is
+a chip on the bottom bar, not a modal: hover it for the passage, progress,
+speed, voice and tidy. `SUPER + SHIFT + T` pauses, `SUPER + CTRL + T` stops.
 
 Notifications are lastshell's own server: urgency-washed toasts with a
 countdown ring around the dismiss button, and a history the center reads.
