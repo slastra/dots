@@ -9,7 +9,7 @@ StatChip {
     present: Backlight.present
 
     readonly property real b: Backlight.frac
-    value: `${Math.round(b * 100)}%`
+    value: `${Theme.pad(Math.round(b * 100), 3)}%`
     icon: "sun"
     tone: Backlight.autoActive ? Theme.foam : Theme.text
 

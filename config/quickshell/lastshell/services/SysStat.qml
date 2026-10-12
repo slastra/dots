@@ -2,6 +2,7 @@ pragma Singleton
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import ".."  // root module: Eco
 
 // One poller for cpu / memory / temperature (5s) and disk (30s).
 // Chips are thin views over these properties — never poll per-chip.
@@ -40,7 +41,7 @@ Singleton {
     }
 
     Timer {
-        interval: 5000; running: true; repeat: true
+        interval: Eco.pollMs; running: true; repeat: true
         triggeredOnStart: true
         onTriggered: {
             stat.reload(); meminfo.reload(); loadavg.reload()

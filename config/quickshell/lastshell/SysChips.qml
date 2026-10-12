@@ -39,7 +39,7 @@ ChipRow {
         id: cpu
         edge: "top"
         tone: Theme.level(SysStat.cpuPct, 25, 50)
-        value: `${SysStat.cpuPct}%`
+        value: `${Theme.pad(SysStat.cpuPct, 3)}%`
         icon: "cpu"
         ChipTip {
             owner: cpu
@@ -54,7 +54,7 @@ ChipRow {
         ChipBody {
             ValueText {
                 color: Theme.level(SysStat.tempC, 70, 80)
-                text: `${SysStat.tempC}°C`
+                text: `${Theme.pad(SysStat.tempC, 2)}°C`
             }
 
             Canvas { // thermometer: mercury tracks the reading (tip on chip below)
@@ -130,7 +130,7 @@ ChipRow {
         id: disk
         edge: "top"
         tone: Theme.level(SysStat.diskPct, 70, 90)
-        value: `${SysStat.diskPct}%`
+        value: `${Theme.pad(SysStat.diskPct, 2)}%`
         icon: "hard-drive"
         ChipTip {
             owner: disk
@@ -142,7 +142,7 @@ ChipRow {
         id: mem
         edge: "top"
         tone: Theme.level(SysStat.memPct, 50, 75)
-        value: `${SysStat.memPct}%`
+        value: `${Theme.pad(SysStat.memPct, 2)}%`
         icon: "memory-stick"
         ChipTip {
             owner: mem
@@ -179,7 +179,7 @@ ChipRow {
         id: weather
         edge: "top"
         tone: Theme.foam
-        value: `${Weather.now.temp ?? "?"}°F`
+        value: `${Theme.pad(Weather.now.temp ?? "?", 2)}°F`
         icon: Weather.icon
         present: Weather.text !== ""
 

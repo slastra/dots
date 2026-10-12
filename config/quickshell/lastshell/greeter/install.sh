@@ -10,8 +10,10 @@ STATE=/var/lib/lastshell-greeter
 install -d "$DEST/greeter/assets"
 # the shared root module pieces the greeter imports via ".."
 install -m 0644 "$REPO"/{Theme,Chip,LucideIcon,Lucide,ValueText}.qml "$DEST/"
+install -m 0644 "$REPO"/services/Eco.qml "$DEST/"   # Theme's durations read Eco.active
 printf '%s\n' 'singleton Theme 1.0 Theme.qml' 'Chip 1.0 Chip.qml' 'LucideIcon 1.0 LucideIcon.qml' \
-               'singleton Lucide 1.0 Lucide.qml' 'ValueText 1.0 ValueText.qml' > "$DEST/qmldir"
+               'singleton Lucide 1.0 Lucide.qml' 'ValueText 1.0 ValueText.qml' \
+               'singleton Eco 1.0 Eco.qml' > "$DEST/qmldir"
 install -m 0644 "$REPO"/greeter.qml "$DEST/"
 install -m 0644 "$REPO"/greeter/{Greeter.qml,hyprland-greeter.lua} "$DEST/greeter/"
 install -m 0755 "$REPO"/greeter/sessions.sh "$DEST/greeter/"

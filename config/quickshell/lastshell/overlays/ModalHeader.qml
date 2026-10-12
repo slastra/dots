@@ -52,7 +52,7 @@ Item {
                 visible: root.showQuery
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.query
-                active: root.active
+                active: root.active && root.showQuery
             }
         }
     }

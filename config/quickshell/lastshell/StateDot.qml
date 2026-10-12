@@ -28,7 +28,7 @@ Item {
         property real phase: 0
         Timer { // 12fps stepped ping, same reasoning as the breathing timer
             interval: 83
-            running: root.state === "waiting"
+            running: root.state === "waiting" && !Eco.active
             repeat: true
             onTriggered: {
                 ping.phase = (ping.phase + 83 / 1100) % 1
@@ -66,7 +66,7 @@ Item {
         // sine pulse that reads identically at 8 steps a second.
         Timer {
             interval: 125
-            running: root.state === "busy"
+            running: root.state === "busy" && !Eco.active
             repeat: true
             property real t: 0
             onTriggered: {

@@ -1,6 +1,6 @@
 import QtQuick
 
-// The bottom bar: browser tabs left, claude strip centre, mpris + volume right.
+// The bottom bar: browser tabs left, claude strip centre, reader + mpris + volume right.
 // One window, one exclusive zone — content items only below here.
 BarWindow {
     anchors.bottom: true
@@ -26,6 +26,7 @@ BarWindow {
         x: parent.width - width - 8
         Behavior on x { NumberAnimation { duration: Theme.slideDuration; easing.type: Easing.OutCubic } }
         spacing: 8
+        ReaderChip {}
         MprisChip {}
         VolumeChip {}
     }

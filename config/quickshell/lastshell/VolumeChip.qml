@@ -39,7 +39,7 @@ Chip {
 
         ValueText {
             color: Theme.text
-            text: `${Math.round(root.vol * 100)}%`
+            text: `${Theme.pad(Math.round(root.vol * 100), 3)}%`
         }
 
         Canvas { // drawn speaker: wave arcs grow with volume, slash when muted

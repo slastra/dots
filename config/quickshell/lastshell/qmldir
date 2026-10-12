@@ -12,6 +12,7 @@ WindowTitle 1.0 WindowTitle.qml
 Taskbar 1.0 Taskbar.qml
 VolumeChip 1.0 VolumeChip.qml
 BatteryChip 1.0 BatteryChip.qml
+BatteryGraph 1.0 BatteryGraph.qml
 Tray 1.0 Tray.qml
 ClockChip 1.0 ClockChip.qml
 SysChips 1.0 SysChips.qml
@@ -55,4 +56,10 @@ PresenceGraph 1.0 PresenceGraph.qml
 singleton Host 1.0 services/Host.qml
 singleton Media 1.0 services/Media.qml
 singleton Backlight 1.0 services/Backlight.qml
+singleton Eco 1.0 services/Eco.qml
 BrightnessChip 1.0 BrightnessChip.qml
+singleton Reader 1.0 services/Reader.qml
+ReaderChip 1.0 ReaderChip.qml
+SectionLabel 1.0 SectionLabel.qml
+Segmented 1.0 Segmented.qml
+EngineProcess 1.0 EngineProcess.qml

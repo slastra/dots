@@ -1,21 +1,35 @@
--- Hyprland as the greeter compositor. Mirrors the desktop's monitor block so
+-- Hyprland as the greeter compositor. Mirrors each machine's monitor block so
 -- the login screen lands at the same scale, depth and colour management the
 -- session will use — no mode flash on handover, and lastshell's sizes carry
 -- over 1:1. Installed to /usr/local/share/lastshell-greeter/greeter/.
 
-hl.monitor({
-	output = "HDMI-A-1",
-	mode = "3840x2160@119.88",
-	position = "0x0",
-	scale = 1.25,
-	bitdepth = 10,
-	cm = "hdredid",
-	sdrbrightness = 2.05,
-})
+local host = "desk"
+local f = io.open("/etc/hostname")
+if f then host = (f:read("l") or host):match("^%s*(.-)%s*$"); f:close() end
+
+if host == "lap" then
+	hl.monitor({ output = "eDP-1", mode = "2880x1800@120", position = "0x0", scale = 1.5 })
+	hl.env("XCURSOR_SIZE", "32")
+	hl.env("HYPRCURSOR_SIZE", "32")
+else
+	hl.monitor({
+		output = "HDMI-A-1",
+		mode = "3840x2160@119.88",
+		position = "0x0",
+		scale = 1.25,
+		bitdepth = 10,
+		cm = "hdredid",
+		sdrbrightness = 2.05,
+	})
+	hl.env("XCURSOR_SIZE", "36")
+	hl.env("HYPRCURSOR_SIZE", "36")
+end
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
 
-hl.env("XCURSOR_SIZE", "36")
-hl.env("HYPRCURSOR_SIZE", "36")
+-- The greeter user can't read ~/.local/share/icons, so this needs the theme
+-- copied to /usr/share/icons too; without it the login screen draws Adwaita.
+hl.env("XCURSOR_THEME", "BreezeX-RosePine")
+hl.env("HYPRCURSOR_THEME", "BreezeX-RosePine")
 hl.env("QT_QPA_PLATFORM", "wayland")
 
 hl.config({

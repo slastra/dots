@@ -51,10 +51,11 @@ PopupWindow {
     visible: false
     color: "transparent"
     implicitWidth: card.width
-    implicitHeight: card.height
+    implicitHeight: card.height + Theme.popoutGap
 
     Card {
         id: card
+        y: Theme.popoutGap
         width: Math.max(180, rows.implicitWidth + 24)
         height: rows.implicitHeight + 16
 

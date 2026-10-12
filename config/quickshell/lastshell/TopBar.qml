@@ -9,7 +9,8 @@ import QtQuick
 // and the window title elides into whatever is left of the taskbar.
 //
 // On the laptop the taskbar packs left instead, right after the title, and
-// the title takes whatever the icons leave before the system chips.
+// the title takes whatever the icons leave before the system chips, capped
+// shorter so it never dominates the bar.
 BarWindow {
     id: bar
     anchors.top: true
@@ -17,6 +18,8 @@ BarWindow {
     readonly property int gap: 8
     // the title always keeps at least this much before the taskbar
     readonly property int titleMin: 120
+    // and never grows past this, eliding the rest
+    readonly property int titleMax: Host.laptop ? 360 : 900
     readonly property bool packLeft: Host.laptop
     // where the title chip starts: left margin, workspaces, spacing
     readonly property int titleX: gap + workspaces.width + gap
@@ -32,7 +35,7 @@ BarWindow {
             anchors.top: parent.top
             // up to the taskbar (centered) or up to the system chips less the
             // icons that follow it (packed left); never below titleMin
-            maxWidth: Math.max(bar.titleMin, Math.min(900, bar.packLeft
+            maxWidth: Math.max(bar.titleMin, Math.min(bar.titleMax, bar.packLeft
                 ? sys.x - bar.gap - tasks.width - bar.gap - bar.titleX
                 : tasks.x - bar.gap - bar.titleX))
         }

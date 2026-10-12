@@ -41,6 +41,13 @@ Scope {
     property string message: ""
     property bool messageIsError: false
     property bool capsLock: false   // inferred: a letter arriving in the wrong case for the Shift state
+    // fingerprint: a reader with enrolled prints (fprintd keeps them in
+    // /var/lib/fprint). Then the greetd session opens as soon as a user is
+    // known, so pam_fprintd is already listening before anything is typed;
+    // scanning is true while it waits, ahead of the password prompt.
+    property bool fingerprint: false
+    property bool scanning: false
+    property int armFailures: 0
     signal failed()
 
     // ── data ─────────────────────────────────────────────────────────────
@@ -52,6 +59,11 @@ Scope {
         try { saved = JSON.parse(stateView.text()) } catch (e) { saved = {} }
     }
 
+    Process {
+        command: ["test", "-d", "/var/lib/fprint"]
+        running: true
+        onExited: code => { root.fingerprint = code === 0; root.arm() }
+    }
     Process {
         command: ["sh", "-c", "getent passwd | awk -F: '$3>=1000 && $3<65000 {print $3, $1}' | sort -n | cut -d' ' -f2"]
         running: true
@@ -77,6 +89,7 @@ Scope {
         if (!user && users.length) {
             userIndex = Math.max(0, users.indexOf(saved.user ?? ""))
             user = users[userIndex]
+            arm()
         }
         if (sessions.length) {
             let i = sessions.findIndex(s => s.id === saved.session)
@@ -92,14 +105,33 @@ Scope {
     }
 
     // ── auth flow ────────────────────────────────────────────────────────
+    // Open the session early so pam_fprintd starts scanning. Deferred a tick
+    // so a fail() from inside a greetd signal doesn't re-enter the service;
+    // gives up after a few sessions that die without saying anything.
+    function arm() { if (fingerprint && !demo) armTimer.restart() }
+    Timer {
+        id: armTimer; interval: 250
+        onTriggered: if (root.phase === "password" && root.user && root.armFailures < 3
+                         && Greetd.state === GreetdState.Inactive) {
+            root.armFailures++; root.scanning = false
+            Greetd.createSession(root.user)
+        }
+    }
+    function editUser() {
+        if (!demo && Greetd.state !== GreetdState.Inactive) Greetd.cancelSession()
+        scanning = false; phase = "user"; message = ""; password = ""
+    }
     function submit() {
         if (phase === "user") {
-            if (user) { phase = "password"; password = ""; message = "" }
+            if (user) { phase = "password"; password = ""; message = ""; armFailures = 0; arm() }
             return
         }
         if (phase !== "password" || !password) return
         message = ""; phase = "busy"
         if (demo) { demoTimer.start(); return }
+        // pam_fprintd still holds the stack: keep the password, it goes out
+        // when the password prompt arrives
+        if (scanning) { message = "finishing the fingerprint scan"; messageIsError = false; return }
         if (Greetd.state === GreetdState.Inactive) Greetd.createSession(user)
         else { Greetd.respond(password); password = "" }
     }
@@ -107,8 +139,9 @@ Scope {
 
     function fail(msg) {
         message = msg; messageIsError = true
-        password = ""; prompt = "password"; echo = false
+        password = ""; prompt = "password"; echo = false; scanning = false
         phase = "password"; failed()
+        arm()
     }
     function launch() {
         saveState()
@@ -129,7 +162,12 @@ Scope {
     Connections {
         target: Greetd
         function onAuthMessage(msg, error, responseRequired, echoResponse) {
-            if (!responseRequired) { root.message = msg.trim(); root.messageIsError = error; return }
+            root.armFailures = 0
+            if (!responseRequired) {
+                if (/finger/i.test(msg)) root.scanning = true
+                root.message = msg.trim(); root.messageIsError = error; return
+            }
+            root.scanning = false
             root.echo = echoResponse
             root.prompt = msg.replace(/:\s*$/, "").trim().toLowerCase() || "password"
             if (root.password) { Greetd.respond(root.password); root.password = "" }
@@ -205,7 +243,7 @@ Scope {
             spacing: 8
             HintChip { icon: "corner-down-left"; label: "login" }
             HintChip { icon: "arrow-up-down"; label: "session" }
-            HintChip { icon: "user"; label: "F1 user"; onClicked: { root.phase = "user"; root.message = ""; root.password = "" } }
+            HintChip { icon: "user"; label: "F1 user"; onClicked: root.editUser() }
             HintChip { icon: "rotate-ccw"; label: "F2 reboot"; accent: Theme.gold; onClicked: root.power("reboot") }
             HintChip { icon: "power"; label: "F3 power off"; accent: Theme.love; onClicked: root.power("poweroff") }
         }
@@ -247,9 +285,9 @@ Scope {
                 const n = root.sessions.length
                 if (k === Qt.Key_F2) root.power("reboot")
                 else if (k === Qt.Key_F3) root.power("poweroff")
-                else if (k === Qt.Key_F1 || (ctrl && k === Qt.Key_L)) { root.phase = "user"; root.message = ""; root.password = "" }
+                else if (k === Qt.Key_F1 || (ctrl && k === Qt.Key_L)) root.editUser()
                 else if (k === Qt.Key_Escape) {
-                    if (root.phase === "user") root.phase = "password"
+                    if (root.phase === "user") { root.phase = "password"; root.armFailures = 0; root.arm() }
                     else if (root.phase === "busy") { if (!root.demo) Greetd.cancelSession(); root.fail("cancelled") }
                     else { root.password = ""; root.message = "" }
                 }
@@ -290,7 +328,7 @@ Scope {
                     width: parent.width; height: 54
                     topLeftRadius: 6; topRightRadius: 6
                     color: Theme.overlay
-                    MouseArea { anchors.fill: parent; cursorShape: Qt.IBeamCursor; onClicked: { root.phase = "user"; root.message = ""; root.password = "" } }
+                    MouseArea { anchors.fill: parent; cursorShape: Qt.IBeamCursor; onClicked: root.editUser() }
                     Row {
                         anchors.verticalCenter: parent.verticalCenter
                         x: 18; spacing: 12
@@ -339,7 +377,8 @@ Scope {
                         LucideIcon {
                             anchors.verticalCenter: parent.verticalCenter
                             font.pixelSize: 18
-                            name: root.phase === "busy" ? "shield-check" : root.phase === "launch" ? "log-in" : "key-round"
+                            name: root.phase === "busy" ? "shield-check" : root.phase === "launch" ? "log-in"
+                                : root.scanning ? "fingerprint" : "key-round"
                             color: root.phase === "busy" || root.phase === "launch" ? Theme.foam
                                  : root.messageIsError && root.message ? Theme.love
                                  : root.phase === "password" ? Theme.rose : Qt.alpha(Theme.text, 0.45)
@@ -375,7 +414,7 @@ Scope {
                                 visible: (root.phase === "password" || root.phase === "user") && !root.password
                                 font.family: Theme.fontFamily; font.pixelSize: 17
                                 color: Qt.alpha(Theme.text, 0.3)
-                                text: root.prompt
+                                text: root.scanning ? "touch the sensor, or type a password" : root.prompt
                             }
                             Pulse { id: pulse; x: value.implicitWidth + 8; on: root.phase === "busy" || root.phase === "launch" }
                         }

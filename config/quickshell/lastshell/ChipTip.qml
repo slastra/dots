@@ -15,7 +15,7 @@ PopupWindow {
     visible: false
     color: "transparent"
     implicitWidth: card.width
-    implicitHeight: card.height
+    implicitHeight: card.height + Theme.popoutGap
 
     anchor {
         item: owner
@@ -34,6 +34,7 @@ PopupWindow {
 
     Card {
         id: card
+        y: root.edge === "top" ? Theme.popoutGap : 0
         width: tip.implicitWidth + 20
         height: tip.implicitHeight + 14
 

@@ -2,6 +2,7 @@ pragma Singleton
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import ".."  // root module: Eco
 
 // Default-route interface state (wired on the desk, wifi on the laptop): ip +
 // up/down throughput, 5s cadence, with a ring buffer feeding the popout graph.
@@ -24,7 +25,7 @@ Singleton {
     // address changes approximately never.
     property int _tick: 0
     Timer {
-        interval: 5000; running: true; repeat: true
+        interval: Eco.pollMs; running: true; repeat: true
         triggeredOnStart: true
         onTriggered: {
             if (root._tick % 12 === 0 || root.iface === "") probe.running = true
@@ -46,16 +47,18 @@ Singleton {
         } catch (e) { /* interface vanished; next probe re-discovers */ }
     }
 
-    // one counter reading -> rates against the previous one (5 s apart)
+    // one counter reading -> rates against the previous one (5 s apart, 15 s in eco)
     function sample(rx, tx) {
+        const now = Date.now()
         if (root._prev) {
-            root.rxBps = Math.max(0, (rx - root._prev.rx) / 5)
-            root.txBps = Math.max(0, (tx - root._prev.tx) / 5)
+            const dt = (now - root._prev.t) / 1000 || 1
+            root.rxBps = Math.max(0, (rx - root._prev.rx) / dt)
+            root.txBps = Math.max(0, (tx - root._prev.tx) / dt)
             const h = root.history.slice(-59)
             h.push([root.rxBps, root.txBps])
             root.history = h
         }
-        root._prev = { rx: rx, tx: tx }
+        root._prev = { rx: rx, tx: tx, t: now }
     }
 
     Process {

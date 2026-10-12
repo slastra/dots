@@ -71,11 +71,8 @@ Overlay {
                     width: 356
                     spacing: 3
 
-                    Text {
-                        text: modelData.section.toUpperCase()
-                        color: Theme.iris
-                        font.family: Theme.fontFamily; font.pixelSize: 12
-                        font.bold: true; font.letterSpacing: 1
+                    SectionLabel {
+                        text: modelData.section
                         bottomPadding: 3
                     }
 

@@ -31,6 +31,7 @@ QtObject {
         "log-in":            "\ue10d",
         "arrow-up-down":     "\ue37d",
         "shield-check":      "\ue1ff",
+        "fingerprint":       "\ue2cb",
         "terminal":          "\ue181",
         "sun": "\ue178",
         "wifi":          "\ue1ae",
@@ -80,6 +81,20 @@ QtObject {
         "alert-octagon":  "\ue127",
         "eye":            "\ue0ba",
         "info":           "\ue0f9",
+        // eco dialog
+        "leaf":          "\ue2de",
+        "gauge":         "\ue1bf",
+        "bluetooth":     "\ue05c",
+        "bluetooth-off": "\ue1b9",
+        "battery":       "\ue057",
+        // dictation
+        "mic":           "\ue118",
+        "mic-off":       "\ue119",
+        // reader
+        "skip-back":     "\ue15f",
+        "skip-forward":  "\ue160",
+        "chevron-left":  "\ue06e",
+        "audio-lines":   "\ue55a",
     })
 
     function icon(name) { return glyphs[name] ?? "?" }

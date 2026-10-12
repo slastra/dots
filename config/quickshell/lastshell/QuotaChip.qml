@@ -53,7 +53,7 @@ Chip {
 
         ValueText {
             color: root.accent
-            text: `${Math.round(root.shown.pct ?? 0)}%`
+            text: `${Theme.pad(Math.round(root.shown.pct ?? 0), 3)}%`
         }
 
         LucideIcon { // frame marker: hourglass for the 5h window, calendar for weeklies

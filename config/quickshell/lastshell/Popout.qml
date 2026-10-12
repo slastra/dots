@@ -16,7 +16,7 @@ PopupWindow {
     readonly property bool shouldShow: ownerHovered || cardHover.hovered
 
     implicitWidth: card.implicitWidth
-    implicitHeight: card.implicitHeight
+    implicitHeight: card.implicitHeight + Theme.popoutGap
     color: "transparent"
     visible: false
 
@@ -39,7 +39,9 @@ PopupWindow {
     Card {
         id: card
         property bool open: false
-        anchors.centerIn: parent
+        // the window spans chip edge to card; the gap is its transparent end
+        anchors.horizontalCenter: parent.horizontalCenter
+        y: root.edge === "top" ? Theme.popoutGap : 0
         implicitWidth: inner.childrenRect.width + 24
         implicitHeight: inner.childrenRect.height + 24
 

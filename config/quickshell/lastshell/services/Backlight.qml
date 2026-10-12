@@ -82,7 +82,15 @@ Singleton {
             }
         }
     }
-    Timer { interval: 2000; repeat: true; running: root.autoActive; triggeredOnStart: true; onTriggered: holdProbe.running = true }
+    // The scripts that set and clear those marks (hypr/scripts/presence-guard.sh,
+    // laptop-screen.sh) call `qs ipc call backlight sync` when they do; the
+    // probe runs then and once when auto turns on, instead of every 2 s.
+    onAutoActiveChanged: if (autoActive) holdProbe.running = true
+    Component.onCompleted: if (autoActive) holdProbe.running = true
+    IpcHandler {
+        target: "backlight"
+        function sync(): void { if (root.autoActive) holdProbe.running = true }
+    }
 
     // --- applying: a short ramp, marked as auto's own ------------------------
     property double ownUntil: 0     // uevents before this are auto's writes
