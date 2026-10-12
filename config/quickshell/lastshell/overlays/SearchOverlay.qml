@@ -13,6 +13,7 @@ Overlay {
     property string query: ""
     property string typeIcon: "search"   // lucide name marking what this modal is
     property int visibleRows: 12         // viewport height; matches beyond it scroll
+    property string hint: "↑↓ navigate   ↵ open   esc close"
     signal activated(var item)
 
     cardWidth: 560
@@ -141,14 +142,14 @@ Overlay {
                         }
                     }
 
-                    LucideIcon { // current-selection mark
-                        visible: row.modelData.current ?? false
+                    LucideIcon { // current-selection mark, else the item's own trailing glyph
+                        visible: (row.modelData.current ?? false) || (row.modelData.trailIcon ?? "") !== ""
                         anchors.right: parent.right
                         anchors.rightMargin: 14
                         anchors.verticalCenter: parent.verticalCenter
-                        name: "check"
+                        name: row.modelData.current ? "check" : row.modelData.trailIcon ?? ""
                         font.pixelSize: 14
-                        color: Theme.iris
+                        color: row.modelData.current ? Theme.iris : Theme.textFaint
                     }
 
                     MouseArea {
@@ -188,7 +189,7 @@ Overlay {
         }
 
         ModalFooter {
-            hint: "↑↓ navigate   ↵ open   esc close"
+            hint: root.hint
             count: root.query === "" ? `${root.items.length}` : `${root.filtered.length}/${root.items.length}`
         }
     }

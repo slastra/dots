@@ -1,14 +1,14 @@
 import QtQuick
 
 // Panel backlight chip, the laptop's counterpart to HdrChip. Wheel steps
-// 5%, popout drags the full range, click toggles auto brightness (foam
+// 5% of perceived brightness (Backlight.level), popout drags the full range, click toggles auto brightness (foam
 // while it follows the light sensor). Absent wherever there is no backlight.
 StatChip {
     id: root
     edge: "top"
     present: Backlight.present
 
-    readonly property real b: Backlight.frac
+    readonly property real b: Backlight.level
     value: `${Theme.pad(Math.round(b * 100), 3)}%`
     icon: "sun"
     tone: Backlight.autoActive ? Theme.foam : Theme.text
@@ -41,7 +41,7 @@ StatChip {
                 frac: root.b
                 fill: Theme.gold
                 interactive: true
-                onSeek: f => Backlight.set(f)
+                onSeek: f => Backlight.setLevel(f)
             }
             PopText {
                 visible: Backlight.hasSensor

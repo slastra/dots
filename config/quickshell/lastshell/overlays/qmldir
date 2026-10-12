@@ -23,3 +23,5 @@ HotkeySheet 1.0 HotkeySheet.qml
 EcoDialog 1.0 EcoDialog.qml
 Dictation 1.0 Dictation.qml
 DimOverlay 1.0 DimOverlay.qml
+WifiPicker 1.0 WifiPicker.qml
+WifiPassword 1.0 WifiPassword.qml

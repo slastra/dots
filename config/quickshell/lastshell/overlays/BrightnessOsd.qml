@@ -14,7 +14,7 @@ PanelWindow {
     property bool shown: false
     property bool armed: false  // suppress the startup ghost while props populate
 
-    readonly property real b: Backlight.frac
+    readonly property real b: Backlight.level
 
     Connections {
         target: Backlight

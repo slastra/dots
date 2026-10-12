@@ -101,12 +101,15 @@ hl.bind("XF86AudioPlay",        hl.dsp.exec_cmd("playerctl play-pause"), { locke
 hl.bind("XF86AudioPrev",        hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
 
 -- Brightness. lastshell's BrightnessOsd follows the backlight's kernel
--- uevents, so the keys only have to set the value. 1% floor: 0 is black.
-hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl -q -c backlight set 5%+"),          { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -q -c backlight -n1% set 5%-"),     { locked = true, repeating = true })
+-- uevents, so the keys only have to set the value. lastshell steps it on a
+-- perceptual scale (even steps down to the floor; 0 is black). A tap steps,
+-- a hold (the firmware repeats the tap) glides.
+hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("qs -c lastshell ipc --any-display call backlight up"),   { locked = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("qs -c lastshell ipc --any-display call backlight down"), { locked = true })
 
 -- Screencast / notifications
 hl.bind(mod .. " + N",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleNotifications"))
+hl.bind(mod .. " + SHIFT + N",  hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleWifi"))
 hl.bind("Print",                hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleCapture"))
 
 -- Session. The desk has no lock bind (it idles to the TV); a laptop leaves

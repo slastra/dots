@@ -1,7 +1,7 @@
 import Quickshell
 import Quickshell.Io
 import QtQuick
-import ".."  // root module: Recorder (recording-aware Print behavior)
+import ".."  // root module: Recorder (recording-aware Print behavior), Host, Wifi
 
 // Overlay host: IPC surface + the surfaces themselves. Summoned from
 // binds.lua via `qs -c lastshell ipc call overlays <fn>`, and from bar
@@ -28,6 +28,7 @@ Scope {
         function toggleNotifications(): void { root.summon(center) }
         function toggleHotkeys(): void { root.summon(hotkeys) }
         function toggleEco(): void { root.summon(eco) }
+        function toggleWifi(): void { if (Host.laptop) root.summon(wifi) }
         // tap to start, tap again to stop (the overlay decides which)
         function toggleDictation(): void {
             if (!dictation.active) dictation.active = true
@@ -56,5 +57,16 @@ Scope {
     LazyLoader { id: capture; CapturePicker {} }
     LazyLoader { id: hotkeys; HotkeySheet {} }
     LazyLoader { id: eco; EcoDialog {} }
+    LazyLoader { id: wifi; WifiPicker {} }
+    LazyLoader { id: wifiPass; WifiPassword {} }
+    // the picker hands a new secured network over, or iwd asks for a passphrase
+    Connections {
+        target: Wifi
+        function onAskForChanged() {
+            if (Wifi.askFor === "") return
+            if (!wifiPass.active) wifiPass.active = true
+            wifiPass.item.open = true
+        }
+    }
     LazyLoader { id: dictation; Dictation {} }
 }

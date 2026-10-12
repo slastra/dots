@@ -61,6 +61,9 @@ Singleton {
         root._prev = { rx: rx, tx: tx, t: now }
     }
 
+    // re-probe now: the Wi-Fi picker just joined a network
+    function refresh() { probe.running = true }
+
     Process {
         id: probe
         command: ["sh", "-c",

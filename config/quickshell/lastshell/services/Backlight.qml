@@ -23,9 +23,21 @@ Singleton {
     property int max: 0
     property int raw: 0
     readonly property real frac: max > 0 ? raw / max : 0
+    // What the keys, the chip and the OSD show and step is `level`, the
+    // perceived brightness (CIE L*), not the raw duty: linear 5% steps
+    // double the light at the bottom and vanish at the top. Level 0.10 is
+    // about 1.1% raw, the floor that keeps the panel lit (0 is fully dark).
+    readonly property real level: toLevel(frac)
     readonly property real step: 0.05
-    // the floor keeps the panel lit: 0 turns it fully dark
-    readonly property real min: 0.01
+    readonly property real minLevel: 0.10
+    readonly property real min: fromLevel(minLevel)
+    function toLevel(f) {
+        return f > 0.008856 ? (116 * Math.cbrt(f) - 16) / 100 : 9.033 * f
+    }
+    function fromLevel(l) {
+        const L = l * 100
+        return L > 8 ? Math.pow((L + 16) / 116, 3) : L / 903.3
+    }
 
     // a change auto did not make: the OSD shows these and only these
     signal userChanged()
@@ -53,11 +65,95 @@ Singleton {
     }
     readonly property real target: Math.max(min, Math.min(1, curveAt(lux) + offset))
 
+    // raw units, not whole percent: at the bottom 1% raw is a visible jump
     function set(f) {
         f = Math.max(min, Math.min(1, f))
-        Quickshell.execDetached(["brightnessctl", "-q", "-c", "backlight", "set", `${Math.round(f * 100)}%`])
+        if (max > 0) Quickshell.execDetached(["brightnessctl", "-q", "-c", "backlight", "set", `${Math.round(f * max)}`])
     }
-    function nudge(delta) { set(frac + delta) }
+    // straight to a level, no easing: the slider drag already is the motion
+    function setLevel(l) {
+        aim = shown = Math.max(minLevel, Math.min(1, l))
+        aimUntil = Date.now() + 400
+        ease.stop()
+        set(fromLevel(shown))
+    }
+
+    // --- user changes ease: nothing jumps -----------------------------------
+    // `aim` is where the user wants the level, `shown` what the panel has been
+    // told; `ease` closes the gap a fraction per frame, so a 5% tap glides in
+    // ~150 ms and a hold's moving aim is followed without stair steps. A
+    // change from elsewhere (auto, hypridle) resets both once this one settles.
+    property real aim: 0
+    property real shown: 0
+    property double aimUntil: 0
+    function current() { return Date.now() < aimUntil ? aim : level }
+    function aimAt(l) {
+        if (Date.now() >= aimUntil) shown = level
+        aim = Math.max(minLevel, Math.min(1, l))
+        aimUntil = Date.now() + 400
+        ramp.stop()
+        if (!ease.running) ease.start()
+    }
+    Timer {
+        id: ease
+        interval: 16
+        repeat: true
+        onTriggered: {
+            const d = root.aim - root.shown
+            const next = Math.abs(d) < 0.003 ? root.aim : root.shown + d * 0.3
+            if (Math.round(root.fromLevel(next) * root.max) !== Math.round(root.fromLevel(root.shown) * root.max))
+                root.set(root.fromLevel(next))
+            root.shown = next
+            root.aimUntil = Date.now() + 400
+            if (next === root.aim && !glide.running) stop()
+        }
+    }
+    // wheel and taps land on the 5% grid
+    function nudge(delta) { aimAt(Math.round((current() + delta) / step) * step) }
+
+    // --- the keys: a tap steps, a hold glides ------------------------------
+    // The brightness keys come from the ACPI video bus, which reports press and
+    // release in the same instant; held, the firmware repeats the tap after
+    // 500 ms and then every ~240 ms. So a lone tap is an eased step, and a train
+    // of taps moves the aim continuously, speeding up the longer it runs. Each
+    // tap buys one repeat interval of motion, so the glide stops within one
+    // interval of letting go.
+    readonly property int tapGap: 600      // a tap this soon after the last continues the hold
+    readonly property int tapSpan: 250     // motion each repeat pays for
+    property int glideDir: 0
+    property double lastTap: 0
+    property double holdStart: 0
+    property double glideTick: 0
+    function press(dir) {
+        const now = Date.now()
+        if (dir === glideDir && now - lastTap < tapGap) {
+            lastTap = now
+            if (!glide.running) { glideTick = now; glide.start() }
+            return
+        }
+        glide.stop()
+        glideDir = dir
+        holdStart = now
+        lastTap = now
+        nudge(dir * step)
+    }
+    Timer {
+        id: glide
+        interval: 16
+        repeat: true
+        onTriggered: {
+            const now = Date.now()
+            const until = Math.min(now, root.lastTap + root.tapSpan)
+            const dt = Math.max(0, until - root.glideTick) / 1000
+            root.glideTick = now
+            // levels per second: gentle at first, full range in ~2.5 s once going
+            const held = (now - root.holdStart) / 1000
+            const rate = 0.12 + 0.28 * Math.min(1, Math.max(0, held - 0.5) / 1.5)
+            if (dt > 0) root.aimAt(root.aim + root.glideDir * rate * dt)
+            if (now >= root.lastTap + root.tapSpan || root.aim <= root.minLevel || root.aim >= 1) stop()
+        }
+    }
+
     function toggleAuto() {
         auto = !auto
         save()
@@ -90,6 +186,8 @@ Singleton {
     IpcHandler {
         target: "backlight"
         function sync(): void { if (root.autoActive) holdProbe.running = true }
+        function up(): void { root.press(1) }
+        function down(): void { root.press(-1) }
     }
 
     // --- applying: a short ramp, marked as auto's own ------------------------
@@ -100,12 +198,13 @@ Singleton {
         interval: 60
         repeat: true
         onTriggered: {
-            const d = root.rampTo - root.frac
-            if (Math.abs(d) < 0.011) { stop(); return }
-            // a quarter of the gap a step, at least 1%: a glide of about a second
-            const next = root.frac + Math.sign(d) * Math.max(0.01, Math.abs(d) / 4)
+            // glides in level space, so a dark-room ramp is as smooth as a bright one
+            const to = root.toLevel(root.rampTo)
+            const d = to - root.level
             root.ownUntil = Date.now() + 500
-            root.set(next)
+            if (Math.abs(d) < 0.011) { stop(); root.set(root.rampTo); return }
+            // a quarter of the gap a step, at least 1 level: a glide of about a second
+            root.set(root.fromLevel(root.level + Math.sign(d) * Math.max(0.01, Math.abs(d) / 4)))
         }
     }
     // Lux settles for a beat before auto acts, so a passing shadow or a hand
@@ -115,7 +214,7 @@ Singleton {
         interval: 1500
         onTriggered: {
             if (!root.autoActive || root.heldOff || Date.now() < root.heldUntil) return
-            if (Math.abs(root.target - root.frac) < 0.03) return
+            if (Math.abs(root.toLevel(root.target) - root.level) < 0.03) return
             root.rampTo = root.target
             ramp.start()
         }
@@ -164,7 +263,7 @@ Singleton {
             // learn: the user's level, as an offset from where auto would sit
             if (root.autoActive) {
                 root.offset = Math.max(-0.6, Math.min(0.6, root.frac - root.curveAt(root.lux)))
-                root.save()
+                saveLater.restart()
             }
         }
     }
@@ -179,6 +278,8 @@ Singleton {
     readonly property string prefsDir: Quickshell.env("HOME") + "/.local/state/lastshell"
     // made up front: a mkdir alongside the first save would race the write
     onPresentChanged: if (present) Quickshell.execDetached(["mkdir", "-p", prefsDir])
+    // a glide moves the offset ~30 times a second; write once it settles
+    Timer { id: saveLater; interval: 1000; onTriggered: root.save() }
     function save() {
         prefs.setText(JSON.stringify({ auto: root.auto, offset: Math.round(root.offset * 1000) / 1000 }) + "\n")
     }

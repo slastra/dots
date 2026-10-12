@@ -27,7 +27,7 @@ file. Do not run `hyprctl reload`.
 ## lastshell
 
 `config/quickshell/lastshell` is the shell (a vendored copy of
-[slastra/lastshell](https://github.com/slastra/lastshell), last synced at `0d7388e`). Raw Quickshell,
+[slastra/lastshell](https://github.com/slastra/lastshell), last synced at `fd18a65`). Raw Quickshell,
 no framework.
 
 The bars are tab chips hanging off the screen edges. Four instruments are
@@ -119,6 +119,17 @@ hub, through [deskpresence](https://github.com/slastra/deskpresence)
 through `scripts/laptop-screen.sh`; hypridle's timeouts go through
 `scripts/presence-guard.sh`, so reading without touching anything isn't
 idle.
+
+Brightness steps a perceptual level (CIE L*), so 5% looks the same at the
+floor as at full, and every change eases instead of jumping. The keys go
+through lastshell: a tap is one step, holding glides (the ACPI video bus
+reports no hold, only firmware repeats of the tap).
+
+`SUPER + SHIFT + N` (or a click on the network chip) is the Wi-Fi picker:
+joined, saved, then nearby networks by signal; a new secured one asks for
+its password. `scripts/wifi.py` talks to iwd over D-Bus and is its
+passphrase agent, and runs only while the picker is open or a join is in
+flight.
 
 Battery: idle went from ~9.7 W to ~2.5 W (screen dim, nothing working).
 Eco mode (`scripts/eco.sh`, Super+Shift+E; the lastshell dialog on

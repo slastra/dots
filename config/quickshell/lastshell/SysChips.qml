@@ -1,3 +1,4 @@
+import Quickshell
 import QtQuick
 
 // The foam-family stat cluster: network, cpu, temp, disk, memory, recording,
@@ -12,6 +13,8 @@ ChipRow {
         value: Net.connected ? Net.ip : "Disconnected"
         icon: Net.wireless ? (Net.connected ? "wifi" : "wifi-off")
             : Net.connected ? "ethernet-port" : "unplug"
+        // the laptop's Wi-Fi picker; the desk is wired only
+        onClicked: if (Host.laptop) Quickshell.execDetached(["qs", "-c", "lastshell", "ipc", "call", "overlays", "toggleWifi"])
 
         Popout {
             id: netPop

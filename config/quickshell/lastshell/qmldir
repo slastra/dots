@@ -18,6 +18,7 @@ ClockChip 1.0 ClockChip.qml
 SysChips 1.0 SysChips.qml
 singleton SysStat 1.0 services/SysStat.qml
 singleton Net 1.0 services/Net.qml
+singleton Wifi 1.0 services/Wifi.qml
 singleton Weather 1.0 services/Weather.qml
 singleton Recorder 1.0 services/Recorder.qml
 Popout 1.0 Popout.qml
