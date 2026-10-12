@@ -61,11 +61,13 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("1password --ozone-platform-hint=wayland &")
     -- hyprglaze runs as a user service so scripts/power-watch.sh can stop it
     -- on battery and start it on AC. Start it only after the env update (the
-    -- unit needs WAYLAND_DISPLAY), and only on AC.
+    -- unit needs WAYLAND_DISPLAY), and only on AC out of eco; otherwise the
+    -- still wallpaper (wallpaper-still.service: hyprpaper, walls/mesh.png).
+    -- The units swap the two from then on.
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XCURSOR_THEME XCURSOR_SIZE HYPRCURSOR_THEME HYPRCURSOR_SIZE"
-        .. " && [ \"$(cat /sys/class/power_supply/ADP1/online)\" = 1 ]"
-        .. " && [ ! -f ~/.local/state/eco ]"
-        .. " && systemctl --user start hyprglaze.service")
+        .. " && if [ \"$(cat /sys/class/power_supply/ADP1/online)\" = 1 ] && [ ! -f ~/.local/state/eco ];"
+        .. " then systemctl --user start hyprglaze.service;"
+        .. " else systemctl --user start wallpaper-still.service; fi")
 end)
 
 -----------------------------

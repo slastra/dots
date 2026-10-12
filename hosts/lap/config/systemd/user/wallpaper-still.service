@@ -1,0 +1,13 @@
+# The still wallpaper (hyprpaper, ~/.config/hypr/hyprpaper.conf) for when
+# hyprglaze is off. Not hyprpaper.service: that one Requires
+# graphical-session.target, which this session never starts on its own, and
+# when hyprpaper stopped the target went with it, taking hyprglaze along.
+# Starting either this or hyprglaze stops the other; hyprglaze's drop-in
+# starts this one when it stops cleanly.
+[Unit]
+Description=Still wallpaper while hyprglaze is off
+Conflicts=hyprglaze.service
+
+[Service]
+ExecStart=/usr/bin/hyprpaper
+Restart=on-failure

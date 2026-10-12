@@ -8,6 +8,7 @@ import QtQuick
 // device that is present (e.g. a UPS or BT peripheral promoted to display).
 // The popout charts charge and power draw from UPower's history files, so
 // the record survives shell restarts; click a span to change the window.
+// Clicking the chip itself opens the Eco dialog.
 Chip {
     id: root
     edge: "top"
@@ -17,6 +18,9 @@ Chip {
     readonly property real pct: (dev?.percentage ?? 0) * 100
     readonly property bool charging: dev?.state === UPowerDeviceState.Charging
     readonly property real watts: dev?.changeRate ?? 0
+
+    // the power dialog: eco, CPU profile and what eco switches off
+    onClicked: Quickshell.execDetached(["qs", "-c", "lastshell", "ipc", "call", "overlays", "toggleEco"])
 
     ChipBody {
         ValueText {

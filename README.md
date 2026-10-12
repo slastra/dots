@@ -27,7 +27,7 @@ file. Do not run `hyprctl reload`.
 ## lastshell
 
 `config/quickshell/lastshell` is the shell (a vendored copy of
-[slastra/lastshell](https://github.com/slastra/lastshell), last synced at `fd18a65`). Raw Quickshell,
+[slastra/lastshell](https://github.com/slastra/lastshell), last synced at `f0cd0b0`). Raw Quickshell,
 no framework.
 
 The bars are tab chips hanging off the screen edges. Four instruments are
@@ -130,6 +130,15 @@ joined, saved, then nearby networks by signal; a new secured one asks for
 its password. `scripts/wifi.py` talks to iwd over D-Bus and is its
 passphrase agent, and runs only while the picker is open or a join is in
 flight.
+
+With hyprglaze off (battery, eco) the background is a still Rosé Pine mesh
+gradient: `walls/mesh.png`, rendered by `scripts/mesh-wallpaper.py` (not
+committed; run it once), shown by hyprpaper as
+`systemd/user/wallpaper-still.service`. Starting either one stops the
+other, and hyprglaze's drop-in brings the still back when it stops cleanly.
+The unit is not the packaged hyprpaper.service: that one Requires
+graphical-session.target, and stopping it took hyprglaze down too.
+Clicking the battery chip opens the Eco dialog.
 
 Battery: idle went from ~9.7 W to ~2.5 W (screen dim, nothing working).
 Eco mode (`scripts/eco.sh`, Super+Shift+E; the lastshell dialog on
