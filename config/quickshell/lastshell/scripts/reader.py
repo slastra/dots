@@ -20,6 +20,13 @@ holding up playback.
 mpv is driven over its JSON IPC socket, which supplies pause, per-passage
 skipping and pitch-corrected speed control without any audio code here.
 
+Passages are rendered by deskvoice (~/Projects/Python/deskvoice), the desk's
+shared speaker, when it's running: it holds Kokoro warm on CUDA for every
+voice on the desk. The reader also holds deskvoice's "reader" lease, so it
+pauses while deskdoc or a Claude cue speaks or the mic listens, and picks up
+at the start of the interrupted passage afterwards. Without deskvoice it
+renders in-process as before (Kokoro) or with a piper-tts subprocess.
+
 Note: the TTS binary is `piper-tts`. `/usr/bin/piper` is the libratbag mouse
 configuration GUI and has nothing to do with speech.
 """
@@ -1032,6 +1039,9 @@ class Mpv:
             ['mpv', '--no-config', '--no-terminal', '--idle=yes', '--no-video',
              '--force-window=no', '--gapless-audio=yes',
              '--audio-pitch-correction=yes', '--keep-open=no', '--volume=100',
+             # deskvoice pauses the reader through its lease rather than ducking it,
+             # and recognises the stream by this name.
+             '--audio-client-name=lastshell-reader',
              '--ao=' + os.environ.get('PIPER_READER_AO', 'pipewire,pulse,alsa'),
              '--input-ipc-server=' + self.socket_path],
             stdin=subprocess.DEVNULL,
@@ -1153,6 +1163,94 @@ class Mpv:
 # Synthesis producer
 # --------------------------------------------------------------------------
 
+# --------------------------------------------------------------------------
+# deskvoice: the desk's shared speaker
+# --------------------------------------------------------------------------
+
+class DeskvoiceUnavailable(Exception):
+    pass
+
+
+def deskvoice_socket():
+    runtime = os.environ.get('XDG_RUNTIME_DIR') or '/run/user/%d' % os.getuid()
+    return os.path.join(runtime, 'deskvoice.sock')
+
+
+def deskvoice_voice(voice):
+    """deskvoice's name for one of our voices."""
+    return voice.style if voice.engine == 'kokoro' else 'piper:' + voice.key
+
+
+def deskvoice_synth(text, voice, path, timeout=60.0):
+    """Render one passage to `path` through deskvoice. Raises
+    DeskvoiceUnavailable when it isn't running (the caller renders itself)."""
+    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    sock.settimeout(timeout)
+    try:
+        sock.connect(deskvoice_socket())
+    except OSError as exc:
+        sock.close()
+        raise DeskvoiceUnavailable(str(exc)) from exc
+    try:
+        sock.sendall((json.dumps({'op': 'synth', 'req': 'r', 'text': text,
+                                  'voice': deskvoice_voice(voice), 'out': str(path)}) + '\n').encode())
+        buf = b''
+        while b'\n' not in buf:
+            chunk = sock.recv(65536)
+            if not chunk:
+                raise DeskvoiceUnavailable('deskvoice closed the connection')
+            buf += chunk
+        reply = json.loads(buf.split(b'\n', 1)[0])
+    finally:
+        sock.close()
+    if not reply.get('ok'):
+        raise RuntimeError(reply.get('message') or 'deskvoice could not render')
+
+
+class VoiceLease(threading.Thread):
+    """Holds deskvoice's reader lease for the life of the engine and reports
+    each yield/resume to the main loop. Reconnects every few seconds while
+    deskvoice is down, and reports "resume" on losing it, so a crash never
+    leaves the reader paused."""
+
+    def __init__(self, on_change):
+        super().__init__(daemon=True)
+        self.on_change = on_change   # called on the GLib main loop with True (yield) / False (resume)
+
+    def run(self):
+        while True:
+            try:
+                sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                sock.connect(deskvoice_socket())
+            except OSError:
+                time.sleep(5)
+                continue
+            try:
+                sock.sendall(b'{"op":"lease","channel":"reader","req":"lease"}\n')
+                buf = b''
+                while True:
+                    chunk = sock.recv(4096)
+                    if not chunk:
+                        break
+                    buf += chunk
+                    while b'\n' in buf:
+                        line, buf = buf.split(b'\n', 1)
+                        try:
+                            msg = json.loads(line)
+                        except ValueError:
+                            continue
+                        if msg.get('req') == 'lease':
+                            GLib.idle_add(self.on_change, bool(msg.get('yield')))
+                        elif msg.get('event') in ('yield', 'resume'):
+                            GLib.idle_add(self.on_change, msg['event'] == 'yield')
+            except OSError:
+                pass
+            finally:
+                sock.close()
+            GLib.idle_add(self.on_change, False)
+            time.sleep(2)
+
+
 class Producer(threading.Thread):
     """Renders passages to WAV ahead of the playhead and appends them to mpv.
 
@@ -1207,14 +1305,19 @@ class Producer(threading.Thread):
 
             path = self.workdir / ('%05d.wav' % index)
             try:
-                if self.voice.engine == 'kokoro':
+                code, err = 0, b''
+                try:
+                    deskvoice_synth(self.passages[index], self.voice, path)
+                    local = False
+                except DeskvoiceUnavailable:
+                    local = True          # not running: render here, as before deskvoice
+                if local and self.voice.engine == 'kokoro':
                     # In-process: no per-sentence model load, so nothing to
                     # kill either. stop_event is honoured between sentences,
                     # which at ~1 s each is responsive enough.
                     KokoroEngine.synth(self.passages[index],
                                        self.voice.style, path)
-                    code, err = 0, b''
-                else:
+                elif local:
                     self._proc = subprocess.Popen(
                         [PIPER, '-m', str(self.voice.path), '-f', str(path), '-q'],
                         stdin=subprocess.PIPE,
@@ -1335,6 +1438,12 @@ class Reader:
         self._tick_id = 0
         self._save_id = 0
         self._last_state = None
+        # deskvoice's reader lease: voice_busy is its latest word (someone else
+        # is speaking or the mic is listening); held means we paused for it and
+        # owe a resume. Pressing pause or play yourself clears held.
+        self.voice_busy = False
+        self.held = False
+        VoiceLease(self._on_voice).start()
         atexit.register(shutil.rmtree, str(self.workdir), True)
         for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
             unix_signal_add(GLib.PRIORITY_DEFAULT, sig, self.quit)
@@ -1370,8 +1479,18 @@ class Reader:
                 self.load_text(text)
             else:
                 self._notice('Nothing selected or copied')
+        elif word == 'load':
+            # load "json string": read this text instead of the selection
+            # (for other clients, and for testing without the clipboard)
+            try:
+                text = json.loads(arg)
+            except ValueError:
+                text = None
+            if isinstance(text, str) and text.strip():
+                self.load_text(text)
         elif word == 'toggle':
             if self.mpv:
+                self.held = False       # you're in charge now
                 self.mpv.set_property('pause', not bool(self.mpv.get('pause', False)))
         elif word == 'next':
             if self.mpv:
@@ -1406,6 +1525,24 @@ class Reader:
         elif word == 'quit':
             self.quit()
         self._emit_state()
+
+    def _on_voice(self, busy):
+        """deskvoice's lease: pause while someone else speaks or the mic
+        listens; afterwards, replay the interrupted passage from its start."""
+        self.voice_busy = busy
+        mpv = self.mpv
+        if busy:
+            if mpv and mpv.alive and not bool(mpv.get('pause', False)):
+                mpv.set_property('pause', True)
+                self.held = True
+        elif self.held:
+            self.held = False
+            if mpv and mpv.alive:
+                if float(mpv.get('time-pos', 0.0) or 0.0) > 0.5:
+                    mpv.command('seek', 0, 'absolute')
+                mpv.set_property('pause', False)
+        self._emit_state()
+        return False
 
     def _save_speed(self):
         self._save_id = 0
@@ -1464,6 +1601,12 @@ class Reader:
             return
         self.mpv._on_dead = lambda epoch=self.doc_epoch: self._on_mpv_dead(epoch)
         self.mpv.set_property('speed', self.speed)
+        self.held = False
+        if self.voice_busy:
+            # deskdoc or a cue is talking right now: start paused, and play
+            # when deskvoice says it's quiet.
+            self.mpv.set_property('pause', True)
+            self.held = True
 
         if use_tidy:
             self.passages_complete = False
@@ -1672,6 +1815,7 @@ class Reader:
         return {
             'active': True,
             'paused': bool(mpv.get('pause', False)) if mpv else True,
+            'held': self.held,          # paused for deskvoice (someone else is speaking)
             'idle': bool(mpv.get('idle-active', False)) if mpv else True,
             'finished': finished,
             'position': min(position + 1, total_passages),

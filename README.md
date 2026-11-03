@@ -36,7 +36,7 @@ file. Do not run `hyprctl reload`.
 config/
 ├── quickshell/lastshell/   the shell (QML)
 ├── hypr/                   hyprland.lua, binds.lua, theme.lua, hypridle.conf, hyprglaze.toml, scripts/
-├── lastshell/              claude-status.py, lamp.sh (shell-adjacent daemons)
+├── lastshell/              lamp.sh (shell-adjacent)
 ├── rofi/scripts/           capture.sh, hotkeys.py (engines, menuless)
 ├── qt6ct/colors/           rose-pine.conf (Qt palette)
 ├── kitty/                  kitty.conf, colors.conf
@@ -78,7 +78,7 @@ greetd starts lastshell's greeter. The greeter starts Hyprland.
 |---|---|
 | `lastshell` | The shell. Two bars, nine modals, notifications, a narrator. Quickshell. |
 | `tabstrip` | Browser-tab daemon. Feeds the bar strip and the tab switcher. |
-| `claude-status.py` | Claude Code session daemon. Feeds the session chips. |
+| `claude-status.py` | Claude Code session daemon, in lastshell's `scripts/`. Feeds the session chips. |
 | `hyprglaze` | Shader wallpaper daemon. It draws the wallpaper. |
 | `hypridle` | Idle timers (`hypridle.conf`). They report input to `deskpresence` and run `scripts/tv-watchdog.sh`. |
 | `wl-paste` | Clipboard watcher. It stores history in `cliphist`. |
@@ -86,7 +86,7 @@ greetd starts lastshell's greeter. The greeter starts Hyprland.
 ### lastshell
 
 `config/quickshell/lastshell` is the shell (a vendored copy of
-[slastra/lastshell](https://github.com/slastra/lastshell), last synced at `f0cd0b0`). Raw Quickshell,
+[slastra/lastshell](https://github.com/slastra/lastshell), last synced at `v1.0.0`). Raw Quickshell,
 no framework.
 
 The bars are tab chips hanging off the screen edges. Four instruments are
@@ -108,7 +108,7 @@ The shell renders; daemons own data. `tabstrip` (Go,
 [repo](https://github.com/slastra/tabstrip)) watches browsers over D-Bus
 and writes a snapshot the shell's FileView watches. The bar strip is
 workspace-filtered; `tabstrip list` is the global view. `claude-status.py`
-(`config/lastshell/`) watches Claude Code sessions, usage quotas, Hyprland
+(lastshell's `scripts/`) watches Claude Code sessions, usage quotas, Hyprland
 focus, and MQTT face state, and writes one JSON snapshot.
 
 ### Engines

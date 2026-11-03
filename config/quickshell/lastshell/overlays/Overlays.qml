@@ -1,5 +1,6 @@
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.Polkit
 import QtQuick
 import ".."  // root module: Recorder (recording-aware Print behavior), Host, Wifi
 
@@ -23,6 +24,7 @@ Scope {
         function toggleSwitcher(): void { root.summon(switcher) }
         function toggleLauncher(): void { root.summon(launcher) }
         function toggleAudio(): void { root.summon(audio) }
+        function toggleMixer(): void { root.summon(mixer) }
         function toggleEffects(): void { root.summon(effects) }
         function toggleClipboard(): void { root.summon(clipboard) }
         function toggleNotifications(): void { root.summon(center) }
@@ -32,7 +34,12 @@ Scope {
         // tap to start, tap again to stop (the overlay decides which)
         function toggleDictation(): void {
             if (!dictation.active) dictation.active = true
-            dictation.item.hotkey()
+            dictation.item.hotkey(false)
+        }
+        // Shift+Super+X: the same, and the paste is followed by Return
+        function toggleDictationSubmit(): void {
+            if (!dictation.active) dictation.active = true
+            dictation.item.hotkey(true)
         }
         function toggleCapture(): void {
             // Print while recording = stop, no menu — matching the script.
@@ -44,6 +51,7 @@ Scope {
     // OSD and popups stay resident (they must observe state to react);
     // the eight modals load on demand.
     VolumeOsd {}
+    NowPlayingToast {}
     LazyLoader { active: Backlight.present; BrightnessOsd {} }
     NotificationPopups { id: popups }
     DimOverlay {}
@@ -51,6 +59,7 @@ Scope {
     LazyLoader { id: switcher; TabSwitcher {} }
     LazyLoader { id: launcher; Launcher {} }
     LazyLoader { id: audio; AudioPicker {} }
+    LazyLoader { id: mixer; AudioMixer {} }
     LazyLoader { id: effects; EffectPicker {} }
     LazyLoader { id: clipboard; ClipboardPicker {} }
     LazyLoader { id: center; NotificationCenter { history: popups.historyModel } }
@@ -69,4 +78,20 @@ Scope {
         }
     }
     LazyLoader { id: dictation; Dictation {} }
+    // the Voice popout's dictate buttons: the same overlay as Super+X / Shift+Super+X
+    Connections {
+        target: Voice
+        function onDictationRequested(send) {
+            if (!dictation.active) dictation.active = true
+            dictation.item.hotkey(send)
+        }
+    }
+
+    // The session's polkit agent (hyprpolkitagent retired): resident, so it
+    // holds the registration; the dialog loads on the first request.
+    PolkitAgent {
+        id: polkit
+        onAuthenticationRequestStarted: auth.active = true
+    }
+    LazyLoader { id: auth; PolkitDialog { agent: polkit } }
 }

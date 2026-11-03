@@ -4,7 +4,9 @@ import Quickshell.Hyprland
 import QtQuick
 import ".."  // root module
 
-// Voice dictation (Super+X; scripts/dictate.py is the engine). Tap to start,
+// Voice dictation (Super+X; Shift+Super+X also presses Return after the
+// paste, to send a chat message or a Claude prompt; scripts/dictate.py is
+// the engine). Tap to start,
 // tap again (or Enter) to stop; the transcript comes back cleaned up for the
 // window it is headed to, and Enter pastes it there. Pasting rather than
 // typing keeps a newline from pressing Return in a terminal: kitty takes
@@ -28,14 +30,16 @@ Overlay {
     property string error: ""
     property bool showRaw: false
     property var target: ({ address: "", cls: "", title: "" })
+    property bool submit: false     // Shift+Super+X: Return after the paste
 
     readonly property bool busy: phase === "transcribing" || phase === "cleaning"
     readonly property string shown: showRaw ? raw : cleaned
 
-    // Super+X: open, or stop if listening, or close
-    function hotkey() {
-        if (!open) open = true
-        else if (phase === "recording") stop()
+    // Super+X: open, or stop if listening, or close. withSubmit (Shift)
+    // marks this dictation to be sent: Return follows the paste.
+    function hotkey(withSubmit) {
+        if (!open) { submit = withSubmit === true; open = true }
+        else if (phase === "recording") { if (withSubmit) submit = true; stop() }
         else dismiss()
     }
     function stop() { if (proc.running) proc.write("stop\n") }
@@ -100,6 +104,7 @@ Overlay {
         if (shown === "") return
         deliver.text = shown
         deliver.copyOnly = copyOnly
+        deliver.submit = submit && !copyOnly
         deliver.terminal = terminals.includes(target.cls)
         dismiss()            // keyboard focus goes back to the window
         deliver.restart()
@@ -109,6 +114,7 @@ Overlay {
         property string text
         property bool copyOnly
         property bool terminal
+        property bool submit
         interval: 120        // past the overlay's focus hand-back
         onTriggered: {
             if (root.target.address)
@@ -120,9 +126,10 @@ Overlay {
                     sleep 0.08
                     if [ "$3" = term ]; then wtype -M ctrl -M shift -k v -m shift -m ctrl
                     else wtype -M ctrl -k v -m ctrl; fi
+                    if [ "$4" = submit ]; then sleep 0.12; wtype -k Return; fi
                 else
                     notify-send -a Dictation "Copied to clipboard" "Install wtype to paste it into the window"
-                fi`, "sh", text, copyOnly ? "copy" : "paste", terminal ? "term" : "gui"]
+                fi`, "sh", text, copyOnly ? "copy" : "paste", terminal ? "term" : "gui", submit ? "submit" : "keep"]
             paste.running = true
         }
     }
@@ -149,7 +156,7 @@ Overlay {
 
         ModalHeader {
             icon: root.phase === "error" ? "mic-off" : "mic"
-            title: "Dictation"
+            title: root.submit ? "Dictation  ·  send" : "Dictation"   // Shift+Super+X presses Return after the paste
             showQuery: false
 
             PopText { // where the text will land
@@ -255,7 +262,9 @@ Overlay {
                 recording: "↵ stop   esc cancel",
                 transcribing: "esc close",
                 cleaning: "esc close",
-                review: "↵ paste   ⇧↵ copy   ⇥ raw   r again   ⇧r rewrite   esc discard",
+                review: root.submit
+                    ? "↵ paste & send   ⇧↵ copy   ⇥ raw   r again   ⇧r rewrite   esc discard"
+                    : "↵ paste   ⇧↵ copy   ⇥ raw   r again   ⇧r rewrite   esc discard",
                 error: "r record again   t retry   esc close",
             })[root.phase] ?? ""
             count: root.phase === "review" ? `${root.shown.split(/\s+/).filter(w => w).length} words` : ""

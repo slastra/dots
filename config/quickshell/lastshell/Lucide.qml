@@ -99,6 +99,8 @@ QtObject {
         "skip-forward":  "\ue160",
         "chevron-left":  "\ue06e",
         "audio-lines":   "\ue55a",
+        // mixer
+        "sliders-horizontal": "\ue29a",
     })
 
     function icon(name) { return glyphs[name] ?? "?" }

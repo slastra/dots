@@ -6,6 +6,7 @@ ModalFooter 1.0 ModalFooter.qml
 TabSwitcher 1.0 TabSwitcher.qml
 Overlays 1.0 Overlays.qml
 VolumeOsd 1.0 VolumeOsd.qml
+NowPlayingToast 1.0 NowPlayingToast.qml
 BrightnessOsd 1.0 BrightnessOsd.qml
 Launcher 1.0 Launcher.qml
 singleton Frecency 1.0 Frecency.qml
@@ -15,6 +16,7 @@ JsonProcess 1.0 JsonProcess.qml
 singleton Browsers 1.0 Browsers.qml
 NotificationPopups 1.0 NotificationPopups.qml
 AudioPicker 1.0 AudioPicker.qml
+AudioMixer 1.0 AudioMixer.qml
 EffectPicker 1.0 EffectPicker.qml
 ClipboardPicker 1.0 ClipboardPicker.qml
 NotificationCenter 1.0 NotificationCenter.qml
@@ -25,3 +27,4 @@ Dictation 1.0 Dictation.qml
 DimOverlay 1.0 DimOverlay.qml
 WifiPicker 1.0 WifiPicker.qml
 WifiPassword 1.0 WifiPassword.qml
+PolkitDialog 1.0 PolkitDialog.qml

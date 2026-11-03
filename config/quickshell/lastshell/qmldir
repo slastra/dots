@@ -60,7 +60,11 @@ singleton Backlight 1.0 services/Backlight.qml
 singleton Eco 1.0 services/Eco.qml
 BrightnessChip 1.0 BrightnessChip.qml
 singleton Reader 1.0 services/Reader.qml
-ReaderChip 1.0 ReaderChip.qml
+ReaderPanel 1.0 ReaderPanel.qml
+singleton Voice 1.0 services/Voice.qml
+VoiceChip 1.0 VoiceChip.qml
+VoicePicker 1.0 VoicePicker.qml
+VoiceMark 1.0 VoiceMark.qml
 SectionLabel 1.0 SectionLabel.qml
 Segmented 1.0 Segmented.qml
 EngineProcess 1.0 EngineProcess.qml

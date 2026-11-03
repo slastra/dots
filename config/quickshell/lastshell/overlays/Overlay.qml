@@ -16,6 +16,7 @@ PanelWindow {
 
     function toggle() { open = !open }
     function dismiss() { open = false }
+    function jolt() { shake.restart() }   // the card flinches: a refused input
 
     visible: open || card.opacity > 0
     color: "transparent"
@@ -51,6 +52,17 @@ PanelWindow {
         Behavior on opacity { NumberAnimation { duration: Theme.animDuration; easing.type: Easing.OutCubic } }
         Behavior on scale { NumberAnimation { duration: Theme.animDuration; easing.type: Easing.OutCubic } }
         Behavior on anchors.verticalCenterOffset { NumberAnimation { duration: Theme.animDuration; easing.type: Easing.OutCubic } }
+
+        property real jolt: 0
+        transform: Translate { x: card.jolt }
+        SequentialAnimation {
+            id: shake
+            NumberAnimation { target: card; property: "jolt"; to: -10; duration: 40 }
+            NumberAnimation { target: card; property: "jolt"; to: 10; duration: 60 }
+            NumberAnimation { target: card; property: "jolt"; to: -6; duration: 50 }
+            NumberAnimation { target: card; property: "jolt"; to: 6; duration: 50 }
+            NumberAnimation { target: card; property: "jolt"; to: 0; duration: 40 }
+        }
 
         MouseArea { anchors.fill: parent } // swallow clicks inside the card
 

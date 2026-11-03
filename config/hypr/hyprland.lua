@@ -13,7 +13,7 @@ hl.monitor({
 	scale = 1.25,
 	bitdepth = 10,
 	cm = "hdredid", -- HDR, luminance ranges from the TV's EDID ("auto" resolved to wide-gamut SDR)
-	sdrbrightness = 1, -- lift SDR content a bit against the HDR range; tune to taste
+	sdrbrightness = 2.4, -- lift SDR content a bit against the HDR range; tune to taste
 })
 
 -----------------
@@ -23,11 +23,11 @@ hl.monitor({
 hl.on("hyprland.start", function()
 	-- lastshell (Quickshell) replaced waybar and mako on 2026-08-31; see
 	-- ~/Projects/Quickshell/lastshell. Its two data daemons run standalone:
-	-- tabstrip writes the browser-tab snapshot, claude-status the session
-	-- snapshot (LASTSHELL_STANDALONE disables its die-with-waybar coupling).
+	-- tabstrip writes the browser-tab snapshot, claude-status (in the repo's
+	-- scripts/ since 2026-11-03) the session snapshot.
 	hl.exec_cmd("qs -c lastshell &")
 	hl.exec_cmd("~/.local/bin/tabstrip daemon &")
-	hl.exec_cmd("env LASTSHELL_STANDALONE=1 ~/.config/lastshell/claude-status.py --daemon &")
+	hl.exec_cmd("~/.config/quickshell/lastshell/scripts/claude-status.py --daemon &")
 	hl.exec_cmd("hyprglaze &")
 	-- Clipboard history store. Without this daemon cliphist records nothing and
 	-- the SUPER+V picker comes up empty.
@@ -35,15 +35,21 @@ hl.on("hyprland.start", function()
 	-- AI-generated startup jingle (GLM 5.3 Flash via OpenRouter → sclang);
 	-- falls back to ~/.cache/boot-jingle/known-good.scd when offline.
 	hl.exec_cmd("~/.local/bin/boot-jingle &")
-	hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XCURSOR_THEME XCURSOR_SIZE HYPRCURSOR_THEME HYPRCURSOR_SIZE")
+	hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XCURSOR_THEME XCURSOR_SIZE HYPRCURSOR_THEME HYPRCURSOR_SIZE GDK_WAYLAND_DISABLE")
 	-- Input idle for the TV burn-in guard, after the environment import it
 	-- needs (graphical-session.target is not used here, so the unit's
 	-- WantedBy never fires). Replaced idle.sh/swayidle on 2026-09-27:
 	-- swayidle cannot ignore idle inhibitors. See ~/.config/hypr/hypridle.conf.
 	hl.exec_cmd("systemctl --user restart hypridle.service")
-	-- Polkit agent, same story: its WantedBy=graphical-session.target never
-	-- fires here. 1Password's system-auth unlock (and pkexec etc.) need it.
-	hl.exec_cmd("systemctl --user start hyprpolkitagent.service")
+	-- Sunshine (Moonlight host for the Living Room onn box), started here for
+	-- the same WantedBy reason. Its unit sleeps 5 s before starting.
+	hl.exec_cmd("systemctl --user restart app-dev.lizardbyte.app.Sunshine.service")
+	-- eufy-bridge notify: doorbell notifications from server.lastra's MQTT
+	-- events, click to watch (mpv needs this session's Wayland env).
+	hl.exec_cmd("systemctl --user restart eufy-bridge-notify.service")
+	-- No polkit agent here: lastshell is the agent (overlays/PolkitDialog.qml)
+	-- since 2026-10-16. A second agent would take the session's registration
+	-- first and lastshell's would fail, so hyprpolkitagent stays unstarted.
 end)
 
 -----------------------------
@@ -67,6 +73,13 @@ hl.env("HYPRCURSOR_THEME", "BreezeX-RosePine")
 hl.env("XCURSOR_SIZE", "36")
 hl.env("HYPRCURSOR_SIZE", "36")
 hl.env("GDK_SCALE", "2")
+
+-- GTK 4.24 attaches ext-background-effect to every surface it creates, and
+-- once a surface has one Hyprland blurs only the region the client asks for,
+-- ignoring decoration:blur. GTK asks for none unless CSS uses backdrop-filter,
+-- so every GTK4 window lost blur (most visible on inactive floats over other
+-- windows). Hiding the global from GTK hands blur back to the compositor.
+hl.env("GDK_WAYLAND_DISABLE", "ext_background_effect_manager_v1")
 
 -- NVIDIA VA-API for Firefox / browsers
 hl.env("LIBVA_DRIVER_NAME", "nvidia")

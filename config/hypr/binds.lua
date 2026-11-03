@@ -8,6 +8,7 @@ hl.bind(mod .. " + Space",      hl.dsp.exec_cmd("qs -c lastshell ipc call overla
 hl.bind(mod .. " + G",          hl.dsp.exec_cmd("python3 ~/.config/hypr/scripts/float-arrange.py")) -- gather floats
 hl.bind(mod .. " + W",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleSwitcher"))
 hl.bind(mod .. " + A",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleAudio"))
+hl.bind(mod .. " + SHIFT + A",  hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleMixer")) -- per-app volume
 hl.bind(mod .. " + B",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleEffects"))
 hl.bind(mod .. " + C",          hl.dsp.exec_cmd("hyprpicker -a"))
 hl.bind(mod .. " + E",          hl.dsp.exec_cmd(fileManager))
@@ -16,11 +17,11 @@ hl.bind(mod .. " + E",          hl.dsp.exec_cmd(fileManager))
 hl.bind(mod .. " + V",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleClipboard"))
 -- Office light: toggle the Kasa HS210 directly over the LAN (no cloud/IFTTT).
 -- SUPER+L was the old binding but it now means focus-right, so SUPER+O ("Office").
-hl.bind(mod .. " + O",          hl.dsp.exec_cmd("python /home/shaun/Projects/Python/kasactl/kasactl.py toggle 192.168.11.98"))
--- Phone mirror: toggle scrcpy over wireless adb (Pixel 8a). adb tcpip mode resets on
--- phone reboot; plug in USB once and run `adb tcpip 5555` to re-arm. --no-audio keeps
--- sound on the phone; drop it to pipe audio to the desktop.
-hl.bind(mod .. " + P",          hl.dsp.exec_cmd("sh -c 'pkill -x scrcpy || scrcpy --tcpip=192.168.11.131:5555 --no-audio'"))
+hl.bind(mod .. " + O",          hl.dsp.exec_cmd("python /home/shaun/Projects/Python/kasactl/kasactl.py toggle 'Office Light'"))
+-- Phone mirror: toggle scrcpy over wireless adb (Shaun's Pixel 8a). phone-mirror finds
+-- the phone by its adb serial over mDNS, since its IP moves with its random MAC. After a
+-- phone reboot, plug in USB once and press again to re-arm. --no-audio is in the script.
+hl.bind(mod .. " + P",          hl.dsp.exec_cmd("/home/shaun/.local/bin/phone-mirror"))
 -- Read aloud ("T" for talk): speaks the primary selection, falling back to the
 -- clipboard, through piper-tts. Pressing it again while something is playing
 -- replaces the queue with the new selection rather than opening a second window.
@@ -32,6 +33,9 @@ hl.bind(mod .. " + CTRL + T",   hl.dsp.exec_cmd("qs -c lastshell ipc call reader
 hl.bind(mod .. " + SHIFT + C",  hl.dsp.window.close())
 hl.bind(mod .. " + SHIFT + Q",  hl.dsp.exit())
 hl.bind(mod .. " + M",          hl.dsp.window.fullscreen({ mode = "maximized",  action = "toggle" }))
+-- Music: ytm-player runs as a user service in its own tmux server (ytm.service);
+-- this opens it in a terminal, starting the service first if it is down.
+hl.bind(mod .. " + SHIFT + M",  hl.dsp.exec_cmd("kitty --class ytm -e sh -c 'systemctl --user start ytm; exec tmux -L music attach -t music'"))
 hl.bind(mod .. " + F",          hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind(mod .. " + S", function()
     hl.dispatch(hl.dsp.window.float({ action = "toggle" }))
@@ -121,3 +125,5 @@ hl.bind(mod .. " + slash",      hl.dsp.exec_cmd("qs -c lastshell ipc call overla
 
 -- Voice dictation: tap to start, tap again to stop (lastshell overlays/Dictation.qml)
 hl.bind(mod .. " + X",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleDictation"))
+-- Shift: the same dictation, then Return after the paste (send a chat message or prompt)
+hl.bind(mod .. " + SHIFT + X",  hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleDictationSubmit"))

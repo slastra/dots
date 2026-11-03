@@ -4,7 +4,7 @@ import Quickshell.Io
 import QtQuick
 import ".."
 
-// Claude Code session state, from the slimmed claude-status.py daemon's
+// Claude Code session state, from scripts/claude-status.py's
 // snapshot. The daemon owns liveness, MQTT face state, quota parsing and
 // the /proc ppid walk that maps sessions to windows; this just watches.
 Singleton {

@@ -45,12 +45,12 @@ hl.monitor({
 hl.on("hyprland.start", function()
     -- lastshell (Quickshell) replaces waybar and dunst, as on the desk; see
     -- ~/Projects/Quickshell/lastshell. Its two data daemons run standalone:
-    -- tabstrip writes the browser-tab snapshot, claude-status the session
-    -- snapshot (LASTSHELL_STANDALONE disables its die-with-waybar coupling).
+    -- tabstrip writes the browser-tab snapshot, claude-status (lastshell's
+    -- scripts/) the session snapshot.
     hl.exec_cmd("qs -c lastshell &")
     hl.exec_cmd("~/.local/bin/tabstrip daemon &")
     hl.exec_cmd("~/.config/hypr/scripts/power-watch.sh &")
-    hl.exec_cmd("env LASTSHELL_STANDALONE=1 ~/.config/lastshell/claude-status.py --daemon &")
+    hl.exec_cmd("~/.config/quickshell/lastshell/scripts/claude-status.py --daemon &")
     hl.exec_cmd("/home/shaun/go/bin/deskpresence input active; hypridle &")
     -- Clipboard history store. Without this daemon cliphist records nothing and
     -- the SUPER+V picker comes up empty.

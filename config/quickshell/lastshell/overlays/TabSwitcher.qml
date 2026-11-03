@@ -21,23 +21,29 @@ SearchOverlay {
         onResult: tabs => root.raw = tabs
     }
 
-    // Action rows: open a fresh window per known browser. Tiny negative
-    // weight sorts them under real tabs on an empty query.
+    // Action rows: open a fresh window per known browser, in Browsers'
+    // order (Firefox first). They head the list on an empty query and sink
+    // under real tabs once you type, so they never crowd a search.
     readonly property var browsers: Browsers.newWindow
 
-    items: raw.map(t => ({
+    // Tabs arrive most recently touched first (tabstrip's recency log);
+    // weight keeps that order. The tab you're looking at sinks below the
+    // rest, like the Launcher's current window: the top tab is the one
+    // you came from.
+    items: raw.map((t, i) => ({
             key: t.id,
             label: t.title,
             sublabel: t.browser,
             iconSource: t.icon ? "file://" + t.icon : "",
             current: t.active,
+            weight: t.focused ? 0 : raw.length - i,
         }))
-        .concat(browsers.map(b => ({
+        .concat(browsers.map((b, i) => ({
             key: "new:" + b.name,
             label: `+ New ${b.name} window`,
             iconSource: "file://" + Quickshell.env("HOME")
                 + `/.cache/tabctl/favicons/_fallback-${b.name.toLowerCase()}.png`,
-            weight: -1,
+            weight: root.query === "" ? raw.length + browsers.length - i : -i - 1,
             cmd: b.cmd,
         })))
 
