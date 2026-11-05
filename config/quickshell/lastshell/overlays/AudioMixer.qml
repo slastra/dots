@@ -21,7 +21,9 @@ Overlay {
     // the tracker note in AudioPicker.qml. The output row rides on the
     // Audio singleton, which tracks the sinks itself.
     readonly property var streams: Pipewire.nodes.values
-        .filter(n => n.isStream && n.isSink && n.audio)
+        // desk.volume-proxy: a silent stand-in deskvoice/deskpresence open
+        // for a moment to repair an app's saved volume, not a real stream
+        .filter(n => n.isStream && n.isSink && n.audio && !n.properties["desk.volume-proxy"])
         .sort((a, b) => appName(a).localeCompare(appName(b)) || a.id - b.id)
     PwObjectTracker { objects: root.streams }
 

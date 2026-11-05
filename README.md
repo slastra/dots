@@ -37,7 +37,7 @@ config/
 ├── quickshell/lastshell/   the shell (QML)
 ├── hypr/                   hyprland.lua, binds.lua, theme.lua, hypridle.conf, hyprglaze.toml, scripts/
 ├── lastshell/              lamp.sh (shell-adjacent)
-├── rofi/scripts/           capture.sh, hotkeys.py (engines, menuless)
+├── rofi/scripts/           hotkeys.py (engine, menuless)
 ├── qt6ct/colors/           rose-pine.conf (Qt palette)
 ├── kitty/                  kitty.conf, colors.conf
 ├── nvim/lua/               colors.lua
@@ -72,7 +72,16 @@ brightness, a Wi-Fi picker, an eco mode and the root-owned power tweaks.
 ### Session
 
 greetd starts lastshell's greeter. The greeter starts Hyprland.
-`hyprland.lua` then starts the desktop.
+`hyprland.lua` starts lastshell itself (it is the session's polkit agent,
+and apps it launches get their own scopes). Everything else is a systemd
+user unit on `graphical-session.target`, which Hyprland 0.57 starts with
+the session:
+
+```sh
+systemctl --user enable hyprglaze.service hypridle.service cliphist.service   # packaged units
+systemctl --user enable ~/Projects/Go/tabstrip/systemd/tabstrip.service \
+    ~/.config/quickshell/lastshell/systemd/claude-status.service           # from their repos
+```
 
 | Program | Function |
 |---|---|
@@ -81,12 +90,12 @@ greetd starts lastshell's greeter. The greeter starts Hyprland.
 | `claude-status.py` | Claude Code session daemon, in lastshell's `scripts/`. Feeds the session chips. |
 | `hyprglaze` | Shader wallpaper daemon. It draws the wallpaper. |
 | `hypridle` | Idle timers (`hypridle.conf`). They report input to `deskpresence` and run `scripts/tv-watchdog.sh`. |
-| `wl-paste` | Clipboard watcher. It stores history in `cliphist`. |
+| `cliphist` | Clipboard history (`cliphist.service` runs the `wl-paste` watcher). |
 
 ### lastshell
 
 `config/quickshell/lastshell` is the shell (a vendored copy of
-[slastra/lastshell](https://github.com/slastra/lastshell), last synced at `v1.0.0`). Raw Quickshell,
+[slastra/lastshell](https://github.com/slastra/lastshell), last synced at `78d6c82`). Raw Quickshell,
 no framework.
 
 The bars are tab chips hanging off the screen edges. Four instruments are
@@ -113,10 +122,10 @@ focus, and MQTT face state, and writes one JSON snapshot.
 
 ### Engines
 
-Two rofi-era scripts survive as backends with the menus stripped off:
-`capture.sh` (grim/slurp/satty screenshots and gpu-screen-recorder capture,
-invoked by subcommand from the capture modal) and `hotkeys.py` (the live
-binds.lua parser behind the hotkey sheet, `--json`).
+`hotkeys.py` is a rofi-era script kept as a backend with its menu stripped
+off: the live binds.lua parser behind the hotkey sheet (`--json`). The
+capture engine that sat beside it, `capture.sh`, now lives in lastshell's
+`scripts/` with its recording border.
 
 ## Components
 

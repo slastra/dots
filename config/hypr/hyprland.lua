@@ -21,35 +21,28 @@ hl.monitor({
 -----------------
 
 hl.on("hyprland.start", function()
-	-- lastshell (Quickshell) replaced waybar and mako on 2026-08-31; see
-	-- ~/Projects/Quickshell/lastshell. Its two data daemons run standalone:
-	-- tabstrip writes the browser-tab snapshot, claude-status (in the repo's
-	-- scripts/ since 2026-11-03) the session snapshot.
+	-- Session daemons are systemd user units WantedBy graphical-session.target
+	-- (since 2026-11-03): Hyprland imports WAYLAND_DISPLAY and
+	-- HYPRLAND_INSTANCE_SIGNATURE, starts hyprland-session.target (which binds
+	-- graphical-session.target) and stops it on exit. That covers tabstrip,
+	-- claude-status, hyprglaze, cliphist, hypridle, Sunshine and
+	-- eufy-bridge-notify; `systemctl --user list-dependencies
+	-- graphical-session.target` shows them. Restart=on-failure, journald and
+	-- per-unit cgroups (deskwatch's desk.hot) come with it.
+	--
+	-- lastshell (Quickshell) stays launched here, in the login session: it is
+	-- the polkit agent (registered per login session) and its launcher starts
+	-- apps as its children, which a unit's cgroup would kill on restart.
 	hl.exec_cmd("qs -c lastshell &")
-	hl.exec_cmd("~/.local/bin/tabstrip daemon &")
-	hl.exec_cmd("~/.config/quickshell/lastshell/scripts/claude-status.py --daemon &")
-	hl.exec_cmd("hyprglaze &")
-	-- Clipboard history store. Without this daemon cliphist records nothing and
-	-- the SUPER+V picker comes up empty.
-	hl.exec_cmd("wl-paste --watch cliphist store &")
-	-- AI-generated startup jingle (GLM 5.3 Flash via OpenRouter → sclang);
-	-- falls back to ~/.cache/boot-jingle/known-good.scd when offline.
+	-- AI-generated startup jingle (GLM 5.3 Flash via OpenRouter, an emotune
+	-- score); falls back to ~/.cache/boot-jingle/known-good.toml when offline.
 	hl.exec_cmd("~/.local/bin/boot-jingle &")
+	-- Variables Hyprland's own import leaves out, for D-Bus-activated and
+	-- later-started apps (cursor theme; GDK_WAYLAND_DISABLE, see ENVIRONMENT).
 	hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XCURSOR_THEME XCURSOR_SIZE HYPRCURSOR_THEME HYPRCURSOR_SIZE GDK_WAYLAND_DISABLE")
-	-- Input idle for the TV burn-in guard, after the environment import it
-	-- needs (graphical-session.target is not used here, so the unit's
-	-- WantedBy never fires). Replaced idle.sh/swayidle on 2026-09-27:
-	-- swayidle cannot ignore idle inhibitors. See ~/.config/hypr/hypridle.conf.
-	hl.exec_cmd("systemctl --user restart hypridle.service")
-	-- Sunshine (Moonlight host for the Living Room onn box), started here for
-	-- the same WantedBy reason. Its unit sleeps 5 s before starting.
-	hl.exec_cmd("systemctl --user restart app-dev.lizardbyte.app.Sunshine.service")
-	-- eufy-bridge notify: doorbell notifications from server.lastra's MQTT
-	-- events, click to watch (mpv needs this session's Wayland env).
-	hl.exec_cmd("systemctl --user restart eufy-bridge-notify.service")
 	-- No polkit agent here: lastshell is the agent (overlays/PolkitDialog.qml)
 	-- since 2026-10-16. A second agent would take the session's registration
-	-- first and lastshell's would fail, so hyprpolkitagent stays unstarted.
+	-- first and lastshell's would fail, so hyprpolkitagent stays disabled.
 end)
 
 -----------------------------
@@ -85,6 +78,17 @@ hl.env("GDK_WAYLAND_DISABLE", "ext_background_effect_manager_v1")
 hl.env("LIBVA_DRIVER_NAME", "nvidia")
 hl.env("NVD_BACKEND", "direct")
 hl.env("MOZ_DISABLE_RDD_SANDBOX", "1")
+
+-- No realtime scheduling for the compositor (2026-11-03). Since 0.56 Hyprland
+-- asks rtkit for SCHED_RR with RLIMIT_RTTIME 150/200 ms. When the TV wakes and
+-- HDMI reconnects, one nvidia-drm connector probe (link training + EDID, ~240 ms
+-- of CPU in the kernel) blows the 200 ms hard limit and the kernel SIGKILLs
+-- Hyprland: no core, no crash report, safe-mode relaunch, blank screen. That
+-- happened on the 11:27 wake today. Upstream: discussion #16648 (LG C1 + RTX,
+-- same driver), fix pending in PR #16737 (not in 0.57.1). hl.env setenv()s
+-- during config load, before startCompositor() checks this, so it takes effect
+-- from the next Hyprland start. Remove once #16737 ships in a release.
+hl.env("HYPRLAND_NO_RT", "1")
 
 ---------------------
 --- LOOK AND FEEL ---
@@ -168,6 +172,12 @@ xwayland = { force_zero_scaling = true },
 		touchpad = { natural_scroll = false },
 	},
 
+	-- Pinned to the 0.57.0 default. It keeps direct scanout from going black in
+	-- native-Wayland Vulkan games (discussion #14843, NVIDIA included). 0.57.1
+	-- flips the default back to false because it blacks out transparent
+	-- Quickshell panels on some GPUs (#16736); lastshell renders fine with it on.
+	quirks = { skip_non_kms_dmabuf_formats = true },
+
 	-- Nvidia (RTX 4080 / nvidia-open): hardware cursors vanish in fullscreen
 	-- games (Godot titles like Dome Keeper hide the HW cursor to draw their
 	-- own, and the swap renders nothing). Software cursors fix it everywhere.
@@ -193,8 +203,9 @@ hl.curve("easeInOutQuint", { type = "bezier", points = { { 0.83, 0 }, { 0.17, 1 
 hl.curve("linear", { type = "bezier", points = { { 0, 0 }, { 1, 1 } } })
 
 -- Spring curve for window motion (0.55+). Tune to taste:
---   stiffness ↑ = snappier  •  dampening ↓ = more bounce  •  mass ↑ = heavier feel
-hl.curve("springy", { type = "spring", mass = 1, stiffness = 71.2633, dampening = 15.8273644 })
+--   stiffness ↑ = snappier  •  damping ↓ = more bounce  •  mass ↑ = heavier feel
+-- (0.57 renamed dampening to damping; the old key is only a fallback now.)
+hl.curve("springy", { type = "spring", mass = 1, stiffness = 71.2633, damping = 15.8273644 })
 
 hl.animation({ leaf = "global", enabled = true, speed = 10, bezier = "default" })
 hl.animation({ leaf = "border", enabled = true, speed = 4, bezier = "easeOutQuint" })

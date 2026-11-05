@@ -81,7 +81,7 @@ SearchOverlay {
             focusLater.restart()
         } else {
             Frecency.record(item.key)
-            item.entry.execute()
+            Apps.launchEntry(item.entry)
         }
     }
     Timer {

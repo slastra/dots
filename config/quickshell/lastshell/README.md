@@ -46,10 +46,16 @@ without them:
 
 - [tabstrip](https://github.com/slastra/tabstrip) feeds the browser tab
   strip and the tab switcher
-- [`scripts/claude-status.py`](scripts/claude-status.py) `--daemon` (run it from
-  your compositor's autostart) feeds the Claude Code session chips and usage ring
-- the capture and hotkey modals shell out to engine scripts (see
-  [dots](https://github.com/slastra/dots) for working copies)
+- [`scripts/claude-status.py`](scripts/claude-status.py) `--daemon` feeds the
+  Claude Code session chips and usage ring; [`systemd/claude-status.service`](systemd/claude-status.service)
+  runs it with the graphical session (or start it from your compositor's autostart)
+- the capture modal runs [`scripts/capture.sh`](scripts/capture.sh): grim,
+  slurp and satty for shots, gpu-screen-recorder for video, and for the
+  recording overlays and sounds python-evdev, numpy, ffmpeg and
+  gtk4-layer-shell (the region border). Needs the `input` group for clicks
+  and keys
+- the hotkey modal shells out to an engine script (see
+  [dots](https://github.com/slastra/dots) for a working copy)
 
 ### The shell
 
@@ -85,6 +91,7 @@ nested Hyprland, in demo mode, where the password `pass` succeeds.
 | Clipboard history | `toggleClipboard` |
 | Notification center | `toggleNotifications` |
 | Hotkey sheet | `toggleHotkeys` |
+| Storm radar (desk layout; needs deskwatch's `news.storms`) | `toggleRadar` |
 | Capture menu | `toggleCapture` |
 | Eco mode (laptop) | `toggleEco` |
 | Wi-Fi picker (laptop layout only) | `toggleWifi` |

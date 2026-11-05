@@ -75,6 +75,7 @@ BarWindow {
         BrightnessChip {}
         BatteryChip {}
         Loader { active: Host.presence; visible: active; sourceComponent: Component { PresenceChip {} } }
+        Loader { active: Host.desk; visible: active; sourceComponent: Component { RadarChip {} } }
         Loader { active: Host.desk; visible: active; sourceComponent: Component { DeskwatchChip {} } }
         ClockChip {}
     }

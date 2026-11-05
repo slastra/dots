@@ -29,6 +29,7 @@ Scope {
         function toggleClipboard(): void { root.summon(clipboard) }
         function toggleNotifications(): void { root.summon(center) }
         function toggleHotkeys(): void { root.summon(hotkeys) }
+        function toggleRadar(): void { if (Host.desk) root.summon(radar) }
         function toggleEco(): void { root.summon(eco) }
         function toggleWifi(): void { if (Host.laptop) root.summon(wifi) }
         // tap to start, tap again to stop (the overlay decides which)
@@ -40,6 +41,11 @@ Scope {
         function toggleDictationSubmit(): void {
             if (!dictation.active) dictation.active = true
             dictation.item.hotkey(true)
+        }
+        // capture.sh, after a recording stops: offer to upload it
+        function offerUpload(path: string): void {
+            if (!upload.active) upload.active = true
+            upload.item.offer(path)
         }
         function toggleCapture(): void {
             // Print while recording = stop, no menu — matching the script.
@@ -55,6 +61,7 @@ Scope {
     LazyLoader { active: Backlight.present; BrightnessOsd {} }
     NotificationPopups { id: popups }
     DimOverlay {}
+    InputCast {}  // clicks + keys in recordings; inert unless recording
 
     LazyLoader { id: switcher; TabSwitcher {} }
     LazyLoader { id: launcher; Launcher {} }
@@ -64,7 +71,9 @@ Scope {
     LazyLoader { id: clipboard; ClipboardPicker {} }
     LazyLoader { id: center; NotificationCenter { history: popups.historyModel } }
     LazyLoader { id: capture; CapturePicker {} }
+    LazyLoader { id: upload; VideoUpload {} }
     LazyLoader { id: hotkeys; HotkeySheet {} }
+    LazyLoader { id: radar; RadarView {} }
     LazyLoader { id: eco; EcoDialog {} }
     LazyLoader { id: wifi; WifiPicker {} }
     LazyLoader { id: wifiPass; WifiPassword {} }

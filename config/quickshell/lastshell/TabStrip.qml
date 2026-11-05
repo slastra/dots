@@ -32,7 +32,7 @@ ChipRow {
         edge: "bottom"
         contentPadding: 0   // fixed-width icon slot
         anchors.bottom: parent.bottom
-        onClicked: Quickshell.execDetached(["firefox", "--new-window"])
+        onClicked: Apps.launch(["firefox", "--new-window"])
 
         Item {
             implicitWidth: 34

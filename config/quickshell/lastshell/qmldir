@@ -21,6 +21,7 @@ singleton Net 1.0 services/Net.qml
 singleton Wifi 1.0 services/Wifi.qml
 singleton Weather 1.0 services/Weather.qml
 singleton Recorder 1.0 services/Recorder.qml
+singleton Apps 1.0 services/Apps.qml
 Popout 1.0 Popout.qml
 PopText 1.0 PopText.qml
 Divider 1.0 Divider.qml
@@ -49,6 +50,10 @@ singleton Hdr 1.0 services/Hdr.qml
 singleton Audio 1.0 services/Audio.qml
 DeskwatchChip 1.0 DeskwatchChip.qml
 singleton Deskwatch 1.0 services/Deskwatch.qml
+RadarChip 1.0 RadarChip.qml
+ThreatRibbon 1.0 ThreatRibbon.qml
+TorSpark 1.0 TorSpark.qml
+singleton Radar 1.0 services/Radar.qml
 SyncedList 1.0 SyncedList.qml
 ChipRow 1.0 ChipRow.qml
 PresenceChip 1.0 PresenceChip.qml

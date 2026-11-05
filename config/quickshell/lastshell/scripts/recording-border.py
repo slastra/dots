@@ -17,6 +17,12 @@ BORDER_COLOR = (0.922, 0.435, 0.573, 1.0)  # #eb6f92
 # Rosé Pine base color for mask (semi-transparent)
 MASK_COLOR = (0.098, 0.09, 0.141, 0.7)  # #191724 at 70% opacity
 BORDER_WIDTH = 3
+# Clear space between the recorded region and the border. Everything this
+# overlay draws must stay OUTSIDE the region, or gpu-screen-recorder records
+# it. At a fractional scale (1.25 on the desk) a logical edge falls mid-pixel,
+# so the recorder's edge pixel can blend in whatever is drawn next to it: the
+# gap keeps that neighbour live screen content instead of the pink stroke.
+GAP = 2
 
 
 def parse_geometry(geom_str):
@@ -86,44 +92,26 @@ class MaskOverlay(Gtk.ApplicationWindow):
     def on_draw(self, area, cr, width, height):
         # Clear background (transparent)
         cr.set_source_rgba(0, 0, 0, 0)
-        cr.set_operator(1)  # CAIRO_OPERATOR_SOURCE
+        cr.set_operator(cairo.OPERATOR_SOURCE)
         cr.paint()
+        cr.set_operator(cairo.OPERATOR_OVER)
 
-        # Draw mask with hole for recording region
-        cr.set_operator(0)  # CAIRO_OPERATOR_CLEAR then switch back
-        cr.set_operator(2)  # CAIRO_OPERATOR_OVER
+        x, y, w, h = self.region_x, self.region_y, self.region_w, self.region_h
 
-        # Draw semi-transparent mask over entire screen
+        # Mask everything beyond the border's outer edge (even-odd: the
+        # full screen minus the framed hole)
+        outer = GAP + BORDER_WIDTH
+        cr.set_fill_rule(cairo.FILL_RULE_EVEN_ODD)
         cr.set_source_rgba(*MASK_COLOR)
-
-        # Draw top rectangle (above recording region)
-        cr.rectangle(0, 0, width, self.region_y)
+        cr.rectangle(0, 0, width, height)
+        cr.rectangle(x - outer, y - outer, w + 2 * outer, h + 2 * outer)
         cr.fill()
 
-        # Draw bottom rectangle (below recording region)
-        cr.rectangle(0, self.region_y + self.region_h,
-                     width, height - (self.region_y + self.region_h))
-        cr.fill()
-
-        # Draw left rectangle (left of recording region)
-        cr.rectangle(0, self.region_y, self.region_x, self.region_h)
-        cr.fill()
-
-        # Draw right rectangle (right of recording region)
-        cr.rectangle(self.region_x + self.region_w, self.region_y,
-                     width - (self.region_x + self.region_w), self.region_h)
-        cr.fill()
-
-        # Draw border around recording region
+        # Border band from GAP to GAP + BORDER_WIDTH outside the region
         cr.set_source_rgba(*BORDER_COLOR)
-        cr.set_line_width(BORDER_WIDTH)
-
-        # Draw rectangle border (inset by half line width)
-        offset = BORDER_WIDTH / 2
-        cr.rectangle(self.region_x + offset, self.region_y + offset,
-                     self.region_w - BORDER_WIDTH,
-                     self.region_h - BORDER_WIDTH)
-        cr.stroke()
+        cr.rectangle(x - outer, y - outer, w + 2 * outer, h + 2 * outer)
+        cr.rectangle(x - GAP, y - GAP, w + 2 * GAP, h + 2 * GAP)
+        cr.fill()
 
 
 class BorderApp(Gtk.Application):

@@ -9,6 +9,7 @@ hl.bind(mod .. " + G",          hl.dsp.exec_cmd("python3 ~/.config/hypr/scripts/
 hl.bind(mod .. " + W",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleSwitcher"))
 hl.bind(mod .. " + A",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleAudio"))
 hl.bind(mod .. " + SHIFT + A",  hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleMixer")) -- per-app volume
+hl.bind(mod .. " + SHIFT + R",  hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleRadar")) -- storm radar
 hl.bind(mod .. " + B",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleEffects"))
 hl.bind(mod .. " + C",          hl.dsp.exec_cmd("hyprpicker -a"))
 hl.bind(mod .. " + E",          hl.dsp.exec_cmd(fileManager))

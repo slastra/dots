@@ -50,8 +50,8 @@ Chip {
         : bad ? levelTone(Deskwatch.level)
         : Theme.foam
 
-    onClicked: Quickshell.execDetached(
-        ["kitty", "--hold", "-e", Quickshell.env("HOME") + "/go/bin/deskwatch", "status"])
+    onClicked: Apps.launch(
+        ["kitty", "--hold", "-e", Quickshell.env("HOME") + "/go/bin/deskwatch", "status"], "deskwatch-status")
 
     ChipBody {
 

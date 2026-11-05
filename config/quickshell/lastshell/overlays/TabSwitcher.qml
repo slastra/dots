@@ -49,7 +49,7 @@ SearchOverlay {
 
     onActivated: item => {
         if (item.cmd)
-            Quickshell.execDetached(item.cmd)
+            Apps.launch(item.cmd)
         else
             Quickshell.execDetached(
                 [Quickshell.env("HOME") + "/.local/bin/tabstrip", "activate", item.key])

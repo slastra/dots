@@ -16,7 +16,7 @@ Singleton {
     // path also clears the border and posts the saved-to notification.
     function stop() {
         Quickshell.execDetached(["bash",
-            Quickshell.env("HOME") + "/.config/rofi/scripts/capture.sh", "stop"])
+            Quickshell.shellDir + "/scripts/capture.sh", "stop"])
     }
 
     FileView {

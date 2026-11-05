@@ -28,3 +28,8 @@ DimOverlay 1.0 DimOverlay.qml
 WifiPicker 1.0 WifiPicker.qml
 WifiPassword 1.0 WifiPassword.qml
 PolkitDialog 1.0 PolkitDialog.qml
+RadarView 1.0 RadarView.qml
+VideoUpload 1.0 VideoUpload.qml
+ClickPulse 1.0 ClickPulse.qml
+KeyCastStack 1.0 KeyCastStack.qml
+InputCast 1.0 InputCast.qml
