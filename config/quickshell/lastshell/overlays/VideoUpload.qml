@@ -119,8 +119,8 @@ Overlay {
                 width: parent.width
                 elide: Text.ElideMiddle
                 size: 14
-                color: root.phase === "error" ? Theme.love
-                     : root.phase === "done" ? Theme.foam
+                color: root.phase === "error" ? Theme.crit
+                     : root.phase === "done" ? Theme.ok
                      : Theme.text
                 dim: root.phase === "ask" && root.title === "" ? 0.55 : 1
                 text: root.phase === "ask"
@@ -134,7 +134,7 @@ Overlay {
                 visible: root.phase === "uploading"
                 width: parent.width
                 frac: root.progress / 100
-                fill: Theme.iris
+                fill: Theme.agent
             }
 
             PopText {

@@ -1,0 +1,115 @@
+/* Vague on black for GTK4 / libadwaita — hand-maintained.
+ *
+ * libadwaita does not support themes. Recolouring is done with CSS custom
+ * properties on :root, which is the only mechanism it honours from 1.6
+ * onward — plain @define-color no longer drives the accent, because the
+ * org.gnome.desktop.interface accent-color gsetting re-sets the variables
+ * at runtime. Anything written here wins over that gsetting.
+ *
+ * GTK4 apps read this file ONCE at startup. There is no reload API — no
+ * amount of gsettings flipping, xsettingsd, nwg-look or portal poking will
+ * make a running app re-read it. Restart the app. Don't chase it.
+ *
+ * Do not run `nwg-look -a`: it replaces this file with a symlink into a
+ * theme directory, which is how this config broke before.
+ *
+ * GTK3's equivalent lives in ../gtk-3.0/gtk.css using @define-color.
+ * Keep the two palettes in step.
+ */
+
+:root {
+  /* Accent — Rosé Pine "Rose". Note the palette's Pine ({{color4|upper}}) is the
+     ANSI-blue slot and reads wrong as a UI accent. */
+  --accent-bg-color: {{accent|upper}};
+  --accent-fg-color: {{background}};
+  --accent-color:    {{accent|upper}};
+
+  /* Surfaces */
+  --window-bg-color:    {{background}};
+  --window-fg-color:    {{foreground|upper}};
+  --view-bg-color:      {{background}};
+  --view-fg-color:      {{foreground|upper}};
+  --headerbar-bg-color: {{overlay}};
+  --headerbar-fg-color: {{foreground|upper}};
+  --headerbar-border-color:   {{overlay}};
+  --headerbar-backdrop-color: {{overlay}};
+  --sidebar-bg-color:       {{overlay}};
+  --sidebar-fg-color:       {{foreground|upper}};
+  --sidebar-backdrop-color: {{overlay}};
+  --secondary-sidebar-bg-color: {{overlay}};
+  --secondary-sidebar-fg-color: {{foreground|upper}};
+  --card-bg-color:      {{overlay}};
+  --card-fg-color:      {{foreground|upper}};
+  --dialog-bg-color:    {{background}};
+  --dialog-fg-color:    {{foreground|upper}};
+  --popover-bg-color:   {{overlay}};
+  --popover-fg-color:   {{foreground|upper}};
+  --thumbnail-bg-color: {{overlay}};
+  --thumbnail-fg-color: {{foreground|upper}};
+  --shade-color:        rgba(0, 0, 0, 0.36);
+
+  /* Status */
+  --destructive-bg-color: {{color1|upper}};
+  --destructive-fg-color: {{background}};
+  --destructive-color:    {{color1|upper}};
+  --success-bg-color:     {{ok|upper}};
+  --success-fg-color:     {{background}};
+  --success-color:        {{ok|upper}};
+  --warning-bg-color:     {{color3|upper}};
+  --warning-fg-color:     {{background}};
+  --warning-color:        {{color3|upper}};
+  --error-bg-color:       {{color1|upper}};
+  --error-fg-color:       {{background}};
+  --error-color:          {{color1|upper}};
+
+  /* Named accents, so apps offering an accent picker stay in palette */
+  --accent-blue:   {{color4|upper}};
+  --accent-teal:   {{ok|upper}};
+  --accent-green:  {{ok|upper}};
+  --accent-yellow: {{color3|upper}};
+  --accent-orange: {{color3|upper}};
+  --accent-red:    {{color1|upper}};
+  --accent-pink:   {{accent|upper}};
+  --accent-purple: {{color5|upper}};
+  --accent-slate:  {{color8}};
+}
+
+/* libadwaita ships `filechooser columnview > listview, … { --accent-bg-color:
+ * #959595 }`, which Nautilus's main view inherits — inside that scope the
+ * variable resolves to grey. Selection rules therefore substitute the accent
+ * hex literally instead of going through var(). */
+row.activatable:selected,
+listview > row:selected,
+columnview listview > row:selected,
+gridview > child:selected {
+  background-color: color-mix(in srgb, {{accent|upper}} 55%, transparent);
+  color: {{background}};
+}
+
+row.activatable:selected:hover,
+listview > row:selected:hover,
+columnview listview > row:selected:hover,
+gridview > child:selected:hover {
+  background-color: color-mix(in srgb, {{accent|upper}} 65%, transparent);
+}
+
+row.activatable:selected:active,
+listview > row:selected:active,
+columnview listview > row:selected:active,
+gridview > child:selected:active {
+  background-color: color-mix(in srgb, {{accent|upper}} 75%, transparent);
+}
+
+/* ---- Plate: square everywhere -------------------------------------------
+ * The desktop is lines and plates: no rounded corners on windows, popovers,
+ * menus, cards, buttons or entries (Hyprland's rounding is 0 to match).
+ * User CSS outranks the theme whatever the selector, so one universal rule
+ * does it. The controls whose SHAPE carries meaning are put back: a square
+ * radio button reads as a checkbox. */
+:root { --window-radius: {{radius}}px; }
+* { border-radius: {{radius}}px; }
+radio, checkbutton > radio { border-radius: 100%; }
+switch { border-radius: 14px; }
+switch > slider { border-radius: 100%; }
+scale > trough > slider { border-radius: 100%; }
+avatar, .avatar, spinner { border-radius: 100%; }

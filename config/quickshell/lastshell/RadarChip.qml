@@ -12,11 +12,11 @@ Chip {
     present: Radar.active
 
     readonly property color tone:
-        Radar.level === "urgent" ? Theme.love
-        : Radar.level === "watch" ? Theme.gold
-        : Theme.foam
+        Radar.level === "urgent" ? Theme.crit
+        : Radar.level === "watch" ? Theme.warn
+        : Theme.calm
 
-    function tierTone(t) { return t === "urgent" ? Theme.love : t === "high" ? Theme.gold : Theme.foam }
+    function tierTone(t) { return t === "urgent" ? Theme.crit : t === "high" ? Theme.warn : Theme.calm }
 
     onClicked: Quickshell.execDetached(["qs", "-c", "lastshell", "ipc", "call", "overlays", "toggleRadar"])
 
@@ -50,111 +50,100 @@ Chip {
         id: pop
         owner: root
 
-        Column {
-            spacing: 10
-            width: 400
+        sheetWidth: Theme.popL
+        title: "storms"
+        note: [
+            Radar.payload.valid ? `ProbSevere ${Radar.clock(Radar.payload.valid)}` : "",
+            Radar.images.scan ? `${Radar.payload.radar} ${Radar.images.scan}` : "",
+            "click: open the map",
+        ].filter(s => s).join("  ·  ")
+        status: Radar.tornadoWarning ? "tornado warning"
+            : Radar.severeWarning ? "severe t-storm warning"
+            : Radar.watch ? "watch in effect"
+            : Radar.threats.length > 0 ? "storm headed this way" : "storms nearby"
+        tone: root.tone
 
-            PopoutHeader {
-                title: "Storms near home"
-                status: Radar.tornadoWarning ? "tornado warning"
-                    : Radar.severeWarning ? "severe t-storm warning"
-                    : Radar.watch ? "watch in effect"
-                    : Radar.threats.length > 0 ? "storm headed this way" : "storms nearby"
-                tone: root.tone
+        ThreatRibbon { width: parent.width; compact: true }
+
+        Repeater { // watches at home; the ribbon already carries a warning
+            model: Radar.homeAlerts.filter(a => /Watch/.test(a.event))
+            Row {
+                required property var modelData
+                spacing: 7
+                LucideIcon {
+                    anchors.verticalCenter: parent.verticalCenter
+                    name: "eye"
+                    color: /Tornado/.test(modelData.event) ? Theme.crit : Theme.warn
+                    font.pixelSize: 13
+                }
+                PopText {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: `${modelData.event}${modelData.ends ? "  until " + Radar.clock(modelData.ends) : ""}`
+                    size: 13
+                }
             }
+        }
 
-            ThreatRibbon { width: parent.width; compact: true }
-
-            Repeater { // watches at home; the ribbon already carries a warning
-                model: Radar.homeAlerts.filter(a => /Watch/.test(a.event))
-                Row {
-                    required property var modelData
-                    spacing: 7
-                    LucideIcon {
-                        anchors.verticalCenter: parent.verticalCenter
-                        name: "eye"
-                        color: /Tornado/.test(modelData.event) ? Theme.love : Theme.gold
-                        font.pixelSize: 13
+        Repeater { // other storms worth a row; the ribbon has the nearest
+            model: Radar.notable.filter(s => s.id !== Radar.nearest?.id).slice(0, 3)
+            Item {
+                required property var modelData
+                width: parent.width
+                height: rowText.implicitHeight
+                Column {
+                    id: rowText
+                    width: parent.width - spark.width - 10
+                    spacing: 1
+                    Row {
+                        spacing: 6
+                        Badge {
+                            visible: modelData.tier !== ""
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: Radar.tierLabel(modelData.tier)
+                            tone: root.tierTone(modelData.tier)
+                        }
+                        PopText { text: Radar.probs(modelData); size: 13 }
                     }
                     PopText {
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: `${modelData.event}${modelData.ends ? "  until " + Radar.clock(modelData.ends) : ""}`
-                        size: 13
+                        width: parent.width
+                        text: Radar.where(modelData)
+                        wrapMode: Text.WordWrap
+                        dim: 0.6
+                        size: 12
                     }
                 }
-            }
-
-            Repeater { // other storms worth a row; the ribbon has the nearest
-                model: Radar.notable.filter(s => s.id !== Radar.nearest?.id).slice(0, 3)
-                Item {
-                    required property var modelData
-                    width: parent.width
-                    height: rowText.implicitHeight
-                    Column {
-                        id: rowText
-                        width: parent.width - spark.width - 10
-                        spacing: 1
-                        Row {
-                            spacing: 6
-                            Badge {
-                                visible: modelData.tier !== ""
-                                anchors.verticalCenter: parent.verticalCenter
-                                text: Radar.tierLabel(modelData.tier)
-                                tone: root.tierTone(modelData.tier)
-                            }
-                            PopText { text: Radar.probs(modelData); size: 13 }
-                        }
-                        PopText {
-                            width: parent.width
-                            text: Radar.where(modelData)
-                            wrapMode: Text.WordWrap
-                            dim: 0.6
-                            size: 12
-                        }
-                    }
-                    TorSpark {
-                        id: spark
-                        anchors.right: parent.right
-                        anchors.top: parent.top
-                        anchors.topMargin: 2
-                        live: pop.visible
-                        values: modelData.tor_hist
-                        tone: root.tierTone(modelData.tier)
-                    }
+                TorSpark {
+                    id: spark
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.topMargin: 2
+                    live: pop.visible
+                    values: modelData.tor_hist
+                    tone: root.tierTone(modelData.tier)
                 }
             }
+        }
 
-            Rectangle { // map thumbnail, framed like the view's pane
-                visible: thumb.status === Image.Ready
-                width: parent.width
-                height: visible ? width * thumb.sourceSize.height / Math.max(1, thumb.sourceSize.width) : 0
-                radius: Theme.innerRadius
-                color: Theme.base
-                border.color: Theme.border
-                clip: true
-                Image {
-                    id: thumb
-                    anchors.fill: parent
-                    anchors.margins: 1
-                    source: Radar.url(Radar.images.map ?? "")
-                    cache: false
-                    asynchronous: true
-                    fillMode: Image.PreserveAspectFit
-                    smooth: true
-                    mipmap: true
-                }
-            }
-
-            PopText {
-                width: parent.width
-                elide: Text.ElideRight
-                text: [
-                    Radar.payload.valid ? `ProbSevere ${Radar.clock(Radar.payload.valid)}` : "",
-                    Radar.images.scan ? `${Radar.payload.radar} ${Radar.images.scan}` : "",
-                    "click to open",
-                ].filter(s => s).join("  ·  ")
-                dim: 0.45
-                size: 12
+        Rectangle { // map thumbnail, framed like the view's pane
+            visible: thumb.status === Image.Ready
+            width: parent.width
+            height: visible ? width * thumb.sourceSize.height / Math.max(1, thumb.sourceSize.width) : 0
+            radius: Theme.innerRadius
+            color: Theme.base
+            border.color: Theme.border
+            clip: true
+            Image {
+                id: thumb
+                anchors.fill: parent
+                anchors.margins: 1
+                // not while quiet: the chip is away, and the paths in
+                // an old payload may no longer exist
+                source: Radar.active ? Radar.url(Radar.images.map ?? "") : ""
+                cache: false
+                asynchronous: true
+                fillMode: Image.PreserveAspectFit
+                smooth: true
+                mipmap: true
             }
         }
     }

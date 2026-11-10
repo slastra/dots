@@ -22,14 +22,14 @@ Row {
             width: (root.width - root.spacing * (root.options.length - 1)) / root.options.length
             height: root.segmentHeight
             radius: Theme.innerRadius
-            color: selected ? Qt.alpha(Theme.rose, 0.18) : hover.hovered ? Theme.border : Theme.overlay
-            border.color: selected ? Theme.rose : "transparent"
+            color: selected ? Qt.alpha(Theme.accent, 0.18) : hover.hovered ? Theme.border : Theme.overlay
+            border.color: selected ? Theme.accent : Theme.clear(Theme.accent)
             border.width: 1
             Behavior on color { ColorAnimation { duration: Theme.animDuration } }
             PopText {
                 anchors.centerIn: parent
                 size: 12
-                color: parent.selected ? Theme.rose : Theme.textMuted
+                color: parent.selected ? Theme.accent : Theme.textMuted
                 text: parent.modelData.label
             }
             HoverHandler { id: hover; enabled: root.enabled; cursorShape: Qt.PointingHandCursor }

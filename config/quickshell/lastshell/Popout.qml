@@ -1,17 +1,37 @@
 import Quickshell
 import QtQuick
 
-// Hover popout attached to a chip: a floating card just off the bar edge.
+// Hover popout attached to a chip: a card hanging flush off the bar edge.
 // Shows while the chip OR the card is hovered, with a grace timer so the
-// pointer can travel across the gap. Never QtQuick ToolTip — that renders
+// pointer can travel between them. Never QtQuick ToolTip — that renders
 // inside the bar window and clips.
+//
+// Every popout is the same sheet, top to bottom:
+//
+//   title ......... status     what this is, and its reading right now
+//   ──────────────────────
+//   body                       rows (KeyValueRow), meters, graphs, lists;
+//                              a Divider between unrelated groups
+//   ──────────────────────
+//   note                       how to act on it, or where the data is from
+//
+// Type: title 14 bold, body 13, secondary 12 dimmed, note 11 faint. Width is
+// one of Theme.popS / popM / popL. Children are the body and can size
+// themselves with `width: parent.width`.
 PopupWindow {
     id: root
 
     required property Chip owner          // the chip; edge and hover follow it
     property string edge: owner.edge
     property bool ownerHovered: owner.hovered
-    default property alias content: inner.data
+
+    property string title: ""
+    property string status: ""
+    property color tone: Theme.text      // the status word's color
+    property string note: ""
+    property int sheetWidth: Theme.popS
+    property int spacing: 8
+    default property alias content: body.data
 
     readonly property bool shouldShow: ownerHovered || cardHover.hovered
 
@@ -39,23 +59,39 @@ PopupWindow {
     Card {
         id: card
         property bool open: false
+        attach: root.edge
         // the window spans chip edge to card; the gap is its transparent end
         anchors.horizontalCenter: parent.horizontalCenter
         y: root.edge === "top" ? Theme.popoutGap : 0
-        implicitWidth: inner.childrenRect.width + 24
-        implicitHeight: inner.childrenRect.height + 24
+        implicitWidth: sheet.width + 2 * Theme.popPad
+        implicitHeight: sheet.height + 2 * Theme.popPad
 
         opacity: open ? 1 : 0
-        scale: open ? 1 : 0.96
         Behavior on opacity { NumberAnimation { duration: Theme.animDuration; easing.type: Easing.OutCubic } }
-        Behavior on scale { NumberAnimation { duration: Theme.animDuration; easing.type: Easing.OutCubic } }
         onOpacityChanged: if (opacity === 0 && !open) root.visible = false
 
-        Item {
-            id: inner
-            x: 12; y: 12
-            width: parent.width - 24
-            height: parent.height - 24
+        Column {
+            id: sheet
+            x: Theme.popPad; y: Theme.popPad
+            width: root.sheetWidth
+            spacing: root.spacing
+
+            PopoutHeader {
+                visible: root.title !== ""
+                width: parent.width
+                title: root.title
+                status: root.status
+                tone: root.tone
+            }
+            Divider { visible: root.title !== "" && body.height > 0; width: parent.width }
+            Column {
+                id: body
+                visible: height > 0
+                width: parent.width
+                spacing: root.spacing
+            }
+            Divider { visible: root.note !== ""; width: parent.width }
+            PopNote { visible: root.note !== ""; width: parent.width; text: root.note }
         }
 
         HoverHandler { id: cardHover }

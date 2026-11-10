@@ -39,6 +39,7 @@ SNAPSHOT = os.path.join(RUNTIME, "lastshell-claude.json")
 MAX_SESSIONS = 6
 STALE_SECS = 3600
 IDLE_TICK = 5.0
+FACE_RETRY = 5.0      # between mosquitto_sub attempts while the broker is away
 FRAMES = (("five_hour", "5h"), ("seven_day", "wk"),
           ("seven_day_opus", "opus"), ("seven_day_sonnet", "sonnet"))
 
@@ -303,8 +304,12 @@ def apply_face(face, line):
 def daemon():
     sock, face_proc = event_socket(), face_subscriber()
     face, last, last_tick, buf = {}, None, 0.0, b""
+    face_retry = time.time() + FACE_RETRY
     while True:
         push = False
+        if face_proc is None and time.time() >= face_retry:
+            face_proc = face_subscriber()
+            face_retry = time.time() + FACE_RETRY
         watch = [f for f in (sock, face_proc.stdout if face_proc else None) if f]
         try:
             ready = select.select(watch, [], [], IDLE_TICK)[0] if watch else []
@@ -317,8 +322,12 @@ def daemon():
             if line:
                 apply_face(face, line)
                 push = True
-            else:                                   # mosquitto went away
-                face_proc = face_subscriber()
+            else:
+                # mosquitto went away. With no broker mosquitto_sub exits at
+                # once, so respawning here would spin; wait out FACE_RETRY.
+                face_proc.wait()
+                face_proc = None
+                face_retry = time.time() + FACE_RETRY
         if sock is None:
             sock = event_socket()
         elif sock in ready:

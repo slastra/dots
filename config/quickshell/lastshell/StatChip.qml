@@ -14,7 +14,8 @@ Chip {
         LucideIcon {
             anchors.verticalCenter: parent.verticalCenter
             name: root.icon
-            color: root.tone
+            // the glyph labels the value: same tone, a step back
+            color: Qt.alpha(root.tone, 0.65)
             visible: root.icon !== ""
         }
     }

@@ -1,25 +1,25 @@
 import QtQuick
 
-// The signature lastshell element: a tab chip hanging off a screen edge.
-// Surface fill, 2px overlay border on three sides, rounded on the far
-// corners, OPEN on the screen-edge side so the chip reads as attached.
-// `edge` names the open side: a top-bar chip has edge "top" (hangs down,
-// bottom corners round); a bottom-bar chip has edge "bottom".
+// One item in a bar zone: content on the zone's plate, no box of its own.
+// Hover fills its full height; `active` (the focused workspace, window, tab
+// or session) draws a 2 px rule in the accent along the screen edge.
+// `edge` names that edge: "top" in the top bar, "bottom" in the bottom bar.
 Rectangle {
     id: chip
 
     property string edge: "bottom"
     property bool active: false
-    // Use `present` instead of `visible`: the chip slides out of its screen
-    // edge before it actually hides, and slides back in on show. Bottom-bar
-    // chips rise from below the bar, top-bar chips drop from above it.
+    // Use `present` instead of `visible`: the item fades and narrows out
+    // before it actually hides, and the zone closes over it in the same beat.
     property bool present: true
-    // Border accent when active; rose is the identity accent, sys chips
-    // pass foam-family accents through their text instead and keep rose here.
-    property color accent: Theme.rose
+    property color accent: Theme.accent
     property alias hovered: mouse.containsMouse
     // horizontal room around the content; 0 for content that carries its own
     property int contentPadding: 12
+    // a hairline on the item's leading edge, dividing it from its neighbor
+    // (the first item's falls on the plate's own border). Off for the icon
+    // strips (tabs, tasks, tray), which carry no padding and read as one group.
+    property bool separator: contentPadding > 0
     default property alias content: contentSlot.data
 
     signal clicked()
@@ -27,73 +27,62 @@ Rectangle {
     signal wheelUp()
     signal wheelDown()
 
-    implicitWidth: inner.implicitWidth + 4
-    // Uniform by construction: every chip is exactly this tall, so no
-    // instance can drift a pixel from its neighbours.
+    implicitWidth: contentSlot.childrenRect.width + 2 * contentPadding
+    // Uniform by construction: every item is exactly this tall.
     height: Theme.barHeight - 2
 
-    color: active ? accent : Theme.border
+    color: mouse.containsMouse ? Theme.overlay : Qt.alpha(Theme.overlay, 0)
+    Behavior on color { ColorAnimation { duration: Theme.animDuration } }
 
-    readonly property real slideOffset: edge === "bottom" ? height : -height
-    // width collapses with the slide so neighbours glide in the same beat
     property real widthFactor: 0
     width: Math.round(implicitWidth * widthFactor)
     clip: widthFactor < 1
     visible: present || exitAnim.running
-    transform: Translate { id: slide; y: chip.slideOffset }
     opacity: 0
 
     onPresentChanged: {
         if (present) { exitAnim.stop(); enterAnim.restart() }
         else       { enterAnim.stop(); exitAnim.restart() }
     }
-    // Repeater-created chips (tabs, tasks, tray, sessions) and startup: the
-    // enter animation runs on completion, so every appearance slides in.
+    // Repeater-created items (tabs, tasks, tray, sessions) and startup: the
+    // enter animation runs on completion, so every appearance eases in.
     Component.onCompleted: if (present) enterAnim.start()
 
     ParallelAnimation {
         id: enterAnim
-        NumberAnimation { target: slide; property: "y"; to: 0; duration: Theme.slideDuration; easing.type: Easing.OutCubic }
         NumberAnimation { target: chip; property: "opacity"; to: 1; duration: Theme.slideDuration; easing.type: Easing.OutCubic }
         NumberAnimation { target: chip; property: "widthFactor"; to: 1; duration: Theme.slideDuration; easing.type: Easing.OutCubic }
     }
     ParallelAnimation {
         id: exitAnim
-        NumberAnimation { target: slide; property: "y"; to: chip.slideOffset; duration: Theme.slideDuration; easing.type: Easing.InCubic }
         NumberAnimation { target: chip; property: "opacity"; to: 0; duration: Theme.slideDuration; easing.type: Easing.InCubic }
         NumberAnimation { target: chip; property: "widthFactor"; to: 0; duration: Theme.slideDuration; easing.type: Easing.InCubic }
     }
-    topLeftRadius: edge === "bottom" ? Theme.overlayRadius : 0
-    topRightRadius: edge === "bottom" ? Theme.overlayRadius : 0
-    bottomLeftRadius: edge === "top" ? Theme.overlayRadius : 0
-    bottomRightRadius: edge === "top" ? Theme.overlayRadius : 0
 
-    Behavior on color { ColorAnimation { duration: Theme.animDuration } }
+    Rectangle { // the separator
+        visible: chip.separator
+        width: Theme.hairline
+        height: parent.height
+        color: Theme.border
+    }
 
-    Rectangle {
-        id: inner
+    Rectangle { // the active rule
+        width: parent.width
+        height: 2
+        y: chip.edge === "top" ? 0 : parent.height - height
+        color: chip.accent
+        opacity: chip.active ? 1 : 0
+        Behavior on opacity { NumberAnimation { duration: Theme.animDuration } }
+    }
+
+    Item {
+        id: contentSlot
         anchors.fill: parent
-        anchors.topMargin: chip.edge === "bottom" ? 2 : 0
-        anchors.bottomMargin: chip.edge === "top" ? 2 : 0
-        anchors.leftMargin: 2
-        anchors.rightMargin: 2
-        topLeftRadius: chip.topLeftRadius > 0 ? Theme.overlayRadius - 2 : 0
-        topRightRadius: chip.topRightRadius > 0 ? Theme.overlayRadius - 2 : 0
-        bottomLeftRadius: chip.bottomLeftRadius > 0 ? Theme.overlayRadius - 2 : 0
-        bottomRightRadius: chip.bottomRightRadius > 0 ? Theme.overlayRadius - 2 : 0
-        color: mouse.containsMouse ? Theme.overlay : Theme.surface
-        implicitWidth: contentSlot.childrenRect.width + 2 * chip.contentPadding
-        Behavior on color { ColorAnimation { duration: Theme.animDuration } }
-
-        Item {
-            id: contentSlot
-            anchors.fill: parent
-            // text ink rides high in its em box; one uniform pixel down
-            // centers every chip's ensemble optically (measured, not felt)
-            anchors.topMargin: 1
-            anchors.leftMargin: chip.contentPadding
-            anchors.rightMargin: chip.contentPadding
-        }
+        // text ink rides high in its em box; one uniform pixel down
+        // centers every item's ensemble optically (measured, not felt)
+        anchors.topMargin: 1
+        anchors.leftMargin: chip.contentPadding
+        anchors.rightMargin: chip.contentPadding
     }
 
     MouseArea {

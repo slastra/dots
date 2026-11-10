@@ -13,7 +13,7 @@ hl.monitor({
 	scale = 1.25,
 	bitdepth = 10,
 	cm = "hdredid", -- HDR, luminance ranges from the TV's EDID ("auto" resolved to wide-gamut SDR)
-	sdrbrightness = 2.4, -- lift SDR content a bit against the HDR range; tune to taste
+	sdrbrightness = 1, -- lift SDR content a bit against the HDR range; tune to taste
 })
 
 -----------------
@@ -61,8 +61,10 @@ hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
 -- cursors/ is the stock Xcursor release for GTK, Qt and XWayland. Its Xcursor
 -- frames stop at 40/48, so 36 at 1.25 scale draws the 48 there.
 -- Simp1e-Rose-Pine (2026-10-04) and Bibata-Modern-RosePine are still installed.
-hl.env("XCURSOR_THEME", "BreezeX-RosePine")
-hl.env("HYPRCURSOR_THEME", "BreezeX-RosePine")
+-- Since 2026-11-10 the theme in use is "Tint": the same shapes, recolored to the
+-- current color scheme by ~/.config/tint/hooks/assets on every `tint apply`.
+hl.env("XCURSOR_THEME", "Tint")
+hl.env("HYPRCURSOR_THEME", "Tint")
 hl.env("XCURSOR_SIZE", "36")
 hl.env("HYPRCURSOR_SIZE", "36")
 hl.env("GDK_SCALE", "2")
@@ -96,14 +98,12 @@ hl.env("HYPRLAND_NO_RT", "1")
 
 hl.config({
 	general = {
-		gaps_in = theme.brutal and 12 or 4,
-		gaps_out = theme.brutal and 20 or 8,
-		border_size = theme.brutal and 4 or 2,
-		col = theme.brutal and {
-			active_border = theme.brutal_active,
-			inactive_border = theme.brutal_inactive,
-		} or {
-			active_border = { colors = { theme.border_1, theme.border_2, theme.border_3 }, angle = 45 },
+		gaps_in = 4,
+		gaps_out = 8,
+		-- Plate: one hairline, the accent on the focused window, no gradient
+		border_size = theme.border_size or 1,
+		col = {
+			active_border = theme.border_active,
 			inactive_border = theme.border_inactive,
 		},
 		resize_on_border = true,
@@ -112,21 +112,14 @@ hl.config({
 	},
 
 	decoration = {
-		rounding = theme.brutal and 0 or 12, -- 12 = libadwaita --window-radius default
+		rounding = theme.rounding or 0, -- `tint shape --radius N`; GTK's --window-radius follows
 		active_opacity = 1.0,
-		inactive_opacity = 0.90,
+		inactive_opacity = 1.0,
 		dim_inactive = false,
 		dim_strength = 0.4,
-		shadow = theme.brutal and {
-			enabled = true,
-			range = 2,        -- near-hard edge; 0 renders nothing
-			render_power = 1,
-			offset = "8 8",
-			color = theme.brutal_shadow,
-			color_inactive = theme.brutal_shadow_inactive,
-		} or { enabled = false },
+		shadow = { enabled = false },
 		blur = {
-			enabled = not theme.brutal,
+			enabled = true,
 			size = 5,
 			passes = 4,
 			vibrancy = 0.1696,
@@ -150,7 +143,7 @@ hl.config({
 		force_default_wallpaper = -1,
 		disable_hyprland_logo = true,
 		vrr =  0, -- VRR off: LG OLED gamma/brightness flicker under VRR in fullscreen games (was 2, 2026-09-04)
-		background_color = "rgb(13111e)",
+		background_color = "rgb(000000)",
 	},
 
 	render = {
@@ -223,7 +216,7 @@ hl.animation({ leaf = "fadeLayersOut", enabled = true, speed = 1.5, bezier = "ea
 hl.animation({ leaf = "workspaces", enabled = true, speed = 1.94, spring = "springy", style = "slide" })
 hl.animation({ leaf = "workspacesIn", enabled = true, speed = 1.94, spring = "springy", style = "slide" })
 hl.animation({ leaf = "workspacesOut", enabled = true, speed = 1.94, spring = "springy", style = "slide" })
-hl.animation({ leaf = "borderangle", enabled = not theme.brutal, speed = 30, bezier = "linear", style = "loop" })
+hl.animation({ leaf = "borderangle", enabled = false })
 
 ---------------
 --- GESTURE ---

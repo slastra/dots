@@ -48,14 +48,14 @@ PanelWindow {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 font.family: Theme.fontFamily; font.pixelSize: 18
-                color: root.muted ? Theme.love : Theme.text
+                color: root.muted ? Theme.crit : Theme.text
                 text: root.muted ? "󰝟" : root.vol < 0.34 ? "󰕿" : root.vol < 0.67 ? "󰖀" : "󰕾"
             }
             SliderTrack {
                 anchors.verticalCenter: parent.verticalCenter
                 width: 170
                 frac: root.vol
-                fill: root.muted ? Theme.love : Theme.pine
+                fill: root.muted ? Theme.crit : Theme.info
             }
             Text {
                 anchors.verticalCenter: parent.verticalCenter

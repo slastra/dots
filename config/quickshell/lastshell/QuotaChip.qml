@@ -12,7 +12,7 @@ Chip {
     onClicked: frame = (frame + 1) % Math.max(1, Claude.quota.frames.length)
 
     readonly property var shown: Claude.quota.frames[frame % Math.max(1, Claude.quota.frames.length)] ?? { id: "", pct: 0 }
-    readonly property color accent: Theme.level(Claude.quota.worstPct, 70, 90, Theme.foam)
+    readonly property color accent: Theme.level(Claude.quota.worstPct, 70, 90)
 
     // The animated value the arc actually draws — sweeps on frame change
     // and on live quota movement alike.
@@ -25,6 +25,8 @@ Chip {
 
         Canvas { // the ring
             id: ring
+            // drawn, not bound: repaint when the color scheme changes
+            Connections { target: Theme; function onSchemeChanged() { ring.requestPaint() } }
             anchors.verticalCenter: parent.verticalCenter
             width: 18; height: 18
             onPaint: {
@@ -81,112 +83,45 @@ Chip {
         id: pop
         owner: root
         onVisibleChanged: if (visible) root.now = Date.now()
+        sheetWidth: Theme.popM
+        title: "claude usage"
+        status: Claude.quota.stale ? "stale" : `${Math.round(Claude.quota.worstPct)}%`
+        tone: Claude.quota.stale ? Theme.warn : root.accent
+        note: `${Claude.sessions.count} session${Claude.sessions.count === 1 ? "" : "s"} open`
 
-        Column {
-            spacing: 10
+        Repeater {
+            model: Claude.quota.frames
+            Column {
+                id: frameRow
+                required property var modelData
+                width: parent.width
+                spacing: 4
+                readonly property color tone: Theme.level(modelData.pct, 70, 90)
+                readonly property var names: ({ "5h": "5-hour window", "wk": "weekly",
+                                                "opus": "weekly · opus", "sonnet": "weekly · sonnet" })
 
-            Row { // header
-                spacing: 8
-                LucideIcon {
-                    anchors.verticalCenter: parent.verticalCenter
-                    name: "sparkles"
-                    color: Theme.rose
-                    font.pixelSize: 14
+                function resetsIn(v) {
+                    if (!v) return ""
+                    const t = typeof v === "number" ? v * 1000 : Date.parse(v)
+                    const s = (t - root.now) / 1000
+                    if (!(s > 0)) return ""
+                    if (s < 5400) return `resets in ${Math.round(s / 60)}m`
+                    if (s < 129600) return `resets in ${Math.round(s / 3600)}h`
+                    return `resets in ${Math.round(s / 86400)}d`
                 }
-                PopText {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "Claude Code Usage"
-                    size: 14; font.bold: true
-                    font.letterSpacing: 0.5
+
+                KeyValueRow {
+                    key: frameRow.names[frameRow.modelData.id] ?? frameRow.modelData.id
+                    value: `${frameRow.modelData.pct.toFixed(0)}%`
+                    tone: frameRow.tone
                 }
-            }
-
-            Divider { width: 264 }
-
-            Repeater {
-                model: Claude.quota.frames
-                Item {
-                    id: frameRow
-                    required property var modelData
-                    width: 264
-                    height: 34
-                    readonly property color tone: Theme.level(modelData.pct, 70, 90, Theme.foam)
-                    readonly property var names: ({ "5h": "5-hour window", "wk": "weekly",
-                                                    "opus": "weekly · opus", "sonnet": "weekly · sonnet" })
-
-                    function resetsIn(v) {
-                        if (!v) return ""
-                        const t = typeof v === "number" ? v * 1000 : Date.parse(v)
-                        const s = (t - root.now) / 1000
-                        if (!(s > 0)) return ""
-                        if (s < 5400) return `resets in ${Math.round(s / 60)}m`
-                        if (s < 129600) return `resets in ${Math.round(s / 3600)}h`
-                        return `resets in ${Math.round(s / 86400)}d`
-                    }
-
-                    Column {
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 4
-
-                        Item {
-                            width: 264; height: 16
-                            Row {
-                                anchors.left: parent.left
-                                spacing: 6
-                                LucideIcon {
-                                    name: frameRow.modelData.id === "5h" ? "hourglass" : "calendar-days"
-                                    color: Qt.alpha(Theme.text, 0.55)
-                                    font.pixelSize: 13
-                                }
-                                PopText {
-                                    text: frameRow.names[frameRow.modelData.id] ?? frameRow.modelData.id
-                                    dim: 0.85
-                                    size: 13
-                                }
-                                PopText {
-                                    visible: text !== ""
-                                    text: {
-                                        const r = frameRow.resetsIn(frameRow.modelData.resets)
-                                        return r ? `(${r})` : ""
-                                    }
-                                    dim: 0.4
-                                    size: 12
-                                }
-                            }
-                            PopText {
-                                anchors.right: parent.right
-                                text: `${frameRow.modelData.pct.toFixed(0)}%`
-                                color: frameRow.tone
-                                size: 13; font.bold: true
-                            }
-                        }
-
-                        SliderTrack { // same neutral track as the ring on the chip
-                            width: 264; height: 6
-                            frac: frameRow.modelData.pct / 100
-                            fill: frameRow.tone
-                            sweep: Theme.sweepDuration
-                        }
-                    }
+                PopMeter {
+                    frac: frameRow.modelData.pct / 100
+                    fill: Theme.level(frameRow.modelData.pct, 70, 90, Theme.accent)
                 }
-            }
-
-            Divider { width: 264 }
-
-            Item { // freshness footer
-                width: 264; height: 14
-                PopText {
-                    anchors.left: parent.left
-                    text: `${Claude.sessions.count} session${Claude.sessions.count === 1 ? "" : "s"}`
-                    dim: 0.45
-                    size: 11
-                }
-                PopText {
-                    anchors.right: parent.right
-                    text: Claude.quota.stale ? "stale data" : "live"
-                    color: Claude.quota.stale ? Qt.alpha(Theme.gold, 0.8) : Qt.alpha(Theme.foam, 0.6)
-                    size: 11
-                    font.italic: Claude.quota.stale
+                PopNote {
+                    visible: text !== ""
+                    text: frameRow.resetsIn(frameRow.modelData.resets)
                 }
             }
         }

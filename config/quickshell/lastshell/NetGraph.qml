@@ -14,7 +14,7 @@ Sparkline {
         const h = Net.history
         if (h.length < 2) return
         const peak = Math.max(1e4, ...h.map(s => Math.max(s[0], s[1])))
-        for (const [ch, color] of [[0, Theme.foam], [1, Theme.iris]]) {
+        for (const [ch, color] of [[0, Theme.ok], [1, Theme.agent]]) {
             ctx.strokeStyle = color
             ctx.lineWidth = 1.5
             ctx.beginPath()

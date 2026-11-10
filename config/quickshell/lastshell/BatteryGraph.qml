@@ -31,7 +31,7 @@ Sparkline {
     onCurrentChanged: repaint()
 
     function xAt(t) { return (t - (now - span)) / span * width }
-    function tone(state) { return state === "charging" ? Theme.foam : Theme.gold }
+    function tone(state) { return state === "charging" ? Theme.ok : Theme.warn }
 
     onPaint: {
         const ctx = getContext("2d")
@@ -40,8 +40,8 @@ Sparkline {
     }
 
     function paintCharge(ctx) {
-        guide(ctx, 20, Qt.alpha(Theme.gold, 0.35))
-        guide(ctx, 10, Qt.alpha(Theme.love, 0.35))
+        guide(ctx, 20, Qt.alpha(Theme.warn, 0.35))
+        guide(ctx, 10, Qt.alpha(Theme.crit, 0.35))
         const start = now - span
         // the last sample before the window anchors the left edge
         let pts = []

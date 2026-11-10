@@ -9,7 +9,8 @@ ChipRow {
     id: root
 
     SyncedList { id: tabs }
-    spacing: 8
+    plate: true
+    edge: "bottom"
 
     FileView {
         path: Quickshell.env("XDG_RUNTIME_DIR") + "/waybar-fftabs.json"

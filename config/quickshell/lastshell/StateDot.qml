@@ -11,8 +11,8 @@ Item {
     implicitHeight: 12
 
     readonly property color tone:
-        state === "waiting" ? Theme.gold :
-        state === "busy" ? Theme.foam : Qt.alpha(Theme.text, 0.45)
+        state === "waiting" ? Theme.warn :
+        state === "busy" ? Theme.ok : Qt.alpha(Theme.text, 0.45)
 
     Canvas { // sonar ping (waiting only) — drawn, not transform-scaled:
              // scaling a Rectangle's stroke across fractional device pixels
@@ -42,7 +42,7 @@ Item {
             const ctx = getContext("2d")
             ctx.reset()
             if (root.state !== "waiting") return
-            ctx.strokeStyle = Qt.alpha(Theme.gold, 0.9 * (1 - p))
+            ctx.strokeStyle = Qt.alpha(Theme.warn, 0.9 * (1 - p))
             ctx.lineWidth = 1.5
             ctx.beginPath()
             ctx.arc(width / 2, height / 2, 4 + 7.5 * p, 0, 2 * Math.PI)
@@ -54,7 +54,7 @@ Item {
         id: dot
         anchors.centerIn: parent
         width: 9; height: 9; radius: 4.5
-        color: root.state === "idle" ? "transparent" : root.tone
+        color: root.state === "idle" ? Theme.clear(root.tone) : root.tone
         border.color: root.tone
         border.width: 1.5
         Behavior on color { ColorAnimation { duration: Theme.animDuration } }

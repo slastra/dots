@@ -11,6 +11,7 @@ hl.bind(mod .. " + A",          hl.dsp.exec_cmd("qs -c lastshell ipc call overla
 hl.bind(mod .. " + SHIFT + A",  hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleMixer")) -- per-app volume
 hl.bind(mod .. " + SHIFT + R",  hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleRadar")) -- storm radar
 hl.bind(mod .. " + B",          hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleEffects"))
+hl.bind(mod .. " + SHIFT + B",  hl.dsp.exec_cmd("qs -c lastshell ipc call overlays toggleSchemes"))
 hl.bind(mod .. " + C",          hl.dsp.exec_cmd("hyprpicker -a"))
 hl.bind(mod .. " + E",          hl.dsp.exec_cmd(fileManager))
 -- Clipboard history. cliphist only has content because hyprland.lua starts a

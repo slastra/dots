@@ -1,0 +1,6 @@
+set -g fish_color_autosuggestion {{subtle|bare}}
+set -g fish_color_comment {{subtle|bare}}
+set -g fish_color_param {{accent|bare}}
+set -g fish_color_selection {{foreground|bare}} --bold --background={{selection|bare}}
+set -g fish_color_search_match {{color3|bare}} --bold --background={{selection|bare}}
+set -g fish_pager_color_selected_background --background={{selection|bare}}

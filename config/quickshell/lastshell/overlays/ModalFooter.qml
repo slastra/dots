@@ -10,7 +10,7 @@ Item {
     width: parent.width
     height: 33
 
-    Rectangle { width: parent.width; height: 1; color: Theme.seam }
+    Rectangle { width: parent.width; height: Theme.hairline; color: Theme.seam }
     Rectangle {
         y: 1
         width: parent.width
@@ -24,7 +24,7 @@ Item {
             anchors.leftMargin: 18
             anchors.verticalCenter: parent.verticalCenter
             size: 12
-            color: Qt.alpha(Theme.iris, 0.55)
+            color: Qt.alpha(Theme.agent, 0.55)
             text: parent.parent.hint
         }
         PopText {

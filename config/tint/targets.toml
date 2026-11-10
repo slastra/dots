@@ -1,0 +1,125 @@
+# What `tint apply` writes. Each target renders templates/<template> into
+# dest. mode = "file" (default) owns the whole file; mode = "block" owns only
+# the lines between the tint:begin / tint:end markers in dest. `reload` runs
+# after a change; `live = true` marks targets cheap enough for a preview.
+# lastshell is not listed: it reads kitty's colors.conf itself.
+
+[[target]]
+template = "kitty-colors.conf"
+dest = "~/.config/kitty/colors.conf"
+reload = "pkill -USR1 -x kitty"
+live = true
+
+[[target]]
+template = "hypr-theme.lua"
+dest = "~/.config/hypr/theme.lua"
+live = true
+
+# Corner radius and border thickness (`tint shape`), for lastshell: its
+# Theme.qml watches this file. Hyprland and GTK take the same two numbers
+# through their own templates.
+[[target]]
+template = "shape.json"
+dest = "~/.config/tint/out/shape.json"
+live = true
+
+[[target]]
+template = "keyglow-colors.conf"
+dest = "~/.config/systemd/user/keyglow.service.d/colors.conf"
+reload = "systemctl --user daemon-reload && systemctl --user restart keyglow"
+
+[[target]]
+template = "gtk3.css"
+dest = "~/.config/gtk-3.0/gtk.css"
+
+[[target]]
+template = "gtk4.css"
+dest = "~/.config/gtk-4.0/gtk.css"
+
+[[target]]
+template = "qt5ct-colors.conf"
+dest = "~/.config/qt5ct/colors/tint.conf"
+
+[[target]]
+template = "qt6ct-colors.conf"
+dest = "~/.config/qt6ct/colors/tint.conf"
+
+[[target]]
+template = "fish-fzf.fish"
+dest = "~/.config/fish/conf.d/tint.fish"
+# Runs after every target is written; wakes __tint_refresh in open shells.
+reload = "fish -c 'set -U __tint_rev (date +%s%N)'"
+
+[[target]]
+template = "fish-frozen-theme.fish"
+dest = "~/.config/fish/conf.d/fish_frozen_theme.fish"
+
+[[target]]
+template = "fish-config.block"
+dest = "~/.config/fish/config.fish"
+mode = "block"
+
+[[target]]
+template = "starship-palette.block"
+dest = "~/.config/starship.toml"
+mode = "block"
+
+[[target]]
+template = "mpv-osd.block"
+dest = "~/.config/mpv/mpv.conf"
+mode = "block"
+
+[[target]]
+template = "mpv-modernz.conf"
+dest = "~/.config/mpv/script-opts/modernz.conf"
+
+[[target]]
+template = "mpv-console.conf"
+dest = "~/.config/mpv/script-opts/console.conf"
+
+[[target]]
+template = "ytm-theme.toml"
+dest = "~/.config/ytm-player/theme.toml"
+
+[[target]]
+template = "nvim-colors.lua"
+dest = "~/.config/nvim/lua/colors.lua"
+
+[[target]]
+template = "zed-tint.json"
+dest = "~/.config/zed/themes/tint.json"
+
+# hoja reads Zed theme files and reloads its themes directory by itself;
+# its settings.json names the theme "Tint".
+[[target]]
+template = "zed-tint.json"
+dest = "~/.config/hoja/themes/tint.json"
+
+# hyprglaze: its theme list with the current palette added, then the one
+# line in its config that names it. The list goes first.
+[[target]]
+dest = "~/.config/hyprglaze/themes.json"
+mode = "gogh-list"
+name = "{{name}} on {{background|bare}}"
+live = true
+
+[[target]]
+template = "hyprglaze-theme.block"
+dest = "~/.config/hypr/hyprglaze.toml"
+mode = "block"
+live = true
+
+# The start page: the palette as JSON, then a hook that PUTs it to the page's
+# /api/theme (a no-op until ~/.config/shaun-home.env exists).
+[[target]]
+template = "start-page.json"
+dest = "~/.config/tint/out/start-page.json"
+reload = "~/.config/tint/hooks/start-page"
+
+# The palette as plain JSON, for the hook that builds the `Tint` icon and
+# cursor theme (~/.local/share/icons/Tint): folders in the accent, cursors in
+# the scheme's own dark and light. Takes a few seconds, so not live.
+[[target]]
+template = "palette.json"
+dest = "~/.config/tint/out/palette.json"
+reload = "~/.config/tint/hooks/assets"

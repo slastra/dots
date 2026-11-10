@@ -97,6 +97,7 @@ IPC = {
     "toggleSwitcher":      "Browser tabs",
     "toggleAudio":         "Audio output",
     "toggleEffects":       "Wallpaper effect",
+    "toggleSchemes":       "Color scheme",
     "toggleClipboard":     "Clipboard history",
     "toggleNotifications": "Notification history",
     "toggleCapture":       "Screenshot or record",

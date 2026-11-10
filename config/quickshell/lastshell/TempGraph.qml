@@ -15,8 +15,8 @@ Sparkline {
     onPaint: {
         const ctx = getContext("2d")
         ctx.reset()
-        guide(ctx, 70, Qt.alpha(Theme.gold, 0.35))
-        guide(ctx, 80, Qt.alpha(Theme.love, 0.35))
+        guide(ctx, 70, Qt.alpha(Theme.warn, 0.35))
+        guide(ctx, 80, Qt.alpha(Theme.crit, 0.35))
         trace(ctx, SysStat.tempHistory, Theme.level(SysStat.tempC, 70, 80), height)
     }
 }

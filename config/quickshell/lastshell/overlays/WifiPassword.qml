@@ -68,7 +68,7 @@ Overlay {
                 anchors.verticalCenter: parent.verticalCenter
                 x: 18
                 size: 14
-                color: root.status !== "" ? Theme.love : Theme.text
+                color: root.status !== "" ? Theme.crit : Theme.text
                 dim: root.status !== "" ? 1 : 0.55
                 text: root.joining ? "joining…"
                     : root.status !== "" ? root.status

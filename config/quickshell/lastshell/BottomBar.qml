@@ -25,7 +25,8 @@ BarWindow {
         // coming or going) glides the whole strip instead of jumping it
         x: parent.width - width - 8
         Behavior on x { NumberAnimation { duration: Theme.slideDuration; easing.type: Easing.OutCubic } }
-        spacing: 8
+        plate: true
+        edge: "bottom"
         VoiceChip {}
         MprisChip {}
         VolumeChip {}

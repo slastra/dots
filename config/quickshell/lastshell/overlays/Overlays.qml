@@ -26,6 +26,7 @@ Scope {
         function toggleAudio(): void { root.summon(audio) }
         function toggleMixer(): void { root.summon(mixer) }
         function toggleEffects(): void { root.summon(effects) }
+        function toggleSchemes(): void { root.summon(schemes) }
         function toggleClipboard(): void { root.summon(clipboard) }
         function toggleNotifications(): void { root.summon(center) }
         function toggleHotkeys(): void { root.summon(hotkeys) }
@@ -68,6 +69,7 @@ Scope {
     LazyLoader { id: audio; AudioPicker {} }
     LazyLoader { id: mixer; AudioMixer {} }
     LazyLoader { id: effects; EffectPicker {} }
+    LazyLoader { id: schemes; SchemePicker {} }
     LazyLoader { id: clipboard; ClipboardPicker {} }
     LazyLoader { id: center; NotificationCenter { history: popups.historyModel } }
     LazyLoader { id: capture; CapturePicker {} }

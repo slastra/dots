@@ -6,6 +6,8 @@ import QtQuick
 // override onPaint using them.
 Canvas {
     id: canvas
+    // drawn, not bound: repaint when the color scheme changes
+    Connections { target: Theme; function onSchemeChanged() { canvas.requestPaint() } }
 
     property bool live: true
     property real lo: 0

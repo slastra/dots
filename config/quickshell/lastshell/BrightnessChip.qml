@@ -11,7 +11,7 @@ StatChip {
     readonly property real b: Backlight.level
     value: `${Theme.pad(Math.round(b * 100), 3)}%`
     icon: "sun"
-    tone: Backlight.autoActive ? Theme.foam : Theme.text
+    tone: Backlight.autoActive ? Theme.ok : Theme.text
 
     onClicked: Backlight.toggleAuto()
 
@@ -20,35 +20,27 @@ StatChip {
 
     Popout {
         owner: root
+        title: "brightness"
+        status: `${Math.round(root.b * 100)}%`
+        note: Backlight.hasSensor
+            ? "click: " + (Backlight.auto ? "manual" : "auto") + "  ·  adjusting sets the offset" : ""
 
-        Column {
-            spacing: 8
-            PopText {
-                text: `Brightness ${Math.round(root.b * 100)}%`
-                size: 14
-                width: 220
-            }
-            PopText {
-                visible: Backlight.hasSensor
-                text: Backlight.auto
-                    ? `auto · ${Math.round(Math.max(0, Backlight.lux))} lux · ${Backlight.offset >= 0 ? "+" : ""}${Math.round(Backlight.offset * 100)}% offset`
-                    : "manual"
-                dim: 0.45
-                size: 12
-            }
-            SliderTrack {
-                width: 220
-                frac: root.b
-                fill: Theme.gold
-                interactive: true
-                onSeek: f => Backlight.setLevel(f)
-            }
-            PopText {
-                visible: Backlight.hasSensor
-                text: "click: " + (Backlight.auto ? "manual" : "auto") + "  ·  adjusting sets the offset"
-                dim: 0.45
-                size: 12
-            }
+        SliderTrack {
+            width: parent.width
+            frac: root.b
+            interactive: true
+            onSeek: f => Backlight.setLevel(f)
+        }
+        KeyValueRow { visible: Backlight.hasSensor; key: "mode"; value: Backlight.auto ? "auto" : "manual" }
+        KeyValueRow {
+            visible: Backlight.hasSensor && Backlight.auto
+            key: "ambient"
+            value: `${Math.round(Math.max(0, Backlight.lux))} lux`
+        }
+        KeyValueRow {
+            visible: Backlight.hasSensor && Backlight.auto
+            key: "offset"
+            value: `${Backlight.offset >= 0 ? "+" : ""}${Math.round(Backlight.offset * 100)}%`
         }
     }
 }

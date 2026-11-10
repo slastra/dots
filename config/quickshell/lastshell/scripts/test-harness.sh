@@ -21,6 +21,15 @@
 # real session has focused.
 set -u
 
+# LASTSHELL_PRIVATE_BUS=1 runs the whole harness on its own session bus, so
+# the nested shell can own org.freedesktop.Notifications (the live shell
+# holds it on the real bus) and notify-send in a script file reaches it.
+# The bus has no activatable services; see test/dbus-private.conf for why.
+if [ -n "${LASTSHELL_PRIVATE_BUS:-}" ] && [ -z "${_LASTSHELL_ON_BUS:-}" ]; then
+    exec env _LASTSHELL_ON_BUS=1 dbus-run-session \
+        --config-file="$(cd "$(dirname "$0")/.." && pwd)/test/dbus-private.conf" -- "$0" "$@"
+fi
+
 BODY=${1:-}
 OUT=${2:-$(mktemp -d /tmp/lastshell-test.XXXX)}
 REPO=$(cd "$(dirname "$0")/.." && pwd)
@@ -84,7 +93,14 @@ env WAYLAND_DISPLAY="$NWL" HYPRLAND_INSTANCE_SIGNATURE="$HIS" \
     qs "${QS_ARGS[@]}" >"$OUT/qs.log" 2>&1 &
 QS_PID=$!
 
-cleanup() { kill $QS_PID $BG_PID $HYPR_PID 2>/dev/null; }
+# A killed Hyprland leaves its instance directory and sockets behind, and
+# anything that looks for "the newest instance" (keyglow did) then follows
+# the dead one. Take it away with the session.
+cleanup() {
+    kill $QS_PID $BG_PID $HYPR_PID 2>/dev/null
+    wait $HYPR_PID 2>/dev/null
+    rm -rf "$XDG_RUNTIME_DIR/hypr/$HIS"
+}
 trap cleanup EXIT INT TERM
 
 # The host rule for class aquamarine (hyprland.lua "nested-aquamarine")

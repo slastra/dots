@@ -1,0 +1,13 @@
+#!/bin/sh
+# Send the current palette to the start page (~/Projects/Svelte/shaun-home).
+# Needs ~/.config/shaun-home.env (mode 600) with:
+#   SHAUN_HOME_URL=https://...        the deployed page, no trailing slash
+#   SHAUN_HOME_ADMIN_KEY=...          its ADMIN_KEY
+# Without that file this does nothing.
+ENV="$HOME/.config/shaun-home.env"
+[ -r "$ENV" ] || exit 0
+. "$ENV"
+[ -n "$SHAUN_HOME_URL" ] && [ -n "$SHAUN_HOME_ADMIN_KEY" ] || exit 0
+exec curl -fsS -m 10 -X PUT -H "authorization: Bearer $SHAUN_HOME_ADMIN_KEY" \
+    -H 'content-type: application/json' --data-binary @"$HOME/.config/tint/out/start-page.json" \
+    "$SHAUN_HOME_URL/api/theme" -o /dev/null

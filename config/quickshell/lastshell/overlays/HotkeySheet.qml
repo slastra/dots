@@ -3,7 +3,7 @@ import QtQuick
 import ".."  // root module
 
 // Hotkey cheatsheet (SUPER+/, the last rofi surface). Data comes from
-// hotkeys.py --json — the same live binds.lua parse the rofi sheet used,
+// scripts/hotkeys.py --json — the same live binds.lua parse the rofi sheet used,
 // kept because its whole point is that the sheet cannot drift. Sections
 // flow into columns; typing filters rows and hides emptied sections.
 Overlay {
@@ -21,7 +21,7 @@ Overlay {
 
     JsonProcess {
         id: loader
-        command: ["python3", Quickshell.env("HOME") + "/.config/rofi/scripts/hotkeys.py", "--json"]
+        command: ["python3", Quickshell.shellDir + "/scripts/hotkeys.py", "--json"]
         onResult: sections => root.sections = sections
     }
 
@@ -109,13 +109,13 @@ Overlay {
                                             height: 21; radius: Theme.innerRadius
                                             anchors.verticalCenter: parent.verticalCenter
                                             color: Theme.overlay
-                                            border.color: Qt.alpha(Theme.rose, 0.35)
+                                            border.color: Qt.alpha(Theme.accent, 0.35)
                                             border.width: 1
                                             Text {
                                                 id: capText
                                                 anchors.centerIn: parent
                                                 text: parent.parent.modelData
-                                                color: Theme.rose
+                                                color: Theme.accent
                                                 font.family: Theme.fontFamily; font.pixelSize: 11
                                             }
                                         }

@@ -14,9 +14,9 @@ Chip {
 
     function levelTone(lvl) {
         switch (lvl) {
-        case "crit": case "high": return Theme.love
-        case "watch": return Theme.gold
-        case "low": return Theme.foam
+        case "crit": case "high": return Theme.crit
+        case "watch": return Theme.warn
+        case "low": return Theme.calm
         default: return Theme.text
         }
     }
@@ -48,7 +48,7 @@ Chip {
     readonly property color tone:
         Deskwatch.stale || !Deskwatch.tailUp ? Qt.alpha(Theme.text, 0.45)
         : bad ? levelTone(Deskwatch.level)
-        : Theme.foam
+        : Theme.calm
 
     onClicked: Apps.launch(
         ["kitty", "--hold", "-e", Quickshell.env("HOME") + "/go/bin/deskwatch", "status"], "deskwatch-status")
@@ -58,7 +58,7 @@ Chip {
         Badge { // attention count, only when crit/high is live
             visible: Deskwatch.attention > 0
             anchors.verticalCenter: parent.verticalCenter
-            tone: Theme.love
+            tone: Theme.crit
             text: String(Deskwatch.attention)
         }
 
@@ -73,109 +73,98 @@ Chip {
     Popout {
         owner: root
 
-        Column {
-            spacing: 8
-            width: 360
+        sheetWidth: Theme.popL
+        title: "deskwatch"
+        note: [
+            Deskwatch.presence ? `presence ${Deskwatch.presence}` : "",
+            `${Deskwatch.evalsLastHour} evals/h`,
+            `gateway ${Deskwatch.age}s ago`,
+        ].filter(s => s).join("  ·  ")
+        status: Deskwatch.stale ? "stale snapshot"
+            : !Deskwatch.tailUp ? "gateway tail down"
+            : root.bad ? root.levelLabel(Deskwatch.level) : "all clear"
+        tone: root.tone
 
-            PopoutHeader {
-                title: "deskwatch"
-                status: Deskwatch.stale ? "stale snapshot"
-                    : !Deskwatch.tailUp ? "gateway tail down"
-                    : root.bad ? root.levelLabel(Deskwatch.level) : "all clear"
-                tone: root.tone
-            }
-
-            Repeater {
-                model: Deskwatch.bad
-                Column {
-                    required property var modelData
-                    width: parent.width
-                    spacing: 2
-                    Row {
-                        spacing: 6
-                        LucideIcon {
-                            anchors.verticalCenter: parent.verticalCenter
-                            name: root.levelIcon(modelData.level)
-                            color: root.levelTone(modelData.level)
-                            font.pixelSize: 13
-                        }
-                        PopText {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: modelData.key
-                            color: root.levelTone(modelData.level)
-                            size: 13
-                        }
+        Repeater {
+            model: Deskwatch.bad
+            Column {
+                required property var modelData
+                width: parent.width
+                spacing: 2
+                Row {
+                    spacing: 6
+                    LucideIcon {
+                        anchors.verticalCenter: parent.verticalCenter
+                        name: root.levelIcon(modelData.level)
+                        color: root.levelTone(modelData.level)
+                        font.pixelSize: 13
                     }
                     PopText {
-                        width: parent.width
-                        text: modelData.detail
-                        wrapMode: Text.WordWrap
-                        dim: 0.85
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: modelData.key
+                        color: root.levelTone(modelData.level)
                         size: 13
                     }
-                    PopText {
-                        visible: (modelData.fix ?? "") !== ""
-                        width: parent.width
-                        text: `$ ${modelData.fix}`
-                        wrapMode: Text.WrapAnywhere
-                        color: Qt.alpha(Theme.foam, 0.8)
-                        size: 12
-                    }
                 }
-            }
-
-            Divider { width: parent.width; visible: Deskwatch.verdicts.length > 0 }
-
-            Repeater {
-                model: Deskwatch.verdicts.slice(0, 3)
-                Column {
-                    required property var modelData
+                PopText {
                     width: parent.width
-                    spacing: 1
-                    // Verdicts use the same glyph language as the flags:
-                    // escalate is a siren, watch an eye, benign a check.
-                    Row {
-                        width: parent.width
-                        spacing: 6
-                        readonly property color vtone:
-                            modelData.verdict === "benign" ? Theme.text
-                          : modelData.verdict === "watch" ? Theme.gold : Theme.love
-                        LucideIcon {
-                            anchors.verticalCenter: parent.verticalCenter
-                            name: modelData.verdict === "benign" ? "check"
-                                : modelData.verdict === "watch" ? "eye" : "siren"
-                            color: parent.vtone
-                            font.pixelSize: 12
-                        }
-                        PopText {
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: parent.width - 18
-                            elide: Text.ElideMiddle
-                            text: modelData.gkey.split("|").slice(0, 2).join(" ")
-                            color: parent.vtone
-                            size: 12
-                        }
+                    text: modelData.detail
+                    wrapMode: Text.WordWrap
+                    dim: 0.85
+                    size: 13
+                }
+                PopText {
+                    visible: (modelData.fix ?? "") !== ""
+                    width: parent.width
+                    text: `$ ${modelData.fix}`
+                    wrapMode: Text.WrapAnywhere
+                    color: Qt.alpha(Theme.ok, 0.8)
+                    size: 12
+                }
+            }
+        }
+
+        Divider { width: parent.width; visible: Deskwatch.verdicts.length > 0 }
+
+        Repeater {
+            model: Deskwatch.verdicts.slice(0, 3)
+            Column {
+                required property var modelData
+                width: parent.width
+                spacing: 1
+                // Verdicts use the same glyph language as the flags:
+                // escalate is a siren, watch an eye, benign a check.
+                Row {
+                    width: parent.width
+                    spacing: 6
+                    readonly property color vtone:
+                        modelData.verdict === "benign" ? Theme.text
+                      : modelData.verdict === "watch" ? Theme.warn : Theme.crit
+                    LucideIcon {
+                        anchors.verticalCenter: parent.verticalCenter
+                        name: modelData.verdict === "benign" ? "check"
+                            : modelData.verdict === "watch" ? "eye" : "siren"
+                        color: parent.vtone
+                        font.pixelSize: 12
                     }
                     PopText {
-                        width: parent.width
-                        text: modelData.reason
-                        wrapMode: Text.WordWrap
-                        maximumLineCount: 2
-                        elide: Text.ElideRight
-                        dim: 0.55
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: parent.width - 18
+                        elide: Text.ElideMiddle
+                        text: modelData.gkey.split("|").slice(0, 2).join(" ")
+                        color: parent.vtone
                         size: 12
                     }
                 }
-            }
-
-            PopText {
-                text: [
-                    Deskwatch.presence ? `presence ${Deskwatch.presence}` : "",
-                    `${Deskwatch.evalsLastHour} evals/h`,
-                    `gateway ${Deskwatch.age}s ago`,
-                ].filter(s => s).join("  ·  ")
-                dim: 0.45
-                size: 12
+                PopText {
+                    width: parent.width
+                    text: modelData.reason
+                    wrapMode: Text.WordWrap
+                    maximumLineCount: 2
+                    elide: Text.ElideRight
+                    dim: 0.55
+                    size: 12
+                }
             }
         }
     }

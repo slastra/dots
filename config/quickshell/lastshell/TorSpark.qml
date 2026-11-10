@@ -7,7 +7,7 @@ import QtQuick
 Sparkline {
     id: canvas
     property var values: []
-    property color tone: Theme.foam
+    property color tone: Theme.calm
     lo: 0
     hi: Math.max(35, ...(values.length ? values : [0]))
     implicitWidth: 72
@@ -17,8 +17,8 @@ Sparkline {
     onPaint: {
         const ctx = getContext("2d")
         ctx.reset()
-        guide(ctx, 8, Qt.alpha(Theme.gold, 0.35))
-        guide(ctx, 30, Qt.alpha(Theme.love, 0.35))
+        guide(ctx, 8, Qt.alpha(Theme.warn, 0.35))
+        guide(ctx, 30, Qt.alpha(Theme.crit, 0.35))
         trace(ctx, values.length === 1 ? [values[0], values[0]] : values, tone, height)
     }
 }

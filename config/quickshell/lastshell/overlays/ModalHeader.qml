@@ -33,7 +33,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 name: root.icon
                 font.pixelSize: 18
-                color: Theme.rose
+                color: Theme.accent
             }
             PopText {
                 visible: root.title !== ""
@@ -56,5 +56,5 @@ Item {
             }
         }
     }
-    Rectangle { y: 54; width: parent.width; height: 1; color: Theme.seam }
+    Rectangle { y: 54; width: parent.width; height: Theme.hairline; color: Theme.seam }
 }

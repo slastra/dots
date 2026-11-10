@@ -22,12 +22,12 @@ Sparkline {
         if (n < 2) return
 
         if (Presence.threshold > 0) guide(ctx, Presence.threshold, Theme.textFaint)
-        trace(ctx, h, Presence.present ? Theme.foam : Qt.alpha(Theme.text, 0.5), yFor(0))
+        trace(ctx, h, Presence.present ? Theme.ok : Qt.alpha(Theme.text, 0.5), yFor(0))
 
         // verdict strip: foam while present, muted while away
         const w = width / n
         for (let i = 0; i < n; i++) {
-            ctx.fillStyle = pr[i] ? Qt.alpha(Theme.foam, 0.8) : Qt.alpha(Theme.text, 0.18)
+            ctx.fillStyle = pr[i] ? Qt.alpha(Theme.ok, 0.8) : Qt.alpha(Theme.text, 0.18)
             ctx.fillRect(i * w, height - stripH, w + 0.5, stripH)
         }
     }

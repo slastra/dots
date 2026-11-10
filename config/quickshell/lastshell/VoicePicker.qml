@@ -7,7 +7,7 @@ ListView {
     id: root
     property var voices: []          // [{key, label}]
     property string current: ""
-    property color tone: Theme.rose
+    property color tone: Theme.accent
     signal picked(string key)
 
     readonly property int rowH: 26
@@ -25,8 +25,8 @@ ListView {
         width: root.width
         height: root.rowH
         radius: Theme.innerRadius
-        color: hover.hovered ? Theme.overlay : "transparent"
-        border.color: isCurrent ? Qt.alpha(root.tone, 0.6) : "transparent"
+        color: hover.hovered ? Theme.overlay : Theme.clear(Theme.overlay)
+        border.color: isCurrent ? Qt.alpha(root.tone, 0.6) : Theme.clear(Qt.alpha(root.tone, 0.6))
         border.width: 1
         PopText {
             x: 18

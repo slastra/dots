@@ -1,0 +1,5 @@
+osd-color="{{foreground|upper}}"
+# messages sit on a surface card like lastshell's OSD pill; in
+# background-box mode the shadow offset is the card's padding
+osd-border-style=background-box
+osd-back-color="#F0{{surface|bare|upper}}"

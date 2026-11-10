@@ -1,0 +1,99 @@
+/* Vague on black palette — hand-maintained (theme-sync generator removed) */
+
+/* GIMP-specific: GimpSpinScale draws its value label using the entry's
+ * regular foreground (not @theme_selected_fg_color), so when the
+ * progress fill covers the text — and it does at any value > 0 — light
+ * text on a light accent like Rosé Pine's Rose {{accent|upper}} is unreadable.
+ * Since the same text color is used over both the progress region and
+ * the entry's plain bg, we can't fix this by changing the text color.
+ * Instead darken the progress fill (35% accent / 65% window bg) so
+ * the existing light text retains contrast while the fill stays
+ * recognisably rose-tinted. */
+GimpSpinScale entry progress {
+    background-color: mix(@theme_bg_color, @theme_selected_bg_color, 0.35);
+}
+
+@define-color accent_bg_color {{accent|upper}};
+@define-color accent_fg_color {{background}};
+@define-color accent_color {{accent|upper}};
+
+@define-color destructive_bg_color {{color1|upper}};
+@define-color destructive_fg_color {{background}};
+@define-color destructive_color {{color1|upper}};
+
+@define-color success_bg_color {{ok|upper}};
+@define-color success_fg_color {{background}};
+@define-color success_color {{ok|upper}};
+
+@define-color warning_bg_color {{color3|upper}};
+@define-color warning_fg_color {{background}};
+@define-color warning_color {{color3|upper}};
+
+@define-color error_bg_color {{color1|upper}};
+@define-color error_fg_color {{background}};
+@define-color error_color {{color1|upper}};
+
+@define-color window_bg_color {{background}};
+@define-color window_fg_color {{foreground|upper}};
+@define-color view_bg_color {{background}};
+@define-color view_fg_color {{foreground|upper}};
+
+@define-color headerbar_bg_color {{overlay}};
+@define-color headerbar_fg_color {{foreground|upper}};
+@define-color headerbar_border_color {{overlay}};
+@define-color headerbar_backdrop_color {{overlay}};
+@define-color headerbar_shade_color {{overlay}};
+
+@define-color card_bg_color {{overlay}};
+@define-color card_fg_color {{foreground|upper}};
+@define-color card_shade_color {{overlay}};
+
+@define-color dialog_bg_color {{background}};
+@define-color dialog_fg_color {{foreground|upper}};
+
+@define-color popover_bg_color {{overlay}};
+@define-color popover_fg_color {{foreground|upper}};
+@define-color popover_shade_color {{overlay}};
+
+@define-color sidebar_bg_color {{overlay}};
+@define-color sidebar_fg_color {{foreground|upper}};
+@define-color sidebar_backdrop_color {{overlay}};
+@define-color sidebar_shade_color {{overlay}};
+
+@define-color thumbnail_bg_color {{overlay}};
+@define-color thumbnail_fg_color {{foreground|upper}};
+
+@define-color shade_color {{overlay}};
+
+/* Legacy GTK3 named colors. Firefox and older GTK3 apps query these
+ * (theme_bg_color, theme_selected_bg_color, etc.) directly instead of
+ * the modern libadwaita semantic variables above, so without these
+ * aliases they fall back to the underlying theme's defaults. */
+@define-color theme_bg_color {{background}};
+@define-color theme_fg_color {{foreground|upper}};
+@define-color theme_text_color {{foreground|upper}};
+@define-color theme_base_color {{background}};
+@define-color theme_selected_bg_color {{accent|upper}};
+@define-color theme_selected_fg_color {{background}};
+@define-color theme_unfocused_bg_color {{background}};
+@define-color theme_unfocused_fg_color {{foreground|upper}};
+@define-color theme_unfocused_base_color {{background}};
+@define-color theme_unfocused_text_color {{foreground|upper}};
+@define-color theme_unfocused_selected_bg_color {{accent|upper}};
+@define-color theme_unfocused_selected_fg_color {{background}};
+@define-color insensitive_bg_color {{overlay}};
+@define-color insensitive_fg_color {{color8}};
+@define-color insensitive_base_color {{background}};
+@define-color borders {{overlay}};
+@define-color unfocused_borders {{overlay}};
+@define-color menu_bg_color {{overlay}};
+@define-color menu_fg_color {{foreground|upper}};
+
+/* ---- Plate: square everywhere (see ../gtk-4.0/gtk.css) ------------------ */
+* { border-radius: {{radius}}px; }
+radio, checkbutton radio, radiobutton radio { border-radius: 100%; }
+switch { border-radius: 14px; }
+switch slider { border-radius: 100%; }
+scale slider { border-radius: 100%; }
+spinner { border-radius: 100%; }
+decoration { border-radius: {{radius}}px; }

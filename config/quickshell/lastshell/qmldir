@@ -28,6 +28,9 @@ Divider 1.0 Divider.qml
 Card 1.0 Card.qml
 PopoutHeader 1.0 PopoutHeader.qml
 KeyValueRow 1.0 KeyValueRow.qml
+PopNote 1.0 PopNote.qml
+PopSwitch 1.0 PopSwitch.qml
+PopMeter 1.0 PopMeter.qml
 Badge 1.0 Badge.qml
 SliderTrack 1.0 SliderTrack.qml
 Calendar 1.0 Calendar.qml
@@ -43,6 +46,7 @@ ChipTip 1.0 ChipTip.qml
 StateDot 1.0 StateDot.qml
 singleton Lucide 1.0 Lucide.qml
 LucideIcon 1.0 LucideIcon.qml
+RingIcon 1.0 RingIcon.qml
 TrayMenu 1.0 TrayMenu.qml
 ValueText 1.0 ValueText.qml
 HdrChip 1.0 HdrChip.qml

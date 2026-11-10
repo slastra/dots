@@ -60,6 +60,7 @@ QtObject {
         "app-window": "\ue426",
         "chevron-right": "\ue06f",
         "wand-sparkles": "\ue357",
+        "palette":       "\ue1dd",
         "check": "\ue06c",
         "volume-2": "\ue1ab",
         "volume-x": "\ue1ac",

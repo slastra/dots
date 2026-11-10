@@ -38,7 +38,7 @@ Scope {
     signal pointer(string name, var value)
     signal key(var value)
 
-    readonly property var tints: ({ left: Theme.text, right: Theme.iris, middle: Theme.foam })
+    readonly property var tints: ({ left: Theme.text, right: Theme.agent, middle: Theme.ok })
 
     property var target: ({})
     FileView {

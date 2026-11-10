@@ -24,6 +24,8 @@ Chip {
 
         Canvas { // the face
             id: face
+            // drawn, not bound: repaint when the color scheme changes
+            Connections { target: Theme; function onSchemeChanged() { face.requestPaint() } }
             anchors.verticalCenter: parent.verticalCenter
             width: 18; height: 18
 
@@ -47,13 +49,13 @@ Chip {
                 const a = hour12 / 12 * 2 * Math.PI - Math.PI / 2
                 ctx.lineWidth = 2
                 ctx.lineCap = "round"
-                ctx.strokeStyle = Theme.rose
+                ctx.strokeStyle = Theme.accent
                 ctx.beginPath()
                 ctx.moveTo(c, c)
                 ctx.lineTo(c + Math.cos(a) * r * 0.62, c + Math.sin(a) * r * 0.62)
                 ctx.stroke()
                 // hub
-                ctx.fillStyle = Theme.rose
+                ctx.fillStyle = Theme.accent
                 ctx.beginPath(); ctx.arc(c, c, 1.5, 0, 2 * Math.PI); ctx.fill()
             }
         }

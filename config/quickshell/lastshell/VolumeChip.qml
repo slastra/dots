@@ -17,21 +17,22 @@ Chip {
 
     Popout {
         owner: root
+        title: "volume"
+        status: root.muted ? "muted" : `${Math.round(root.vol * 100)}%`
+        tone: root.muted ? Theme.crit : Theme.text
 
-        Column {
-            spacing: 8
-            PopText {
-                text: Audio.description
-                size: 14
-                width: 220; elide: Text.ElideRight
-            }
-            SliderTrack {
-                width: 220
-                frac: root.vol
-                fill: root.muted ? Theme.love : Theme.pine
-                interactive: true
-                onSeek: f => Audio.setVolume(f)
-            }
+        SliderTrack {
+            width: parent.width
+            frac: root.vol
+            fill: root.muted ? Theme.crit : Theme.info
+            interactive: true
+            onSeek: f => Audio.setVolume(f)
+        }
+        PopText {
+            width: parent.width
+            elide: Text.ElideRight
+            size: 12; dim: 0.55
+            text: Audio.description
         }
     }
 
@@ -44,6 +45,8 @@ Chip {
 
         Canvas { // drawn speaker: wave arcs grow with volume, slash when muted
             id: spk
+            // drawn, not bound: repaint when the color scheme changes
+            Connections { target: Theme; function onSchemeChanged() { spk.requestPaint() } }
             anchors.verticalCenter: parent.verticalCenter
             width: 18; height: 18
 
@@ -81,12 +84,12 @@ Chip {
                     // mute slash in love
                     ctx.lineWidth = 2
                     ctx.lineCap = "round"
-                    ctx.strokeStyle = Theme.love
+                    ctx.strokeStyle = Theme.crit
                     ctx.beginPath(); ctx.moveTo(1.5, cy - 6.5); ctx.lineTo(12.5, cy + 6.5); ctx.stroke()
                 }
                 // bluetooth tick: small iris dot above the cone
                 if (root.bluetooth && !root.muted) {
-                    ctx.fillStyle = Theme.iris
+                    ctx.fillStyle = Theme.agent
                     ctx.beginPath(); ctx.arc(15, cy - 6, 1.8, 0, 2 * Math.PI); ctx.fill()
                 }
             }

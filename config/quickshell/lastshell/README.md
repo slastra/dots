@@ -1,15 +1,17 @@
 # lastshell
 
-Quickshell desktop shell for Hyprland with two bars, eight modals, and a notification server.
+Quickshell desktop shell for Hyprland with two bars, nine modals, and a notification server.
 
 ![lastshell](https://raw.githubusercontent.com/slastra/dots/main/docs/demo.gif)
 
-Raw [Quickshell](https://quickshell.org), no framework. Rosé Pine everywhere.
+Raw [Quickshell](https://quickshell.org), no framework. Colors come from your terminal's color scheme.
 
 ## Features
 
-The bars are tab chips hanging off the screen edges. Four instruments are
-drawn with Canvas rather than fonted: an analog clock (hour hand only), a
+The bars are zones: flat plates flush to the screen edges, each a row of
+items divided by hairlines. Hovering an item unfolds a popout from its plate,
+and every popout shares one layout (a name and its reading, rows, a note).
+Four instruments are drawn with Canvas rather than fonted: an analog clock (hour hand only), a
 thermometer whose mercury tracks the CPU package, a speaker whose arcs grow
 with volume, and a usage ring that sweeps between quota windows. Icons are
 [Lucide](https://lucide.dev); text is ShureTechMono.
@@ -19,8 +21,16 @@ caret, a scrolling body with a gliding cursor and gold match highlighting,
 a hint footer, and an animated backdrop mask.
 
 Notifications are the shell's own `NotificationServer`:
-urgency-washed toasts with a countdown ring around the dismiss button,
-and a history the center reads.
+toasts with an urgency rule on the left and a countdown line draining along
+the bottom, and a history the center reads.
+
+Nothing is colored by hand. `Theme.qml` reads kitty's `colors.conf`
+(background, foreground, the 16 ANSI colors), derives its neutrals from the
+background and foreground, and gives each ANSI slot one role: an accent for
+what is active, and warning and critical colors for what needs attention.
+Change the terminal scheme and the shell follows, live. Corner radius and
+border thickness come from a small JSON file the same way. The scheme
+picker modal drives [tint](#theming), which recolors the rest of the desktop.
 
 The shell is also the session's polkit agent. Its prompt wears the modal
 chrome, names the password it wants when an app's own unlock goes through
@@ -56,6 +66,17 @@ without them:
   and keys
 - the hotkey modal shells out to an engine script (see
   [dots](https://github.com/slastra/dots) for a working copy)
+
+### Theming
+
+The shell needs only `~/.config/kitty/colors.conf`; without one it falls
+back to Vague on black. Two optional pieces:
+
+- `~/.config/tint/out/shape.json`, `{"radius": 0, "border": 1}`, sets corner
+  radius and border thickness in pixels.
+- The scheme picker (`overlays toggleSchemes`) calls a `tint` command:
+  `tint list --json` for the schemes and `tint apply NAME [--live]` to apply
+  one. The configuration it uses is in [dots](https://github.com/slastra/dots).
 
 ### The shell
 

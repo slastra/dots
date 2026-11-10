@@ -13,6 +13,9 @@ PanelWindow {
     default property alias content: inner.data
     property alias cardWidth: card.implicitWidth
     property int contentPadding: 18
+    // how far the desktop steps back behind the card; a modal that changes
+    // the desktop (the scheme picker) lowers it so the change shows
+    property real backdrop: 0.85
 
     function toggle() { open = !open }
     function dismiss() { open = false }
@@ -36,7 +39,7 @@ PanelWindow {
         Rectangle {
             anchors.fill: parent
             color: Theme.base
-            opacity: root.open ? 0.85 : 0
+            opacity: root.open ? root.backdrop : 0
             Behavior on opacity { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
         }
     }
@@ -48,9 +51,7 @@ PanelWindow {
         implicitHeight: inner.childrenRect.height + root.contentPadding * 2
 
         opacity: root.open ? 1 : 0
-        scale: root.open ? 1 : 0.97
         Behavior on opacity { NumberAnimation { duration: Theme.animDuration; easing.type: Easing.OutCubic } }
-        Behavior on scale { NumberAnimation { duration: Theme.animDuration; easing.type: Easing.OutCubic } }
         Behavior on anchors.verticalCenterOffset { NumberAnimation { duration: Theme.animDuration; easing.type: Easing.OutCubic } }
 
         property real jolt: 0

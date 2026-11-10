@@ -1,0 +1,24 @@
+# Vague on black, mapped onto the old palette names. Hand-maintained.
+[colors]
+background = "{{background}}"      # base
+foreground = "{{foreground}}"      # text
+text = "{{foreground}}"
+primary = "{{accent}}"         # rose
+secondary = "{{subtle}}"       # subtle
+accent = "{{color5}}"          # iris
+success = "{{color4}}"         # pine
+warning = "{{color3}}"         # gold
+error = "{{color1}}"           # love
+surface = "{{surface}}"         # surface
+border = "{{hairline}}"          # highlight med
+muted_text = "{{color8}}"      # muted
+
+playback_bar_bg = "{{surface}}" # surface
+active_tab = "{{foreground}}"      # text
+inactive_tab = "{{subtle}}"    # subtle
+selected_item = "{{overlay}}"   # overlay
+progress_filled = "{{accent}}" # rose
+progress_empty = "{{hairline}}"  # highlight med
+lyrics_played = "{{color8}}"   # muted
+lyrics_current = "{{color5}}"  # iris
+lyrics_upcoming = "{{subtle}}" # subtle

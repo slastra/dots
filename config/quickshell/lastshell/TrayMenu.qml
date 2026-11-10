@@ -74,7 +74,7 @@ PopupWindow {
                     spacing: 8
                     PopText {
                         text: "‹"
-                        color: Theme.iris; size: 15
+                        color: Theme.agent; size: 15
                     }
                     PopText {
                         text: "back"
@@ -84,7 +84,7 @@ PopupWindow {
                 }
                 Rectangle {
                     anchors.fill: parent; radius: Theme.innerRadius; z: -1
-                    color: backHover.hovered ? Theme.overlay : "transparent"
+                    color: backHover.hovered ? Theme.overlay : Theme.clear(Theme.overlay)
                 }
                 HoverHandler { id: backHover }
                 TapHandler { onTapped: root.stack = root.stack.slice(0, -1) }
@@ -129,7 +129,7 @@ PopupWindow {
                         PopText { // check mark space (checkbox/radio entries)
                             visible: row.modelData.buttonType !== 0
                             text: row.modelData.checkState === Qt.Checked ? "✓" : " "
-                            color: Theme.rose
+                            color: Theme.accent
                             size: 13
                             width: 12
                         }
@@ -154,7 +154,7 @@ PopupWindow {
                         anchors.rightMargin: 6
                         anchors.verticalCenter: parent.verticalCenter
                         text: "›"
-                        color: Theme.iris
+                        color: Theme.agent
                         size: 15
                     }
 

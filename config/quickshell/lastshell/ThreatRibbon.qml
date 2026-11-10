@@ -11,7 +11,7 @@ Item {
     readonly property bool warned: Radar.tornadoWarning || Radar.severeWarning
     readonly property var warning: Radar.homeAlerts.find(a => /Warning/.test(a.event) && /Tornado|Thunderstorm/.test(a.event)) ?? null
     readonly property color tone:
-        Radar.tornadoWarning || storm?.tier === "urgent" ? Theme.love : Theme.gold
+        Radar.tornadoWarning || storm?.tier === "urgent" ? Theme.crit : Theme.warn
 
     visible: storm !== null || warned
     implicitHeight: visible ? body.implicitHeight + (compact ? 12 : 18) : 0
@@ -26,7 +26,7 @@ Item {
     Rectangle { // accent bar
         x: 0; y: 6
         width: 3; height: parent.height - 12
-        radius: 1.5
+
         color: root.tone
     }
 

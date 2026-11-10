@@ -56,7 +56,7 @@ PanelWindow {
                 anchors.verticalCenter: parent.verticalCenter
                 width: 170
                 frac: root.b
-                fill: Theme.gold
+                fill: Theme.warn
             }
             Text {
                 anchors.verticalCenter: parent.verticalCenter

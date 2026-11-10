@@ -52,13 +52,13 @@ Singleton {
     // listening is gold (lastshell's "needs you"), dictating love (the
     // recorder's REC).
     function tone(w) {
-        return ({ deskdoc: Theme.rose, thinking: Theme.rose, claude: Theme.iris, reader: Theme.foam,
-                  listening: Theme.gold, dictating: Theme.love })[w] ?? Theme.textMuted
+        return ({ deskdoc: Theme.accent, thinking: Theme.accent, claude: Theme.agent, reader: Theme.ok,
+                  listening: Theme.warn, dictating: Theme.crit })[w] ?? Theme.textMuted
     }
     function kindTone(entry) {
-        if (entry.kind === "heard") return Theme.gold
-        if (entry.kind === "dictated") return Theme.love
-        return entry.channel === "assistant" ? Theme.rose : Theme.iris
+        if (entry.kind === "heard") return Theme.warn
+        if (entry.kind === "dictated") return Theme.crit
+        return entry.channel === "assistant" ? Theme.accent : Theme.agent
     }
     function kindLabel(entry) {
         if (entry.kind === "heard") return "you"

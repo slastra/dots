@@ -36,7 +36,6 @@ Item {
     ChipRow {
         id: row
         anchors.top: parent.top
-        spacing: 8
 
         Repeater {
             model: chips.model
@@ -58,7 +57,7 @@ Item {
                         text: wsChip.wsId
                         // empty workspaces read dim but legible — overlay-on-surface
                         // was too faint to count at a glance
-                        color: wsChip.active ? Theme.rose
+                        color: wsChip.active ? Theme.accent
                              : root.occupied[wsChip.wsId] ? Theme.text
                              : Theme.textMuted
                     }

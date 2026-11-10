@@ -22,14 +22,14 @@ BarWindow {
     readonly property int titleMax: Host.laptop ? 360 : 900
     readonly property bool packLeft: Host.laptop
     // where the title chip starts: left margin, workspaces, spacing
-    readonly property int titleX: gap + workspaces.width + gap
+    readonly property int titleX: gap + workspaces.width
 
     ChipRow {
         id: left
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.leftMargin: bar.gap
-        spacing: bar.gap
+        plate: true
         Workspaces { id: workspaces }
         WindowTitle {
             anchors.top: parent.top
@@ -54,9 +54,9 @@ BarWindow {
         Behavior on x { NumberAnimation { duration: Theme.slideDuration; easing.type: Easing.OutCubic } }
         // Too many windows for the room left: narrow every icon slot (40 ->
         // 26, the 18 px icon plus 4 each side) before the strip can overlap.
-        // A chip costs slot + 4 border + 4 spacing.
+        // An item costs exactly its slot.
         readonly property int room: sys.x - bar.gap - (bar.titleX + bar.titleMin + bar.gap)
-        slot: Math.max(26, Math.min(40, Math.floor(room / Math.max(1, count)) - 8))
+        slot: Math.max(26, Math.min(40, Math.floor(room / Math.max(1, count))))
     }
 
     ChipRow {
@@ -66,7 +66,7 @@ BarWindow {
         // coming or going) glides the whole strip instead of jumping it
         x: parent.width - width - 8
         Behavior on x { NumberAnimation { duration: Theme.slideDuration; easing.type: Easing.OutCubic } }
-        spacing: 8
+        plate: true
         Tray {}
         SysChips {}
         // Desk-only chips sit in Loaders so their services never start on

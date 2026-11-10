@@ -116,7 +116,7 @@ Overlay {
                     spacing: 3
                     PopText {
                         size: 15; font.bold: true
-                        color: root.eco ? Theme.foam : Theme.text
+                        color: root.eco ? Theme.ok : Theme.text
                         text: !root.scriptFound ? "eco.sh not found" : root.eco ? "On" : "Off"
                     }
                     PopText {
@@ -129,18 +129,18 @@ Overlay {
                 Rectangle { // switch
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
-                    width: 46; height: 24; radius: 12
-                    color: root.eco ? Qt.alpha(Theme.foam, 0.3) : Theme.overlay
-                    border.color: root.eco ? Theme.foam : Theme.border
+                    width: 46; height: 24
+                    color: root.eco ? Qt.alpha(Theme.ok, 0.3) : Theme.overlay
+                    border.color: root.eco ? Theme.ok : Theme.border
                     border.width: 1
                     opacity: root.busy ? 0.5 : 1
                     Behavior on color { ColorAnimation { duration: Theme.animDuration } }
 
                     Rectangle {
-                        width: 16; height: 16; radius: 8
+                        width: 16; height: 16
                         anchors.verticalCenter: parent.verticalCenter
                         x: root.eco ? parent.width - width - 4 : 4
-                        color: root.eco ? Theme.foam : Theme.textMuted
+                        color: root.eco ? Theme.ok : Theme.textMuted
                         Behavior on x { NumberAnimation { duration: Theme.animDuration; easing.type: Easing.OutCubic } }
                     }
                 }
@@ -152,7 +152,7 @@ Overlay {
                 }
             }
 
-            Rectangle { width: parent.width; height: 1; color: Theme.divider }
+            Rectangle { width: parent.width; height: Theme.hairline; color: Theme.divider }
 
             // CPU profile: independent of eco (eco just picks saver)
             Column {
@@ -167,7 +167,7 @@ Overlay {
                 }
             }
 
-            Rectangle { width: parent.width; height: 1; color: Theme.divider }
+            Rectangle { width: parent.width; height: Theme.hairline; color: Theme.divider }
 
             // what eco touches, as it stands right now
             Grid {

@@ -11,7 +11,7 @@ import QtQuick
 // dropping it from its model, so the chip caches what it draws.
 ChipRow {
     id: root
-    spacing: 8
+    plate: true
 
     // icon slot width; the bar narrows it when the strip would not fit
     property int slot: 40

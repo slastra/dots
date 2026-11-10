@@ -29,8 +29,8 @@ Overlay {
                 width: clearRow.implicitWidth + 20
                 height: 28
                 radius: Theme.innerRadius
-                color: clearHover.hovered ? Qt.alpha(Theme.love, 0.15) : "transparent"
-                border.color: Qt.alpha(Theme.love, 0.5)
+                color: clearHover.hovered ? Qt.alpha(Theme.crit, 0.15) : Theme.clear(Qt.alpha(Theme.crit, 0.15))
+                border.color: Qt.alpha(Theme.crit, 0.5)
                 border.width: 1
                 Behavior on color { ColorAnimation { duration: Theme.animDuration } }
                 HoverHandler { id: clearHover }
@@ -41,12 +41,12 @@ Overlay {
                     LucideIcon {
                         anchors.verticalCenter: parent.verticalCenter
                         name: "trash-2"; font.pixelSize: 12
-                        color: Theme.love
+                        color: Theme.crit
                     }
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "clear"
-                        color: Theme.love; font.family: Theme.fontFamily; font.pixelSize: 12
+                        color: Theme.crit; font.family: Theme.fontFamily; font.pixelSize: 12
                     }
                 }
                 TapHandler {

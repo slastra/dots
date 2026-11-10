@@ -4,10 +4,9 @@ import QtQuick
 // count (love). Overlay fill, tone-tinted border, tone text.
 Rectangle {
     property string text
-    property color tone: Theme.iris
+    property color tone: Theme.agent
     width: t.implicitWidth + 10
     height: 16
-    radius: 8
     color: Theme.overlay
     border.color: Qt.alpha(tone, 0.6)
     border.width: 1

@@ -1,43 +1,44 @@
--- Rosé Pine palette — hand-maintained (theme-sync generator removed)
+-- Vague: the terminal palette for :terminal buffers. Written by `tint apply`
+-- from ~/.config/tint/templates/nvim-colors.lua.
 local M = {}
 
 M.palette = {
-  color_01 = "#26233A",
-  color_02 = "#EB6F92",
-  color_03 = "#9CCFD8",
-  color_04 = "#F6C177",
-  color_05 = "#31748F",
-  color_06 = "#C4A7E7",
-  color_07 = "#EBBCBA",
-  color_08 = "#E0DEF4",
-  color_09 = "#6E6A86",
-  color_10 = "#EB6F92",
-  color_11 = "#9CCFD8",
-  color_12 = "#F6C177",
-  color_13 = "#31748F",
-  color_14 = "#C4A7E7",
-  color_15 = "#EBBCBA",
-  color_16 = "#E0DEF4",
-  background = "#191724",
-  foreground = "#E0DEF4",
-  cursor = "#E0DEF4",
+  color_01 = "#252530",
+  color_02 = "#d8647e",
+  color_03 = "#7fa563",
+  color_04 = "#f3be7c",
+  color_05 = "#6e94b2",
+  color_06 = "#bb9dbd",
+  color_07 = "#aeaed1",
+  color_08 = "#cdcdcd",
+  color_09 = "#606079",
+  color_10 = "#e08398",
+  color_11 = "#99b782",
+  color_12 = "#f5cb96",
+  color_13 = "#8ba9c1",
+  color_14 = "#c9b1ca",
+  color_15 = "#bebeda",
+  color_16 = "#d7d7d7",
+  background = "#000000",
+  foreground = "#cdcdcd",
+  cursor = "#cdcdcd",
 }
 
-vim.g.terminal_color_0  = "#26233A"
-vim.g.terminal_color_1  = "#EB6F92"
-vim.g.terminal_color_2  = "#9CCFD8"
-vim.g.terminal_color_3  = "#F6C177"
-vim.g.terminal_color_4  = "#31748F"
-vim.g.terminal_color_5  = "#C4A7E7"
-vim.g.terminal_color_6  = "#EBBCBA"
-vim.g.terminal_color_7  = "#E0DEF4"
-vim.g.terminal_color_8  = "#6E6A86"
-vim.g.terminal_color_9  = "#EB6F92"
-vim.g.terminal_color_10 = "#9CCFD8"
-vim.g.terminal_color_11 = "#F6C177"
-vim.g.terminal_color_12 = "#31748F"
-vim.g.terminal_color_13 = "#C4A7E7"
-vim.g.terminal_color_14 = "#EBBCBA"
-vim.g.terminal_color_15 = "#E0DEF4"
+vim.g.terminal_color_0  = "#252530"
+vim.g.terminal_color_1  = "#d8647e"
+vim.g.terminal_color_2  = "#7fa563"
+vim.g.terminal_color_3  = "#f3be7c"
+vim.g.terminal_color_4  = "#6e94b2"
+vim.g.terminal_color_5  = "#bb9dbd"
+vim.g.terminal_color_6  = "#aeaed1"
+vim.g.terminal_color_7  = "#cdcdcd"
+vim.g.terminal_color_8  = "#606079"
+vim.g.terminal_color_9  = "#e08398"
+vim.g.terminal_color_10 = "#99b782"
+vim.g.terminal_color_11 = "#f5cb96"
+vim.g.terminal_color_12 = "#8ba9c1"
+vim.g.terminal_color_13 = "#c9b1ca"
+vim.g.terminal_color_14 = "#bebeda"
+vim.g.terminal_color_15 = "#d7d7d7"
 
 return M

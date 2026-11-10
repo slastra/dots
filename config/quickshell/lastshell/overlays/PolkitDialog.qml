@@ -172,13 +172,13 @@ Overlay {
             PopText {
                 visible: root.hint !== ""
                 width: parent.width
-                size: 13; color: Theme.gold
+                size: 13; color: Theme.warn
                 wrapMode: Text.Wrap
                 text: root.hint
             }
         }
 
-        Rectangle { width: parent.width; height: 1; color: Theme.seam }
+        Rectangle { width: parent.width; height: Theme.hairline; color: Theme.seam }
 
         // the secret: the greeter's field treatment
         Rectangle {
@@ -192,7 +192,7 @@ Overlay {
                     anchors.verticalCenter: parent.verticalCenter
                     font.pixelSize: 18
                     name: root.locked ? "shield-alert" : root.busy ? "shield-check" : "key-round"
-                    color: root.locked || root.wrong ? Theme.love : root.busy ? Theme.foam : Theme.rose
+                    color: root.locked || root.wrong ? Theme.crit : root.busy ? Theme.ok : Theme.accent
                 }
                 LucideIcon {
                     anchors.verticalCenter: parent.verticalCenter
@@ -214,7 +214,7 @@ Overlay {
                         id: caret
                         x: value.implicitWidth + (value.text ? 2 : 0)
                         anchors.verticalCenter: parent.verticalCenter
-                        width: 2; height: 22; color: Theme.rose
+                        width: 2; height: 22; color: Theme.accent
                         visible: !root.busy
                         SequentialAnimation on opacity {
                             running: root.open && caret.visible; loops: Animation.Infinite
@@ -234,7 +234,7 @@ Overlay {
                         id: pulse
                         x: value.implicitWidth + 8
                         anchors.verticalCenter: parent.verticalCenter
-                        width: 8; height: 8; radius: 4; color: Theme.foam
+                        width: 8; height: 8; radius: 4; color: Theme.ok
                         visible: root.busy
                         SequentialAnimation on scale {
                             running: pulse.visible; loops: Animation.Infinite
@@ -248,7 +248,7 @@ Overlay {
                 anchors.right: parent.right; anchors.rightMargin: 18
                 anchors.verticalCenter: parent.verticalCenter
                 visible: root.capsLock && !!root.password
-                size: 12; color: Theme.gold
+                size: 12; color: Theme.warn
                 text: "caps lock"
             }
         }
@@ -264,8 +264,8 @@ Overlay {
                 size: 13
                 wrapMode: Text.Wrap
                 readonly property string pam: root.flow?.supplementaryMessage ?? ""
-                color: root.locked || root.wrong || root.flow?.supplementaryIsError ? Theme.love
-                     : root.triesLeft === 1 ? Theme.gold : Theme.textMuted
+                color: root.locked || root.wrong || root.flow?.supplementaryIsError ? Theme.crit
+                     : root.triesLeft === 1 ? Theme.warn : Theme.textMuted
                 text: root.locked
                         ? `Locked by too many failures until ${root.fmtTime(root.lockedUntil)}. Even the right password is refused until then.`
                     : [

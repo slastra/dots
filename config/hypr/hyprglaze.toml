@@ -1,7 +1,9 @@
 # Effects: particles, windowglow, cellbloom, concentric, fluid, aurora,
 #          starfield, visualizer, milkdrop, glitch, buddy, ai-buddy
-effect = "windowglow"
-theme = "Rosé Pine"
+effect = "weft"
+# tint:begin (the theme line is written by `tint apply`)
+theme = "Vague on 000000"
+# tint:end
 
 [transition]
 duration = 0.5
@@ -13,7 +15,7 @@ workspace_spring = "1, 71.2633, 15.8273644"
 window_spring = "1, 71.2633, 15.8273644"
 
 [cursor]
-smoothing = 0.0   # sampled directly each frame; no lag needed
+smoothing = 0.6   # a light trail, about 65 ms; 0 = none, toward 1 = slower
 
 [geometry]
 smoothing = 0.0   # window animation is mirrored; no lag needed
@@ -31,8 +33,12 @@ max_calls_per_minute = 6
 
 [amorphous]
 opacity = 1.0
-front = 2   # Rosé Pine pink
-back = 6    # Rosé Pine lavender
+front = 2   # palette index (Vague: sage)
+back = 6    # palette index (Vague: periwinkle)
 
 [fur]
 length = 60.0   # hair length in px (default 30, up to 200)
+
+[laser]
+color = 4    # palette index (Vague: amber)
+color2 = 7   # palette index (Vague: periwinkle)

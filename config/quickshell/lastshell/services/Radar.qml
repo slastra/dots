@@ -2,9 +2,10 @@ pragma Singleton
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import ".."  // root module: Deskwatch
 
 // Storms near home, from the "storms" section deskwatch's news.storms
-// collector publishes into the same snapshot Deskwatch reads. The daemon
+// collector publishes into the snapshot Deskwatch reads. The daemon
 // owns every judgement (tiers, tracks, ETAs); this only reads, ages and
 // summarises. Colouring lives in RadarChip: Theme is not in scope here.
 Singleton {
@@ -74,25 +75,27 @@ Singleton {
 
     Timer { interval: 30000; running: root.loaded; repeat: true; onTriggered: root.tick() }
 
-    FileView {
-        // LASTSHELL_DESKWATCH_SNAPSHOT points the harness at a fixture.
-        path: Quickshell.env("LASTSHELL_DESKWATCH_SNAPSHOT") || (Quickshell.env("XDG_RUNTIME_DIR") + "/lastshell-deskwatch.json")
-        watchChanges: true
-        onFileChanged: reload()
-        onLoaded: parse()
-        function parse() {
-            try {
-                const s = JSON.parse(text()).storms
-                if (!s) { root.payload = {}; root.storms = []; root.updated = ""; root.loaded = true; return }
-                root.payload = s
-                root.storms = s.storms ?? []
-                root.homeAlerts = s.home_alerts ?? []
-                root.warnings = s.warnings ?? []
-                root.images = s.images ?? {}
-                root.updated = s.updated ?? ""
-                root.loaded = true
-                root.tick()
-            } catch (e) { /* mid-write; the rename will land */ }
-        }
+    // Deskwatch reads the snapshot (LASTSHELL_DESKWATCH_SNAPSHOT points the
+    // harness at a fixture) and hands this its section as text, which only
+    // changes when the storms collector has run.
+    function parse() {
+        if (!Deskwatch.loaded) return
+        try {
+            const s = Deskwatch.stormsJson !== "" ? JSON.parse(Deskwatch.stormsJson) : null
+            root.payload = s ?? {}
+            root.storms = s?.storms ?? []
+            root.homeAlerts = s?.home_alerts ?? []
+            root.warnings = s?.warnings ?? []
+            root.images = s?.images ?? {}
+            root.updated = s?.updated ?? ""
+            root.loaded = true
+            root.tick()
+        } catch (e) {}
     }
+    Connections {
+        target: Deskwatch
+        function onStormsJsonChanged() { root.parse() }
+        function onLoadedChanged() { root.parse() }
+    }
+    Component.onCompleted: parse()
 }

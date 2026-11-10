@@ -187,12 +187,12 @@ Overlay {
                     Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
                         width: body.width - clock.width - 14
-                        height: 8; radius: 4
+                        height: 8
                         color: Theme.overlay
                         Rectangle { // no Behavior: ~12 updates a second already read as motion
                             width: Math.max(8, parent.width * root.level)
-                            height: parent.height; radius: 4
-                            color: root.level > 0.85 ? Theme.gold : Theme.foam
+                            height: parent.height
+                            color: root.level > 0.85 ? Theme.warn : Theme.ok
                         }
                     }
                     PopText {
@@ -211,7 +211,7 @@ Overlay {
                 // working
                 PopText {
                     visible: root.busy
-                    size: 14; color: Theme.iris
+                    size: 14; color: Theme.agent
                     text: root.phase === "transcribing" ? "Transcribing…" : "Cleaning up…"
                 }
                 PopText { // the raw words while cleanup runs
@@ -241,7 +241,7 @@ Overlay {
                 }
                 PopText {
                     visible: root.phase === "review" && (root.note !== "" || root.showRaw)
-                    size: 12; color: Theme.gold
+                    size: 12; color: Theme.warn
                     text: root.showRaw ? "raw transcript" : root.note
                 }
 
@@ -250,7 +250,7 @@ Overlay {
                     visible: root.phase === "error"
                     width: body.width
                     wrapMode: Text.Wrap
-                    size: 14; color: Theme.love
+                    size: 14; color: Theme.crit
                     text: root.error
                 }
             }

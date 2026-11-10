@@ -8,7 +8,7 @@ StatChip {
 
     readonly property real b: Hdr.brightness
     readonly property bool lifted: b > 1.0
-    tone: lifted ? Theme.gold : Theme.text
+    tone: lifted ? Theme.warn : Theme.text
     value: `${b.toFixed(1)}×`
     icon: "sun"
 
@@ -18,22 +18,16 @@ StatChip {
 
     Popout {
         owner: root
+        title: "sdr brightness"
+        status: `${root.b.toFixed(2)}×`
 
-        Column {
-            spacing: 8
-            PopText {
-                text: `SDR brightness ${root.b.toFixed(2)}×`
-                size: 14
-                width: 220
-            }
-            SliderTrack { // 1.0 at the left edge
-                width: 220
-                frac: (root.b - Hdr.min) / (Hdr.max - Hdr.min)
-                fill: Theme.gold
-                interactive: true
-                onSeek: f => Hdr.set(Hdr.min + (Hdr.max - Hdr.min) * f)
-            }
+        SliderTrack { // 1.0 at the left edge
+            width: parent.width
+            frac: (root.b - Hdr.min) / (Hdr.max - Hdr.min)
+            interactive: true
+            onSeek: f => Hdr.set(Hdr.min + (Hdr.max - Hdr.min) * f)
         }
+        PopNote { text: "how bright SDR content is drawn on the HDR display" }
     }
 
 }

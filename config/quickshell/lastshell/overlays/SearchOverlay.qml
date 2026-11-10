@@ -14,6 +14,12 @@ Overlay {
     property string typeIcon: "search"   // lucide name marking what this modal is
     property int visibleRows: 12         // viewport height; matches beyond it scroll
     property string hint: "↑↓ navigate   ↵ open   esc close"
+    // Optional scopes: named subsets of the list ([{ label, count }]), shown
+    // in the header. With any, Tab steps through them instead of down the
+    // list; the caller narrows `items` to the one at `scope`.
+    property var scopes: []
+    property int scope: 0
+    onScopeChanged: cursor = 0
     signal activated(var item)
 
     cardWidth: 560
@@ -60,6 +66,10 @@ Overlay {
                 root.query !== "" ? root.query = "" : root.dismiss()
             else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
                 root.activate()
+            else if (root.scopes.length > 0 && event.key === Qt.Key_Tab && !(event.modifiers & Qt.ShiftModifier))
+                root.scope = (root.scope + 1) % root.scopes.length
+            else if (root.scopes.length > 0 && event.key === Qt.Key_Backtab)
+                root.scope = (root.scope + root.scopes.length - 1) % root.scopes.length
             else if (event.key === Qt.Key_Down || (event.key === Qt.Key_Tab && !(event.modifiers & Qt.ShiftModifier)))
                 root.cursor = Math.min(root.filtered.length - 1, root.cursor + 1)
             else if (event.key === Qt.Key_Up || event.key === Qt.Key_Backtab)
@@ -73,7 +83,44 @@ Overlay {
             event.accepted = true
         }
 
-        ModalHeader { icon: root.typeIcon; query: root.query; active: root.open }
+        ModalHeader {
+            icon: root.typeIcon; query: root.query; active: root.open
+
+            Row { // the scopes: the one in view in the accent, with its rule
+                visible: root.scopes.length > 0
+                anchors.right: parent.right
+                anchors.rightMargin: 18
+                height: parent.height
+                spacing: 4
+                Repeater {
+                    model: root.scopes
+                    Item {
+                        id: tab
+                        required property var modelData
+                        required property int index
+                        readonly property bool on: index === root.scope
+                        width: tabText.implicitWidth + 20
+                        height: parent.height
+                        PopText {
+                            id: tabText
+                            anchors.centerIn: parent
+                            size: 13
+                            color: tab.on ? Theme.accent : tabHover.hovered ? Theme.text : Theme.textMuted
+                            text: tab.modelData.count !== undefined
+                                ? `${tab.modelData.label} ${tab.modelData.count}` : tab.modelData.label
+                        }
+                        Rectangle { // the same 2 px rule that marks an active bar item
+                            visible: tab.on
+                            anchors.bottom: parent.bottom
+                            width: parent.width; height: 2
+                            color: Theme.accent
+                        }
+                        HoverHandler { id: tabHover; cursorShape: Qt.PointingHandCursor }
+                        TapHandler { onTapped: root.scope = tab.index }
+                    }
+                }
+            }
+        }
 
         Item { // ── body: a real ListView — wheel scrolls, cursor follows,
                //    the rose outline is the view's own gliding highlight
@@ -95,8 +142,8 @@ Overlay {
                 highlight: Rectangle {
                     radius: Theme.innerRadius
                     color: Theme.overlay
-                    border.width: 2
-                    border.color: Qt.alpha(Theme.rose, 0.8)
+                    border.width: Theme.hairline
+                    border.color: Qt.alpha(Theme.accent, 0.8)
                 }
                 highlightMoveDuration: 110
                 highlightResizeDuration: 0
@@ -127,18 +174,38 @@ Overlay {
                             anchors.verticalCenter: parent.verticalCenter
                             name: row.modelData.lucideIcon ?? ""
                             font.pixelSize: 15
-                            color: Qt.alpha(Theme.iris, 0.8)
+                            color: Qt.alpha(Theme.agent, 0.8)
                         }
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             font.family: Theme.fontFamily
                             font.pixelSize: 15
-                            color: row.modelData.current ? Theme.iris
+                            color: row.modelData.current ? Theme.accent
                                  : row.index === root.cursor ? Theme.text : Qt.alpha(Theme.text, 0.75)
                             textFormat: Text.StyledText
-                            text: Fuzzy.highlight(row.modelData.label, row.modelData._idx, Theme.gold.toString())
-                            width: 450
+                            text: Fuzzy.highlight(row.modelData.label, row.modelData._idx, Theme.warn.toString())
+                            width: (row.modelData.swatches ?? []).length > 0 ? 330 : 450
                             elide: Text.ElideRight
+                        }
+                    }
+
+                    Row { // a scheme's own colors, drawn in them (not the theme's)
+                        visible: (row.modelData.swatches ?? []).length > 0
+                        anchors.right: parent.right
+                        anchors.rightMargin: 40
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 3
+                        Repeater {
+                            model: row.modelData.swatches ?? []
+                            Rectangle {
+                                required property var modelData
+                                required property int index
+                                width: index === 0 ? 22 : 12; height: 12
+                                color: modelData
+                                // the background swatch may be the card's own color: outline it
+                                border.width: index === 0 ? 1 : 0
+                                border.color: Theme.border
+                            }
                         }
                     }
 
@@ -149,7 +216,7 @@ Overlay {
                         anchors.verticalCenter: parent.verticalCenter
                         name: row.modelData.current ? "check" : row.modelData.trailIcon ?? ""
                         font.pixelSize: 14
-                        color: row.modelData.current ? Theme.iris : Theme.textFaint
+                        color: row.modelData.current ? Theme.accent : Theme.textFaint
                     }
 
                     MouseArea {
@@ -182,7 +249,7 @@ Overlay {
                 visible: root.filtered.length === 0
                 anchors.centerIn: parent
                 text: "no matches"
-                color: Qt.alpha(Theme.love, 0.7)
+                color: Qt.alpha(Theme.crit, 0.7)
                 font.family: Theme.fontFamily; font.pixelSize: 14
                 font.italic: true
             }

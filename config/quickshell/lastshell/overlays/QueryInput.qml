@@ -15,7 +15,7 @@ Row {
     }
     Rectangle {
         anchors.verticalCenter: parent.verticalCenter
-        width: 2; height: 22; color: Theme.rose
+        width: 2; height: 22; color: Theme.accent
         SequentialAnimation on opacity {
             running: root.active; loops: Animation.Infinite
             NumberAnimation { to: 0; duration: Theme.blinkDuration }

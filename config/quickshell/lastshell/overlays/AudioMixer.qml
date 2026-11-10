@@ -96,9 +96,9 @@ Overlay {
         Rectangle {
             anchors.fill: parent
             radius: Theme.innerRadius
-            color: row.selected ? Theme.overlay : "transparent"
-            border.width: 2
-            border.color: row.selected ? Qt.alpha(Theme.rose, 0.8) : "transparent"
+            color: row.selected ? Theme.overlay : Theme.clear(Theme.overlay)
+            border.width: Theme.hairline
+            border.color: row.selected ? Qt.alpha(Theme.accent, 0.8) : Theme.clear(Qt.alpha(Theme.accent, 0.8))
             Behavior on border.color { ColorAnimation { duration: Theme.animDuration } }
         }
         MouseArea { // under the slider and mute: selects, wheel steps 2%
@@ -125,7 +125,7 @@ Overlay {
             anchors.centerIn: icon
             name: row.glyph
             font.pixelSize: 17
-            color: Qt.alpha(Theme.iris, row.muted ? 0.4 : 0.8)
+            color: Qt.alpha(Theme.agent, row.muted ? 0.4 : 0.8)
         }
 
         Column {
@@ -155,7 +155,7 @@ Overlay {
             anchors.verticalCenter: parent.verticalCenter
             width: parent.width - x - 104
             frac: row.vol
-            fill: row.muted ? Qt.alpha(Theme.love, 0.6) : row.selected ? Theme.rose : Theme.pine
+            fill: row.muted ? Qt.alpha(Theme.crit, 0.6) : row.selected ? Theme.accent : Theme.info
             interactive: true
             onSeek: f => { root.cursor = row.slot; root.setVol(row.slot, f) }
         }
@@ -174,7 +174,7 @@ Overlay {
             anchors.verticalCenter: parent.verticalCenter
             name: row.muted ? "volume-x" : "volume-2"
             font.pixelSize: 16
-            color: row.muted ? Theme.love : muteHit.containsMouse ? Theme.text : Theme.textFaint
+            color: row.muted ? Theme.crit : muteHit.containsMouse ? Theme.text : Theme.textFaint
             MouseArea {
                 id: muteHit
                 anchors.fill: parent
@@ -261,7 +261,7 @@ Overlay {
                     anchors.centerIn: parent
                     size: 14
                     font.italic: true
-                    color: Qt.alpha(Theme.love, 0.7)
+                    color: Qt.alpha(Theme.crit, 0.7)
                     text: "nothing playing"
                 }
             }

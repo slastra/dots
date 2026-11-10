@@ -57,70 +57,61 @@ Chip {
     Popout {
         owner: root
 
-        Column {
-            spacing: 6
-            width: 320
+        sheetWidth: Theme.popM
+        title: "media"
+        status: Media.players.length === 1 ? "1 player" : `${Media.players.length} players`
+        tone: Media.playing.length > 0 ? Theme.ok : Theme.textMuted
 
-            PopoutHeader {
-                title: "media"
-                status: Media.players.length === 1 ? "1 player" : `${Media.players.length} players`
-                tone: Media.playing.length > 0 ? Theme.foam : Theme.textMuted
-            }
+        Repeater {
+            model: Media.players
 
-            Divider { width: parent.width }
+            Rectangle {
+                id: row
+                required property var modelData
+                readonly property bool current: modelData === root.player
+                // the hover fill bleeds past the sheet's text edge; the text stays on it
+                x: -6
+                width: parent.width + 12
+                height: rowText.implicitHeight + 10
+                color: rowMouse.containsMouse ? Theme.overlay : Theme.clear(Theme.overlay)
+                Behavior on color { ColorAnimation { duration: Theme.animDuration } }
 
-            Repeater {
-                model: Media.players
-
-                Rectangle {
-                    id: row
-                    required property var modelData
-                    readonly property bool current: modelData === root.player
-                    width: parent.width
-                    height: rowText.implicitHeight + 12
-                    radius: Theme.innerRadius
-                    color: rowMouse.containsMouse ? Theme.overlay : "transparent"
-                    border.color: current ? Qt.alpha(Theme.rose, 0.6) : "transparent"
-                    border.width: 1
-                    Behavior on color { ColorAnimation { duration: Theme.animDuration } }
-
-                    LucideIcon {
-                        id: glyph
-                        x: 8
-                        anchors.verticalCenter: parent.verticalCenter
-                        name: root.stateIcon(row.modelData)
-                        font.pixelSize: 13
-                        color: row.modelData.isPlaying ? Theme.foam : Theme.textMuted
+                RingIcon {
+                    id: glyph
+                    x: 6
+                    anchors.verticalCenter: parent.verticalCenter
+                    diameter: rowText.implicitHeight   // as tall as the two lines beside it
+                    name: root.stateIcon(row.modelData)
+                    color: row.modelData.isPlaying ? Theme.ok : Theme.textMuted
+                }
+                Column {
+                    id: rowText
+                    anchors.left: glyph.right
+                    anchors.leftMargin: 8
+                    anchors.right: parent.right
+                    anchors.rightMargin: 6
+                    anchors.verticalCenter: parent.verticalCenter
+                    PopText {
+                        width: parent.width
+                        elide: Text.ElideRight
+                        text: row.modelData.trackTitle || row.modelData.identity || "unknown"
+                        color: row.current ? Theme.accent : Theme.text
+                        font.italic: !row.modelData.isPlaying
                     }
-                    Column {
-                        id: rowText
-                        anchors.left: glyph.right
-                        anchors.leftMargin: 8
-                        anchors.right: parent.right
-                        anchors.rightMargin: 8
-                        anchors.verticalCenter: parent.verticalCenter
-                        PopText {
-                            width: parent.width
-                            elide: Text.ElideRight
-                            text: row.modelData.trackTitle || row.modelData.identity || "unknown"
-                            color: row.current ? Theme.rose : Theme.text
-                            font.italic: !row.modelData.isPlaying
-                        }
-                        PopText {
-                            width: parent.width
-                            elide: Text.ElideRight
-                            size: 12
-                            dim: 0.5
-                            text: [row.modelData.trackTitle ? row.modelData.trackArtist : "",
-                                   row.modelData.identity].filter(x => x).join(" · ")
-                        }
+                    PopText {
+                        width: parent.width
+                        elide: Text.ElideRight
+                        size: 12
+                        dim: 0.55
+                        text: [row.modelData.trackTitle ? row.modelData.trackArtist : "",
+                               row.modelData.identity].filter(x => x).join(" · ")
                     }
-                    MouseArea {
-                        id: rowMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onClicked: Media.pick(row.modelData)
-                    }
+                }
+                MouseArea {
+                    id: rowMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: Media.pick(row.modelData)
                 }
             }
         }
@@ -130,15 +121,14 @@ Chip {
         id: content
         transform: Translate { id: slide }
 
-        LucideIcon {
+        RingIcon {
             anchors.verticalCenter: parent.verticalCenter
             name: root.player ? root.stateIcon(root.player) : "play"
-            font.pixelSize: 13
-            color: Qt.alpha(root.active ? Theme.rose : Theme.text, 0.7)
+            color: Qt.alpha(root.active ? Theme.accent : Theme.text, 0.7)
         }
         ValueText {
             font.italic: root.paused
-            color: root.active ? Theme.rose : Theme.text
+            color: root.active ? Theme.accent : Theme.text
             text: root.text
             Behavior on width { NumberAnimation { duration: Theme.slideDuration; easing.type: Easing.OutCubic } }
         }

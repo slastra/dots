@@ -6,40 +6,50 @@ import QtQuick
 Column {
     id: root
     property date shown: new Date()
-    spacing: 6
+    spacing: 8
+    width: parent ? parent.width : implicitWidth
 
     readonly property var monthStart: new Date(shown.getFullYear(), shown.getMonth(), 1)
     readonly property int daysInMonth: new Date(shown.getFullYear(), shown.getMonth() + 1, 0).getDate()
     // owner passes its clock so the ring moves at midnight without a restart
     property date today: new Date()
 
-    Row {
-        spacing: 8
-        anchors.horizontalCenter: parent.horizontalCenter
+    Item { // the sheet's header: month on the left, the arrows on the right
+        width: parent.width
+        height: month.implicitHeight
         PopText {
-            text: "󰅁"; color: Theme.iris; size: 16
-            MouseArea { anchors.fill: parent; onClicked: root.shown = new Date(root.shown.getFullYear(), root.shown.getMonth() - 1, 1) }
+            id: month
+            text: Qt.formatDate(root.shown, "MMMM yyyy").toLowerCase()
+            size: 14; font.bold: true
         }
-        PopText {
-            text: Qt.formatDate(root.shown, "MMMM yyyy")
-            size: 16; font.bold: true
-        }
-        PopText {
-            text: "󰅂"; color: Theme.iris; size: 16
-            MouseArea { anchors.fill: parent; onClicked: root.shown = new Date(root.shown.getFullYear(), root.shown.getMonth() + 1, 1) }
+        Row {
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 12
+            PopText {
+                text: "󰅁"; color: Theme.textMuted; size: 14
+                MouseArea { anchors.fill: parent; anchors.margins: -4; onClicked: root.shown = new Date(root.shown.getFullYear(), root.shown.getMonth() - 1, 1) }
+            }
+            PopText {
+                text: "󰅂"; color: Theme.textMuted; size: 14
+                MouseArea { anchors.fill: parent; anchors.margins: -4; onClicked: root.shown = new Date(root.shown.getFullYear(), root.shown.getMonth() + 1, 1) }
+            }
         }
     }
+    Divider { width: parent.width }
 
     Grid {
+        id: grid
         columns: 7
-        spacing: 2
+        spacing: 0
+        readonly property real cell: Math.floor(root.width / 7)
 
         Repeater {
             model: ["Su","Mo","Tu","We","Th","Fr","Sa"]
             PopText {
                 required property string modelData
-                text: modelData; width: 30; horizontalAlignment: Text.AlignHCenter
-                color: Theme.iris; size: 13
+                text: modelData.toLowerCase(); width: grid.cell; horizontalAlignment: Text.AlignHCenter
+                dim: 0.55; size: 12
             }
         }
         Repeater {
@@ -50,17 +60,17 @@ Column {
                 readonly property bool isToday: day === root.today.getDate()
                     && root.shown.getMonth() === root.today.getMonth()
                     && root.shown.getFullYear() === root.today.getFullYear()
-                width: 30; height: 24
+                width: grid.cell; height: 24
                 Rectangle {
                     visible: parent.isToday
                     anchors.fill: parent; radius: Theme.innerRadius; color: Theme.overlay
-                    border.color: Theme.rose; border.width: 1
+                    border.color: Theme.accent; border.width: 1
                 }
                 PopText {
                     anchors.centerIn: parent
                     text: parent.day > 0 ? parent.day : ""
-                    color: parent.isToday ? Theme.rose : Theme.text
-                    size: 14
+                    color: parent.isToday ? Theme.accent : Theme.text
+                    size: 13
                 }
             }
         }

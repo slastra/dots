@@ -197,7 +197,7 @@ Scope {
             Row {
                 height: parent.height
                 spacing: 9; leftPadding: 12; rightPadding: 12
-                LucideIcon { anchors.verticalCenter: parent.verticalCenter; name: "terminal"; color: Theme.rose }
+                LucideIcon { anchors.verticalCenter: parent.verticalCenter; name: "terminal"; color: Theme.accent }
                 ValueText { text: root.hostname }
             }
         }
@@ -226,10 +226,10 @@ Scope {
                         ctx.beginPath(); ctx.arc(c, c, r, 0, 2 * Math.PI); ctx.stroke()
                         ctx.beginPath(); ctx.moveTo(c, c - r); ctx.lineTo(c, c - r + 2.5); ctx.stroke()
                         const a = hour12 / 12 * 2 * Math.PI - Math.PI / 2
-                        ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.strokeStyle = Theme.rose
+                        ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.strokeStyle = Theme.accent
                         ctx.beginPath(); ctx.moveTo(c, c)
                         ctx.lineTo(c + Math.cos(a) * r * 0.62, c + Math.sin(a) * r * 0.62); ctx.stroke()
-                        ctx.fillStyle = Theme.rose
+                        ctx.fillStyle = Theme.accent
                         ctx.beginPath(); ctx.arc(c, c, 1.5, 0, 2 * Math.PI); ctx.fill()
                     }
                 }
@@ -244,8 +244,8 @@ Scope {
             HintChip { icon: "corner-down-left"; label: "login" }
             HintChip { icon: "arrow-up-down"; label: "session" }
             HintChip { icon: "user"; label: "F1 user"; onClicked: root.editUser() }
-            HintChip { icon: "rotate-ccw"; label: "F2 reboot"; accent: Theme.gold; onClicked: root.power("reboot") }
-            HintChip { icon: "power"; label: "F3 power off"; accent: Theme.love; onClicked: root.power("poweroff") }
+            HintChip { icon: "rotate-ccw"; label: "F2 reboot"; accent: Theme.warn; onClicked: root.power("reboot") }
+            HintChip { icon: "power"; label: "F3 power off"; accent: Theme.crit; onClicked: root.power("poweroff") }
         }
 
         // ── the card ────────────────────────────────────────────────────
@@ -335,7 +335,7 @@ Scope {
                         LucideIcon {
                             anchors.verticalCenter: parent.verticalCenter
                             name: "user"; font.pixelSize: 18
-                            color: root.phase === "user" ? Theme.rose : Qt.alpha(Theme.text, 0.45)
+                            color: root.phase === "user" ? Theme.accent : Qt.alpha(Theme.text, 0.45)
                         }
                         LucideIcon {
                             anchors.verticalCenter: parent.verticalCenter
@@ -379,9 +379,9 @@ Scope {
                             font.pixelSize: 18
                             name: root.phase === "busy" ? "shield-check" : root.phase === "launch" ? "log-in"
                                 : root.scanning ? "fingerprint" : "key-round"
-                            color: root.phase === "busy" || root.phase === "launch" ? Theme.foam
-                                 : root.messageIsError && root.message ? Theme.love
-                                 : root.phase === "password" ? Theme.rose : Qt.alpha(Theme.text, 0.45)
+                            color: root.phase === "busy" || root.phase === "launch" ? Theme.ok
+                                 : root.messageIsError && root.message ? Theme.crit
+                                 : root.phase === "password" ? Theme.accent : Qt.alpha(Theme.text, 0.45)
                         }
                         LucideIcon {
                             anchors.verticalCenter: parent.verticalCenter
@@ -431,7 +431,7 @@ Scope {
                         x: 8; width: parent.width - 16; height: parent.rowH
                         y: 9 + root.sessionIndex * (parent.rowH + 2)
                         radius: Theme.innerRadius; color: "transparent"
-                        border.color: Theme.rose; border.width: 2
+                        border.color: Theme.accent; border.width: 2
                         visible: root.sessions.length > 0
                         Behavior on y { NumberAnimation { duration: Theme.animDuration; easing.type: Easing.OutCubic } }
                     }
@@ -450,7 +450,7 @@ Scope {
                                     LucideIcon {
                                         anchors.verticalCenter: parent.verticalCenter
                                         name: "app-window"; font.pixelSize: 15
-                                        color: index === root.sessionIndex ? Theme.rose : Qt.alpha(Theme.text, 0.45)
+                                        color: index === root.sessionIndex ? Theme.accent : Qt.alpha(Theme.text, 0.45)
                                     }
                                     Text {
                                         anchors.verticalCenter: parent.verticalCenter
@@ -481,7 +481,7 @@ Scope {
                         anchors.left: parent.left; anchors.leftMargin: 18
                         anchors.verticalCenter: parent.verticalCenter
                         font.family: Theme.fontFamily; font.pixelSize: 13
-                        color: root.capsLock ? Theme.gold : Qt.alpha(Theme.text, 0.35)
+                        color: root.capsLock ? Theme.warn : Qt.alpha(Theme.text, 0.35)
                         text: root.capsLock ? "⇪ caps lock is on"
                             : root.phase === "user" ? "⏎ done · ↑↓ users · esc back"
                             : root.demo ? "demo · password is  pass" : "⏎ login · ↑↓ session"
@@ -494,7 +494,7 @@ Scope {
                         horizontalAlignment: Text.AlignRight
                         elide: Text.ElideLeft
                         font.family: Theme.fontFamily; font.pixelSize: 13
-                        color: root.messageIsError ? Theme.love : Theme.foam
+                        color: root.messageIsError ? Theme.crit : Theme.ok
                         text: root.message
                         opacity: root.message ? 1 : 0
                         Behavior on opacity { NumberAnimation { duration: Theme.animDuration } }
@@ -508,7 +508,7 @@ Scope {
     component Caret: Rectangle {
         property bool on: false
         anchors.verticalCenter: parent.verticalCenter
-        width: 2; height: 22; color: Theme.rose
+        width: 2; height: 22; color: Theme.accent
         visible: on
         SequentialAnimation on opacity {
             running: on; loops: Animation.Infinite
@@ -519,7 +519,7 @@ Scope {
     component Pulse: Rectangle { // a breathing foam dot while greetd works
         property bool on: false
         anchors.verticalCenter: parent.verticalCenter
-        width: 8; height: 8; radius: 4; color: Theme.foam
+        width: 8; height: 8; radius: 4; color: Theme.ok
         visible: on
         SequentialAnimation on scale {
             running: on; loops: Animation.Infinite

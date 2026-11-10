@@ -47,7 +47,7 @@ Chip {
             id: label
             text: root.shownTitle
             // text takes the accent with the border while the swap plays
-            color: root.active ? Theme.rose : Theme.text
+            color: root.active ? Theme.accent : Theme.text
             transform: Translate { id: slide }
             elide: Text.ElideRight
             width: Math.max(0, Math.min(implicitWidth, root.maxWidth - 2 * root.contentPadding - 4))

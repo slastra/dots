@@ -6,19 +6,17 @@ import QtQuick
 Rectangle {
     id: root
     property real frac: 0
-    property color fill: Theme.pine
+    property color fill: Theme.info
     property bool interactive: false
     property int sweep: Theme.dragDuration
     signal seek(real frac)
 
     height: 8
-    radius: height / 2
     color: Theme.track
 
     Rectangle {
         width: parent.width * Math.max(0, Math.min(1, root.frac))
         height: parent.height
-        radius: parent.radius
         color: root.fill
         Behavior on width { NumberAnimation { duration: root.sweep; easing.type: Easing.OutCubic } }
     }

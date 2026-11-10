@@ -3,7 +3,8 @@ import QtQuick
 // Claude session chips + quota gauge (bottom bar). Data via the Claude
 // singleton; focus via Hyprland dispatch on the address the daemon mapped.
 ChipRow {
-    spacing: 8
+    plate: true
+    edge: "bottom"
 
     Repeater {
         model: Claude.sessions.model

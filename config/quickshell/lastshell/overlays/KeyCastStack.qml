@@ -67,7 +67,7 @@ Item {
         property string label
         height: 30
         width: Math.max(height, cap.implicitWidth + 18)
-        radius: 7
+        radius: Theme.innerRadius
         color: Theme.overlay
         border.width: 1
         border.color: Theme.border
@@ -75,7 +75,7 @@ Item {
         Rectangle {
             anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 1 }
             height: 3
-            radius: 6
+            radius: Theme.innerRadius
             color: Qt.alpha("#000000", 0.28)
         }
         Text {
@@ -113,7 +113,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: content.implicitWidth + 30
                 height: parent.height
-                radius: 12
+                radius: Theme.innerRadius
                 color: Qt.alpha(Theme.base, 0.88)
                 border.width: 1
                 border.color: Qt.alpha(Theme.text, 0.10)

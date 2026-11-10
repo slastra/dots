@@ -14,6 +14,30 @@ Scope {
     ListModel { id: history }
     property ListModel historyModel: history
 
+    // When each notification arrived (ms epoch), by id. It outlives a reload
+    // (as JSON: a JS object would not cross engines), because a reload hands
+    // every tracked notification back, in the server's order and with no
+    // times: the center should still list them as they really came in.
+    PersistentProperties {
+        id: seen
+        reloadableId: "lastshell-notifs"
+        property string arrived: "{}"
+    }
+    function arrivals() { try { return JSON.parse(seen.arrived) } catch (e) { return {} } }
+    function stamp(id) {
+        const m = arrivals()
+        m[id] = Date.now()
+        seen.arrived = JSON.stringify(m)
+        return m[id]
+    }
+    function clock(at) { return at > 0 ? Qt.formatTime(new Date(at), "hh:mm AP") : "" }
+    function unstamp(id) {
+        const m = arrivals()
+        if (!(id in m)) return
+        delete m[id]
+        seen.arrived = JSON.stringify(m)
+    }
+
     NotificationServer {
         id: server
         actionsSupported: true
@@ -22,19 +46,39 @@ Scope {
         bodyMarkupSupported: true
 
         onNotification: n => {
+            // A reload re-emits what the last generation still tracked. Those
+            // go back in the center under their own times and stay off the
+            // screen: they were shown once, and the lamp has had its say.
+            const old = n.lastGeneration
+            // transient: for the moment only. Toast it, keep no record.
+            if (old && n.transient) return   // left untracked, the server closes it
             n.tracked = true
+            const id = n.id
             // closed by the sender, by expiry or by us: off both models at once
-            n.closed.connect(() => root.forget(n))
-            toasts.append({ notif: n })
-            if (toasts.count > 5) toasts.remove(0)
-            history.insert(0, { notif: n, time: Qt.formatTime(new Date(), "hh:mm AP") })
-            if (history.count > 50) {
-                // evicted from the center: release it server-side too, or it
-                // stays tracked until the app closes it
-                const old = history.get(50).notif
-                history.remove(50)
-                if (old?.tracked) old.dismiss()
+            n.closed.connect(() => { root.forget(n); root.unstamp(id) })
+            // A sender replacing its notification updates this same object
+            // and announces nothing; new text is the only sign of it.
+            n.summaryChanged.connect(() => root.updated(n))
+            n.bodyChanged.connect(() => root.updated(n))
+            const at = old ? (root.arrivals()[id] ?? 0) : root.stamp(id)
+            const time = root.clock(at)
+            if (!n.transient) {
+                // newest first; one handed back by a reload goes where it was
+                let i = 0
+                while (old && i < history.count && history.get(i).at > at) i++
+                history.insert(i, { notif: n, time: time, at: at })
+                if (history.count > 50) {
+                    // evicted from the center: release it server-side too, or it
+                    // stays tracked until the app closes it
+                    const last = history.get(50).notif
+                    history.remove(50)
+                    if (last?.tracked) last.dismiss()
+                }
             }
+            // only a critical one returns to the screen: it was waiting
+            // there to be answered, and nothing else would bring it back
+            if (old) { if (n.urgency === 2) root.show(n, time); return }
+            root.show(n, time)
             // the desk's MQTT notification lamp; no lamp anywhere else
             if (Host.desk) {
                 const lamp = Quickshell.env("HOME") + "/.config/lastshell/lamp.sh"
@@ -43,10 +87,57 @@ Scope {
         }
     }
 
+    // On the stack, at most five deep: the oldest gives way.
+    function show(n, time) {
+        toasts.append({ notif: n, time: time, rev: 0 })
+        if (toasts.count > 5) {
+            const first = toasts.get(0).notif
+            toasts.remove(0)
+            retire(first)
+        }
+    }
+    // A toast left the stack without being dismissed. Most stay in the
+    // center; a transient one has no entry there, so this is its end.
+    function retire(n) { if (n?.tracked && n.transient) n.expire() }
+    // The card asked to go: ran out (kept, unless transient) or was closed.
+    // One call, because the card's delegate does not outlive the drop.
+    function leave(n, dismissToo) {
+        drop(n, dismissToo)
+        if (!dismissToo) retire(n)
+    }
+    // Replaced by its sender: top of the center under the new time, and back
+    // on screen, with a fresh countdown if it never left.
+    function updated(n) {
+        if (!n.tracked) return
+        const at = stamp(n.id), time = clock(at)
+        for (let i = 0; i < history.count; i++)
+            if (history.get(i).notif === n) {
+                history.setProperty(i, "time", time)
+                history.setProperty(i, "at", at)
+                if (i > 0) history.move(i, 0, 1)
+                break
+            }
+        for (let i = 0; i < toasts.count; i++)
+            if (toasts.get(i).notif === n) {
+                toasts.setProperty(i, "time", time)
+                toasts.setProperty(i, "rev", toasts.get(i).rev + 1)
+                return
+            }
+        show(n, time)
+    }
+
     function drop(n, dismissToo) {
         for (let i = 0; i < toasts.count; i++)
             if (toasts.get(i).notif === n) { toasts.remove(i); break }
         if (dismissToo) n.dismiss()
+    }
+    // An action button on a toast: send it, then off the stack. Here rather
+    // than in the toast, whose delegate the sender's close destroys.
+    // Invoking closes a notification that is not resident, so only one
+    // that is still tracked afterwards is dismissed by hand.
+    function act(n, action) {
+        if (n.tracked) action.invoke()
+        drop(n, n.tracked)
     }
     // A closed notification leaves both models. QML nulls a var that held a
     // destroyed object, so rows whose notif is gone or untracked go too.
@@ -83,9 +174,10 @@ Scope {
             tabFocus.begin(browser, n, def)
             return
         }
+        const names = [n.desktopEntry, n.appName]
         if (def) def.invoke()
-        n.dismiss()
-        focusClient(byClass([n.desktopEntry, n.appName]), 0)
+        if (n.tracked) n.dismiss()   // invoking already closed it, unless resident
+        focusClient(byClass(names), 0)
     }
 
     QtObject {
@@ -110,7 +202,7 @@ Scope {
             if (!armed) return
             armed = false
             if (action) action.invoke()
-            if (notif) notif.dismiss()
+            if (notif?.tracked) notif.dismiss()
         }
         function fallback() {
             fire()
@@ -192,12 +284,18 @@ Scope {
     }
     Timer { id: clientsRetry; interval: 100; onTriggered: clientsProc.running = true }
 
-    // Test hook: `qs -c lastshell ipc call notifs activateLatest` is a click
-    // on the newest toast.
+    // Test hooks: `qs -c lastshell ipc call notifs activateLatest` is a click
+    // on the newest toast, `actLatest` a click on its first action button.
     IpcHandler {
         target: "notifs"
         function activateLatest(): void {
             if (toasts.count > 0) root.activate(toasts.get(toasts.count - 1).notif)
+        }
+        function actLatest(): void {
+            if (toasts.count === 0) return
+            const n = toasts.get(toasts.count - 1).notif
+            const a = (n.actions ?? []).find(a => (a.text ?? "").trim() !== "")
+            if (a) root.act(n, a)
         }
     }
 
@@ -228,12 +326,16 @@ Scope {
             // NOT `model: model` — that self-references the ListView's own
             // model property and silently renders nothing
             model: toasts
+            HoverHandler { id: stackHover }
 
             delegate: NotificationToast {
                 // `notif` is the component's own required property; the model
                 // role fills it — redeclaring here shadows and breaks it
-                onWantsOut: dismissToo => root.drop(notif, dismissToo)
+                // nothing leaves, and so nothing moves, under the pointer
+                held: stackHover.hovered
+                onWantsOut: dismissToo => root.leave(notif, dismissToo)
                 onActivated: root.activate(notif)
+                onActionChosen: action => root.act(notif, action)
             }
 
             add: Transition {

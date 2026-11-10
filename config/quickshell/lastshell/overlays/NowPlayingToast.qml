@@ -110,7 +110,7 @@ PanelWindow {
                 anchors.centerIn: parent
                 name: "music"
                 font.pixelSize: 22
-                color: Qt.alpha(Theme.iris, 0.8)
+                color: Qt.alpha(Theme.agent, 0.8)
             }
         }
 
@@ -133,7 +133,7 @@ PanelWindow {
                 visible: text !== ""
                 width: parent.width
                 size: 13
-                color: Theme.rose
+                color: Theme.accent
                 elide: Text.ElideRight
                 text: root.artist
             }

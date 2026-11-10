@@ -95,93 +95,77 @@ Chip {
     Popout {
         id: pop
         owner: root
+        sheetWidth: Theme.popM
+        title: "battery"
+        status: `${Math.round(root.pct)}%  ·  ` + (root.charging ? "charging"
+            : root.dev?.state === UPowerDeviceState.FullyCharged ? "full" : "discharging")
+        tone: Theme.level(100 - root.pct, 80, 90, root.charging ? Theme.ok : Theme.calm)
 
-        Column {
-            spacing: 6
-            Row {
-                spacing: 8
-                PopText { text: "battery"; size: 14 }
-                PopText {
-                    text: `${Math.round(root.pct)}%`
-                    color: Theme.level(100 - root.pct, 80, 90)
-                    size: 14
-                }
-                PopText {
-                    text: root.charging ? "charging" : root.dev?.state === UPowerDeviceState.FullyCharged ? "full" : "discharging"
-                    color: root.charging ? Theme.foam : Theme.textMuted
-                    size: 14
-                }
-            }
-            PopText {
-                text: {
-                    const parts = []
-                    if (root.watts > 0) parts.push(`${root.watts.toFixed(1)} W`)
-                    const left = root.duration(root.charging ? root.dev?.timeToFull : root.dev?.timeToEmpty)
-                    if (left) parts.push(root.charging ? `full in ${left}` : `${left} left`)
-                    if (root.dev?.healthSupported) parts.push(`health ${Math.round(root.dev.healthPercentage)}%`)
-                    return parts.join("  ·  ")
-                }
-                dim: 0.6
-                size: 12
-            }
+        KeyValueRow { visible: root.watts > 0; key: "power"; value: `${root.watts.toFixed(1)} W` }
+        KeyValueRow {
+            readonly property string eta: root.duration(root.charging ? root.dev?.timeToFull : root.dev?.timeToEmpty)
+            visible: eta !== ""
+            key: root.charging ? "full in" : "remaining"
+            value: eta
+        }
+        KeyValueRow {
+            visible: root.dev?.healthSupported ?? false
+            key: "health"
+            value: `${Math.round(root.dev?.healthPercentage ?? 0)}%`
+        }
 
-            Row {
-                spacing: 10
-                Repeater {
-                    model: root.spans
-                    PopText {
-                        required property var modelData
-                        readonly property bool selected: root.span === modelData[0] * 3600
-                        text: modelData[1]
-                        size: 12
-                        color: selected ? Theme.rose : Theme.textMuted
-                        MouseArea {
-                            anchors.fill: parent
-                            anchors.margins: -3
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: { root.span = parent.modelData[0] * 3600; root.refresh() }
-                        }
+        Divider { width: parent.width }
+
+        Row {
+            spacing: 10
+            Repeater {
+                model: root.spans
+                PopText {
+                    required property var modelData
+                    readonly property bool selected: root.span === modelData[0] * 3600
+                    text: modelData[1]
+                    size: 12
+                    color: selected ? Theme.accent : Theme.textMuted
+                    MouseArea {
+                        anchors.fill: parent
+                        anchors.margins: -3
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: { root.span = parent.modelData[0] * 3600; root.refresh() }
                     }
                 }
             }
+        }
 
-            PopText { text: "charge"; dim: 0.45; size: 11 }
-            BatteryGraph {
-                id: chargeGraph
-                width: 260; height: 60
-                live: pop.visible
-                mode: "charge"
-                samples: root.chargeLog
-                span: root.span
-                current: root.pct
-                charging: root.charging
-            }
+        BatteryGraph {
+            id: chargeGraph
+            width: parent.width; height: 56
+            live: pop.visible
+            mode: "charge"
+            samples: root.chargeLog
+            span: root.span
+            current: root.pct
+            charging: root.charging
+        }
+        PopNote { text: "charge" }
 
-            PopText {
-                text: rateGraph.peak > 0 ? `power draw  ·  scale ${Math.round(rateGraph.peak)} W` : "power draw"
-                dim: 0.45
-                size: 11
-            }
-            BatteryGraph {
-                id: rateGraph
-                width: 260; height: 44
-                live: pop.visible
-                mode: "rate"
-                samples: root.rateLog
-                span: root.span
-            }
-
-            PopText {
-                text: {
-                    // energy-weighted average over the window, discharging only
-                    const start = Date.now() / 1000 - root.span
-                    const d = root.rateLog.filter(s => s[0] >= start && s[1] > 0 && s[2] === "discharging")
-                    if (d.length < 2) return "no discharge in this window"
-                    const avg = d.reduce((a, s) => a + s[1], 0) / d.length
-                    return `avg ${avg.toFixed(1)} W on battery  ·  peak ${Math.max(...d.map(s => s[1])).toFixed(1)} W`
-                }
-                dim: 0.6
-                size: 12
+        BatteryGraph {
+            id: rateGraph
+            width: parent.width; height: 44
+            live: pop.visible
+            mode: "rate"
+            samples: root.rateLog
+            span: root.span
+        }
+        PopNote {
+            width: parent.width
+            text: {
+                const scale = rateGraph.peak > 0 ? `power draw, scale ${Math.round(rateGraph.peak)} W` : "power draw"
+                // energy-weighted average over the window, discharging only
+                const start = Date.now() / 1000 - root.span
+                const d = root.rateLog.filter(s => s[0] >= start && s[1] > 0 && s[2] === "discharging")
+                if (d.length < 2) return `${scale}  ·  no discharge in this window`
+                const avg = d.reduce((a, s) => a + s[1], 0) / d.length
+                return `${scale}  ·  avg ${avg.toFixed(1)} W on battery  ·  peak ${Math.max(...d.map(s => s[1])).toFixed(1)} W`
             }
         }
     }
