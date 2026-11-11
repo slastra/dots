@@ -8,6 +8,34 @@ Desktop configuration for `desk`.
 Arch Linux, Hyprland, Quickshell. One terminal color scheme colors everything,
 and [tint](https://github.com/slastra/tint) applies it. `hosts/lap` is the laptop.
 
+## Looks
+
+One command or one dialog recolors the whole desktop. Each shot is a terminal
+color scheme with a hyprglaze wallpaper effect, which draws in the same palette.
+
+| | |
+|---|---|
+| ![Vague with the weft wallpaper](docs/screenshots/vague.webp) | ![Rosé Pine with the fluid wallpaper](docs/screenshots/rose-pine.webp) |
+| Vague, `weft` | Rosé Pine, `fluid` |
+| ![Catppuccin Mocha with the crystal wallpaper](docs/screenshots/catppuccin-mocha.webp) | ![Tokyo Night with the amorphous wallpaper](docs/screenshots/tokyo-night.webp) |
+| Catppuccin Mocha, `crystal` | Tokyo Night, `amorphous` |
+| ![Nord with the moire wallpaper](docs/screenshots/nord.webp) | ![Rosé Pine Dawn with the coral wallpaper](docs/screenshots/rose-pine-dawn.webp) |
+| Nord, `moire` | Rosé Pine Dawn, `coral` |
+
+The shell's dialogs, in Vague:
+
+<p>
+<img src="docs/screenshots/dialogs/launcher.png" alt="Launcher" width="280">
+<img src="docs/screenshots/dialogs/switcher.png" alt="Tab switcher" width="280">
+<img src="docs/screenshots/dialogs/schemes.png" alt="Color scheme picker" width="280">
+<img src="docs/screenshots/dialogs/effects.png" alt="Wallpaper effect picker" width="280">
+<img src="docs/screenshots/dialogs/look.png" alt="Look dialog: radius, border, accent colors, font" width="240">
+<img src="docs/screenshots/dialogs/clipboard.png" alt="Clipboard history" width="280">
+<img src="docs/screenshots/dialogs/audio.png" alt="Audio sink picker" width="280">
+<img src="docs/screenshots/dialogs/notifications.png" alt="Notification center" width="230">
+<img src="docs/screenshots/dialogs/toast.png" alt="Notification toasts" width="196">
+</p>
+
 ## Usage
 
 | Bind | Modal |
