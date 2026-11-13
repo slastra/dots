@@ -1,6 +1,6 @@
 # dots
 
-My Hyprland desktop config: lastshell, hyprglaze, and kitty, themed from one terminal color scheme.
+My Hyprland desktop configuration: shell, wallpaper, terminal, and theming.
 
 https://github.com/user-attachments/assets/a05e84f3-de0e-4515-9b5c-1b01abe0dfb2
 
