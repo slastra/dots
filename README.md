@@ -2,9 +2,7 @@
 
 My Hyprland desktop config: lastshell, hyprglaze, and kitty, themed from one terminal color scheme.
 
-![The desktop in motion](docs/demo.gif)
-
-Full quality: [docs/demo.mp4](docs/demo.mp4).
+https://github.com/user-attachments/assets/a05e84f3-de0e-4515-9b5c-1b01abe0dfb2
 
 Desktop configuration for `desk`.
 Arch Linux, Hyprland, Quickshell. One terminal color scheme colors everything,
