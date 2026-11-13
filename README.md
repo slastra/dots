@@ -4,14 +4,43 @@ My Hyprland desktop config: lastshell, hyprglaze, and kitty, themed from one ter
 
 https://github.com/user-attachments/assets/a05e84f3-de0e-4515-9b5c-1b01abe0dfb2
 
-Desktop configuration for `desk`.
-Arch Linux, Hyprland, Quickshell. One terminal color scheme colors everything,
-and [tint](https://github.com/slastra/tint) applies it. `hosts/lap` is the laptop.
+This is the configuration for `desk`, an Arch Linux machine running Hyprland.
+Most of what is on screen is my own software, and this repo is where it is
+wired together:
+
+- [lastshell](https://github.com/slastra/lastshell), the shell: both bars, the dialogs, and notifications
+- [hyprglaze](https://github.com/slastra/hyprglaze), the shader wallpaper that reacts to windows, the pointer, and music
+- [tint](https://github.com/slastra/tint), which applies one color scheme to every app
+- [hoja](https://github.com/slastra/hoja), the file manager
+- [tabstrip](https://github.com/slastra/tabstrip) and [tabctl](https://github.com/slastra/tabctl), which put every browser tab in the bar and the tab switcher
+- [deskvoice](https://github.com/slastra/deskvoice), the speech service behind dictation and the voice chip
+- [deskpresence](https://github.com/slastra/deskpresence), the radar sensor that blanks the TV when I leave the desk
+- [emotune](https://github.com/slastra/emotune), the chiptune cues
+
+It is published to read and borrow from, not as an installer.
+
+## Features
+
+- **One scheme, everywhere.** A terminal color scheme colors the terminal,
+  the shell, window borders, the wallpaper, GTK and Qt apps, the editors, the
+  cursor, and the keyboard's LEDs. There are 366 to choose from.
+- **Live preview.** The scheme picker recolors the desktop as you move through
+  the list, and Escape puts the old scheme back.
+- **A look on top of any scheme.** Corner radius, border thickness, which of
+  the scheme's colors is the accent, and the font pair are separate settings
+  with their own dialog.
+- **A wallpaper that sees the desktop.** hyprglaze draws in the scheme's
+  palette and reacts to windows, the pointer, and whatever is playing.
+- **Everything searchable.** Apps, open windows, browser tabs, clipboard
+  history, schemes, and wallpaper effects each open in the same kind of
+  dialog, a keystroke away.
+- **Configured in Lua.** Hyprland reloads the config when a file is saved.
 
 ## Looks
 
 One command or one dialog recolors the whole desktop. Each shot is a terminal
-color scheme with a hyprglaze wallpaper effect, which draws in the same palette.
+color scheme paired with a hyprglaze wallpaper effect, which draws in the same
+palette.
 
 | | |
 |---|---|
@@ -36,27 +65,73 @@ The shell's dialogs, in Vague:
 <img src="docs/screenshots/dialogs/toast.png" alt="Notification toasts" width="196">
 </p>
 
+## Install
+
+There is no install script. Each directory under `config/` mirrors a directory
+in `~/.config`, so take the ones you want.
+
+### Requirements
+
+- Arch Linux, or another distribution with Hyprland 0.57 or newer
+- [Quickshell](https://quickshell.org), kitty, hypridle, and cliphist
+- The projects linked above, for the parts of the desktop each one provides
+- Martian Mono and Martian Grotesk, the default font pair
+
+### The shell
+
+Copy `config/quickshell/lastshell` to `~/.config/quickshell/lastshell` and
+start it with `qs -c lastshell`. The copy here is vendored; the
+[lastshell](https://github.com/slastra/lastshell) repo is the source and has
+its own setup notes.
+
+### Theming
+
+Install [tint](https://github.com/slastra/tint) and copy `config/tint` to
+`~/.config/tint`. Run `tint check` first: targets for apps you do not have
+will fail there, and can be deleted from `targets.toml`. Then `tint apply
+Vague` writes the scheme into every remaining target.
+
+### Session services
+
+Everything but the shell is a systemd user unit on `graphical-session.target`:
+
+```sh
+systemctl --user enable hyprglaze.service hypridle.service cliphist.service   # packaged units
+systemctl --user enable ~/Projects/Go/tabstrip/systemd/tabstrip.service \
+    ~/.config/quickshell/lastshell/systemd/claude-status.service           # from their repos
+```
+
 ## Usage
 
-| Bind | Modal |
+| Bind | What it opens |
 |---|---|
 | `SUPER + Space` | Launcher. Open windows first, by focus recency, then apps by frecency. |
 | `SUPER + W` | Tab switcher. Every tab in every browser window, globally. |
-| `SUPER + A` | Audio sink picker. |
-| `SUPER + B` | Wallpaper effect picker. |
 | `SUPER + SHIFT + B` | Color scheme picker. Previews on the live desktop as you move; Tab narrows to dark or light. |
+| `SUPER + CTRL + B` | Look dialog. Radius, border, accent colors, and the font pair. |
+| `SUPER + B` | Wallpaper effect picker. |
+| `SUPER + A` | Audio sink picker. `SUPER + SHIFT + A` is the per-app mixer. |
 | `SUPER + V` | Clipboard history. |
 | `SUPER + N` | Notification center. |
-| `SUPER + /` | Hotkey sheet, parsed live from `binds.lua`. It cannot drift. |
+| `SUPER + /` | Hotkey sheet, parsed live from `binds.lua`, so it cannot drift. |
 | `Print` | Capture menu. Stops a recording instantly if one is running. |
 | `SUPER + X` | Dictation. Tap to talk, tap to stop; the transcript comes back cleaned up for the window it is headed to, and Enter pastes it there. |
+| `SUPER + G` | Gathers the floating windows into one centered mosaic. |
 
 `SUPER + T` reads the selection (else the clipboard) aloud. The player is
-a chip on the bottom bar, not a modal: hover it for the passage, progress,
+a chip on the bottom bar, not a dialog: hover it for the passage, progress,
 speed, voice and tidy. `SUPER + SHIFT + T` pauses, `SUPER + CTRL + T` stops.
 
-Hyprland reads the Lua files. Hyprland reloads the configuration when you save a
-file. Do not run `hyprctl reload`.
+The same theming is available from a terminal:
+
+```sh
+tint apply "Tokyo Night"          # recolor everything
+tint look --radius 0 --border 1   # the shape, on top of any scheme
+tint list --dark                  # what there is to choose from
+```
+
+Hyprland reads the Lua files and reloads them on save, so there is no need
+to run `hyprctl reload`.
 
 ## Layout
 
@@ -73,22 +148,11 @@ config/
 hosts/lap/                  the laptop (below)
 ```
 
-## The TV
+## Machines
 
-The display is an LG OLED. `scripts/tv-screen.sh` turns the TV itself off
-and on over the LAN instead of using DPMS. A DPMS wake forces an HDMI
-2.1 FRL retrain the NVIDIA driver refuses to retry, which latches the
-desktop at 60 Hz. `scripts/tv-pixel-refresh.sh` runs the panel's pixel
-cleaning nightly by driving the TV's own menus over the remote-control
-API. `scripts/lg-ipctl.py` speaks the TV's encrypted IP-control protocol;
-its key lives in `~/.config/lgtv/ipcontrol.key`, outside this repo.
-
-`deskpresence` (radar presence) owns blanking the TV. `scripts/tv-watchdog.sh`
-is the fallback: if `deskpresence` has died, it blanks the TV after 10
-minutes without input. `scripts/unblank.sh` lifts lastshell's blackout
-shader on input if a crash left it applied.
-
-## The laptop
+`desk` drives an LG OLED TV as its monitor. The scripts that power the TV
+itself on and off over the LAN, run its pixel cleaning, and blank it when the
+desk is empty are described in [docs/tv.md](docs/tv.md).
 
 `hosts/lap` is a Lenovo Slim 7 14IRP8 running the same lastshell checkout
 with its own Hyprland config: time-of-flight presence, perceptual
@@ -103,94 +167,37 @@ greetd starts lastshell's greeter. The greeter starts Hyprland.
 `hyprland.lua` starts lastshell itself (it is the session's polkit agent,
 and apps it launches get their own scopes). Everything else is a systemd
 user unit on `graphical-session.target`, which Hyprland 0.57 starts with
-the session:
-
-```sh
-systemctl --user enable hyprglaze.service hypridle.service cliphist.service   # packaged units
-systemctl --user enable ~/Projects/Go/tabstrip/systemd/tabstrip.service \
-    ~/.config/quickshell/lastshell/systemd/claude-status.service           # from their repos
-```
+the session.
 
 | Program | Function |
 |---|---|
-| `lastshell` | The shell. Two bars, nine modals, notifications, a narrator. Quickshell. |
+| `lastshell` | The shell. Two bars, the dialogs, notifications, a narrator. Quickshell. |
 | `tabstrip` | Browser-tab daemon. Feeds the bar strip and the tab switcher. |
 | `claude-status.py` | Claude Code session daemon, in lastshell's `scripts/`. Feeds the session chips. |
 | `hyprglaze` | Shader wallpaper daemon. It draws the wallpaper. |
 | `hypridle` | Idle timers (`hypridle.conf`). They report input to `deskpresence` and run `scripts/tv-watchdog.sh`. |
 | `cliphist` | Clipboard history (`cliphist.service` runs the `wl-paste` watcher). |
 
-### lastshell
-
-`config/quickshell/lastshell` is the shell (a vendored copy of
-[slastra/lastshell](https://github.com/slastra/lastshell), last synced at `7761828`). Raw Quickshell,
-no framework.
-
-The bars are zones: flat plates flush to the screen edges, each a row of
-items divided by hairlines. Hovering an item unfolds a popout from its plate,
-and every popout shares one layout. Four instruments are
-drawn, not fonted: an analog clock (hour hand only), a thermometer, a
-speaker whose arcs grow with volume, and a usage ring. Icons are
-[Lucide](https://lucide.dev); text is ShureTechMono. Nerd-font icon glyphs
-are banned. Qt renders their private-use codepoints wrong.
-
-The modals share one chrome: header with an identity icon and a prompt
-caret, scrolling body with a gliding cursor and gold match highlighting,
-hint footer, animated backdrop mask.
-
-Notifications are lastshell's own server: toasts with an urgency rule on the
-left and a countdown line along the bottom, and a history the center reads.
-
 ### Theming
 
-Nothing here is colored by hand. A scheme is 16 ANSI colors plus a
-background and a foreground, and `tint apply NAME` renders it into every
-file listed in `config/tint/targets.toml`: kitty, Hyprland's borders, GTK 3
-and 4, Qt, fish, Starship, Neovim, Zed, mpv, hyprglaze, the keyboard's LEDs,
-and a generated icon and cursor theme. `tint shape --radius N --border N`
-sets corner radius and border thickness the same way.
+Nothing here is colored by hand. A scheme is 16 ANSI colors plus a background
+and a foreground, and `tint apply NAME` renders it into every file listed in
+`config/tint/targets.toml`. lastshell is not a target: it reads kitty's
+`colors.conf` itself and gives each color one role.
 
-- `config/tint/templates/` holds each of those files with `{{key}}` where a
-  color goes. The files marked "generated" in the layout above are their
-  output, committed as whatever scheme was applied at the last sync.
-- lastshell is not a target. It reads kitty's `colors.conf` itself and gives
-  each ANSI slot one role: an accent for what is active, warning and critical
-  colors for what needs attention, and plain text for everything else.
-- `config/tint/schemes/Vague.conf` is the default scheme,
-  [Vague](https://github.com/vague2k/vague.nvim) on a true black background.
-- `hooks/assets` rebuilds the `Tint` icon and cursor theme: Papirus folders in
-  the accent, and the BreezeX cursor shapes in the scheme's own dark and light.
-  It expects Papirus, `hyprcursor-util`, `rsvg-convert` and `xcursorgen`.
-- `hooks/start-page` sends the palette to a personal start page. It does
-  nothing without its env file, which is not in this repo.
+[docs/how-it-works.md](docs/how-it-works.md) covers the shell's drawing, the
+templates and hooks behind the theming, and the daemons that feed the bars.
 
-To use it, install [tint](https://github.com/slastra/tint) and copy
-`config/tint` to `~/.config/tint`. Run `tint check` first: targets for apps
-you do not have will fail there, and can be deleted from `targets.toml`.
+## Credits
 
-### Daemons
-
-The shell renders; daemons own data. `tabstrip` (Go,
-[repo](https://github.com/slastra/tabstrip)) watches browsers over D-Bus
-and writes a snapshot the shell's FileView watches. The bar strip is
-workspace-filtered; `tabstrip list` is the global view. `claude-status.py`
-(lastshell's `scripts/`) watches Claude Code sessions, usage quotas, Hyprland
-focus, and MQTT face state, and writes one JSON snapshot.
-
-### Engines
-
-`hotkeys.py` is a rofi-era script kept as a backend with its menu stripped
-off: the live binds.lua parser behind the hotkey sheet (`--json`). It and the
-capture engine, `capture.sh`, live in lastshell's `scripts/`.
-
-## Components
-
-- [lastshell](https://github.com/slastra/lastshell), the shell itself
-- [tabstrip](https://github.com/slastra/tabstrip), the browser-tab daemon
-- [tabctl](https://github.com/slastra/tabctl), the D-Bus mediator underneath
-- [tint](https://github.com/slastra/tint), the theming tool
-- [Vague](https://github.com/vague2k/vague.nvim), the default scheme, and [Gogh](https://github.com/Gogh-Co/Gogh), the collection the rest come from
+- [Vague](https://github.com/vague2k/vague.nvim), the default scheme, and
+  [Gogh](https://github.com/Gogh-Co/Gogh), the collection the rest come from
+- [Quickshell](https://quickshell.org), which lastshell is built on
+- [Lucide](https://lucide.dev), the shell's icons
+- [Papirus](https://github.com/PapirusDevelopmentTeam/papirus-icon-theme) and
+  [BreezeX](https://github.com/ful1e5/BreezeX_Cursor), which the generated icon
+  and cursor theme start from
 
 ## License
 
-GPL-3.0. See [LICENSE](LICENSE).
+GPL-3.0 © 2026 Shaun Lastra. See [LICENSE](LICENSE).
