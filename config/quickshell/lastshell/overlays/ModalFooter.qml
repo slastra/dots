@@ -1,8 +1,8 @@
 import QtQuick
 import ".."  // root module
 
-// The seam and 32 px band at the bottom of a modal: key hints left in
-// dim iris, a count right in dim text.
+// The seam and 32 px band at the bottom of a modal: key hints left and a
+// count right, both in the secondary color.
 Item {
     property string hint
     property string count: ""
@@ -15,8 +15,8 @@ Item {
         y: 1
         width: parent.width
         height: 32
-        bottomLeftRadius: Theme.innerRadius
-        bottomRightRadius: Theme.innerRadius
+        bottomLeftRadius: Theme.bandRadius
+        bottomRightRadius: Theme.bandRadius
         color: Qt.alpha(Theme.overlay, 0.55)
 
         PopText {
@@ -24,7 +24,7 @@ Item {
             anchors.leftMargin: 18
             anchors.verticalCenter: parent.verticalCenter
             size: 12
-            color: Qt.alpha(Theme.agent, 0.55)
+            color: Theme.secondary
             text: parent.parent.hint
         }
         PopText {
@@ -32,7 +32,7 @@ Item {
             anchors.rightMargin: 18
             anchors.verticalCenter: parent.verticalCenter
             size: 12
-            dim: 0.4
+            color: Theme.secondary
             text: parent.parent.count
         }
     }

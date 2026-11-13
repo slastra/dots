@@ -2,7 +2,7 @@ import Quickshell.Hyprland
 import QtQuick
 
 // One Claude session: drawn state dot, label, agent-count badge, and a
-// rich hover card. Border shows window focus (the shared active language).
+// rich hover card. The accent rule shows window focus (the shared active language).
 Chip {
     id: root
     required property var session

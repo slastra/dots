@@ -6,7 +6,7 @@ every app, and which daemons feed the bars.
 ## lastshell
 
 `config/quickshell/lastshell` is the shell (a vendored copy of
-[slastra/lastshell](https://github.com/slastra/lastshell), last synced at `7761828`). Raw Quickshell,
+[slastra/lastshell](https://github.com/slastra/lastshell), last synced at `074fb3d`). Raw Quickshell,
 no framework.
 
 The bars are zones: flat plates flush to the screen edges, each a row of
@@ -47,6 +47,8 @@ radius, border thickness, accent colors, and font pair the same way.
 - `hooks/assets` rebuilds the `Tint` icon and cursor theme: Papirus folders in
   the accent, and the BreezeX cursor shapes in the scheme's own dark and light.
   It expects Papirus, `hyprcursor-util`, `rsvg-convert` and `xcursorgen`.
+- `hooks/fonts` hands the font pair to GTK, Qt and mpv, which keep fonts in
+  their own settings files. The pairs are listed in `config/tint/fonts.toml`.
 - `hooks/start-page` sends the palette to a personal start page. It does
   nothing without its env file, which is not in this repo.
 

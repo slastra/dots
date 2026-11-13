@@ -44,7 +44,7 @@ Item {
                 text: root.storm ? String(Math.round(root.storm.eta_min)) : ""
                 color: Theme.text
                 font.family: Theme.fontFamily
-                font.pixelSize: root.compact ? 24 : 34
+                font.pixelSize: Theme.fs(root.compact ? 24 : 34)
                 font.bold: true
             }
             PopText {

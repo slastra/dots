@@ -13,6 +13,17 @@ Rectangle {
     // before it actually hides, and the zone closes over it in the same beat.
     property bool present: true
     property color accent: Theme.accent
+    // set by the zone: this item sits at the plate's leading or trailing
+    // end, so its fill rounds with the plate's corner there
+    property bool capStart: false
+    property bool capEnd: false
+    function recap() {
+        for (let p = parent; p; p = p.parent)
+            if (typeof p.cap === "function") { Qt.callLater(p.cap); return }
+    }
+    onXChanged: recap()
+    onWidthChanged: recap()
+    onVisibleChanged: recap()
     property alias hovered: mouse.containsMouse
     // horizontal room around the content; 0 for content that carries its own
     property int contentPadding: 12
@@ -31,8 +42,22 @@ Rectangle {
     // Uniform by construction: every item is exactly this tall.
     height: Theme.barHeight - 2
 
-    color: mouse.containsMouse ? Theme.overlay : Qt.alpha(Theme.overlay, 0)
-    Behavior on color { ColorAnimation { duration: Theme.animDuration } }
+    color: "transparent"
+    Rectangle { // the hover fill, kept inside the plate's
+                // hairline where the item touches it so a rounded corner
+                // shows no fringe of fill outside the frame
+        anchors.fill: parent
+        anchors.leftMargin: chip.capStart ? Theme.hairline : 0
+        anchors.rightMargin: chip.capEnd ? Theme.hairline : 0
+        anchors.topMargin: chip.edge === "top" ? 0 : Theme.hairline
+        anchors.bottomMargin: chip.edge === "top" ? Theme.hairline : 0
+        topLeftRadius: chip.capStart && chip.edge !== "top" ? Theme.insetRadius : 0
+        topRightRadius: chip.capEnd && chip.edge !== "top" ? Theme.insetRadius : 0
+        bottomLeftRadius: chip.capStart && chip.edge === "top" ? Theme.insetRadius : 0
+        bottomRightRadius: chip.capEnd && chip.edge === "top" ? Theme.insetRadius : 0
+        color: mouse.containsMouse ? Theme.overlay : Theme.clear(Theme.overlay)
+        Behavior on color { ColorAnimation { duration: Theme.animDuration } }
+    }
 
     property real widthFactor: 0
     width: Math.round(implicitWidth * widthFactor)
@@ -60,7 +85,9 @@ Rectangle {
     }
 
     Rectangle { // the separator
-        visible: chip.separator
+        // not on the plate's first item: the plate's own frame is there,
+        // and a straight line would cut across its rounded corner
+        visible: chip.separator && !chip.capStart
         width: Theme.hairline
         height: parent.height
         color: Theme.border

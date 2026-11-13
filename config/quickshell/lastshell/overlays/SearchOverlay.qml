@@ -179,7 +179,7 @@ Overlay {
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             font.family: Theme.fontFamily
-                            font.pixelSize: 15
+                            font.pixelSize: Theme.fs(15)
                             color: row.modelData.current ? Theme.accent
                                  : row.index === root.cursor ? Theme.text : Qt.alpha(Theme.text, 0.75)
                             textFormat: Text.StyledText
@@ -250,7 +250,7 @@ Overlay {
                 anchors.centerIn: parent
                 text: "no matches"
                 color: Qt.alpha(Theme.crit, 0.7)
-                font.family: Theme.fontFamily; font.pixelSize: 14
+                font.family: Theme.fontFamily; font.pixelSize: Theme.fs(14)
                 font.italic: true
             }
         }

@@ -1,0 +1,47 @@
+# Font pairs for `tint look --font NAME` and the Look dialog: a monospace for
+# the terminal and the shell, and the sans drawn to go with it for apps.
+# Sizes are points. `scale` shrinks lastshell's text, whose sizes were chosen
+# for the narrow ShureTechMono.
+
+[martian]
+mono = "MartianMono Nerd Font"
+sans = "Martian Grotesk"
+mono_size = 10
+sans_size = 10
+scale = 0.8
+
+[geist]
+mono = "GeistMono Nerd Font"
+sans = "Geist"
+scale = 0.88
+
+[recursive]
+mono = "RecMonoLinear Nerd Font"
+sans = "Recursive Sans Linear Static"
+scale = 0.88
+
+[atkinson]
+mono = "AtkynsonMono Nerd Font"
+sans = "Atkinson Hyperlegible"
+scale = 0.88
+
+[plex]
+mono = "BlexMono Nerd Font"
+sans = "IBM Plex Sans"
+scale = 0.88
+
+[monaspace]
+mono = "MonaspiceKr Nerd Font"
+sans = "Mona Sans"
+scale = 0.88
+
+[iosevka]
+mono = "Iosevka Nerd Font"
+sans = "Iosevka Aile"
+mono_size = 12
+
+[shuretech]
+mono = "ShureTechMono Nerd Font"
+sans = "Share Tech"
+mono_size = 12
+sans_size = 12

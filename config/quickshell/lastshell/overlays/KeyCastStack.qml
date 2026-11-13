@@ -84,7 +84,7 @@ Item {
             anchors.verticalCenterOffset: -1
             text: parent.label
             font.family: Theme.fontFamily
-            font.pixelSize: 16
+            font.pixelSize: Theme.fs(16)
             color: Theme.text
         }
     }
@@ -129,7 +129,7 @@ Item {
                         // a lone space would be an empty pill: show the glyph
                         text: row.body.trim() === "" ? "␣" : row.body
                         font.family: Theme.fontFamily
-                        font.pixelSize: 22
+                        font.pixelSize: Theme.fs(22)
                         color: Theme.text
                     }
                     Repeater {
@@ -146,7 +146,7 @@ Item {
                         leftPadding: 2
                         text: "×" + row.count
                         font.family: Theme.fontFamily
-                        font.pixelSize: 17
+                        font.pixelSize: Theme.fs(17)
                         color: Theme.textMuted
                     }
                 }

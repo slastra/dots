@@ -20,8 +20,8 @@ Item {
         id: band
         width: parent.width
         height: 54
-        topLeftRadius: Theme.innerRadius
-        topRightRadius: Theme.innerRadius
+        topLeftRadius: Theme.bandRadius
+        topRightRadius: Theme.bandRadius
         color: Theme.overlay
 
         Row {

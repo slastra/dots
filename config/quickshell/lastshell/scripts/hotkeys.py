@@ -98,6 +98,7 @@ IPC = {
     "toggleAudio":         "Audio output",
     "toggleEffects":       "Wallpaper effect",
     "toggleSchemes":       "Color scheme",
+    "toggleLook":          "Look: radius, border, colors",
     "toggleClipboard":     "Clipboard history",
     "toggleNotifications": "Notification history",
     "toggleCapture":       "Screenshot or record",

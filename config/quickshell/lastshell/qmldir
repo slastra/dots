@@ -23,6 +23,7 @@ singleton Weather 1.0 services/Weather.qml
 singleton Recorder 1.0 services/Recorder.qml
 singleton Apps 1.0 services/Apps.qml
 Popout 1.0 Popout.qml
+ShellText 1.0 ShellText.qml
 PopText 1.0 PopText.qml
 Divider 1.0 Divider.qml
 Card 1.0 Card.qml

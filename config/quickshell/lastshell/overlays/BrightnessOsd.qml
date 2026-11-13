@@ -60,7 +60,7 @@ PanelWindow {
             }
             Text {
                 anchors.verticalCenter: parent.verticalCenter
-                font.family: Theme.fontFamily; font.pixelSize: 15
+                font.family: Theme.fontFamily; font.pixelSize: Theme.fs(15)
                 color: Theme.text
                 text: `${Math.round(root.b * 100)}%`
             }

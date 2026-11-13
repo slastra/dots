@@ -48,7 +48,7 @@ Chip {
             text: root.shownTitle
             // text takes the accent with the border while the swap plays
             color: root.active ? Theme.accent : Theme.text
-            transform: Translate { id: slide }
+            transform: [Translate { y: label.inkShift }, Translate { id: slide }]
             elide: Text.ElideRight
             width: Math.max(0, Math.min(implicitWidth, root.maxWidth - 2 * root.contentPadding - 4))
             // chip resizes with the swap rather than snapping to the new title

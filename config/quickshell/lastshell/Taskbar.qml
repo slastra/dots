@@ -66,7 +66,9 @@ ChipRow {
                 // startup, BEFORE the scan finishes)
                 void DesktopEntries.applications.values
                 const e = DesktopEntries.heuristicLookup(appId)
-                return e?.icon ? Quickshell.iconPath(e.icon, "image-missing") : ""
+                // "" when the entry is missing or names an icon the theme
+                // does not have: the slot then draws its placeholder
+                return e?.icon ? Quickshell.iconPath(e.icon, true) : ""
             }
             Connections {
                 target: DesktopEntries.applications
@@ -76,7 +78,11 @@ ChipRow {
             onClicked: item?.activate()
             onRightClicked: item?.fullscreen()
 
-            IconChipBody { slot: root.slot; source: task.iconSource }
+            IconChipBody {
+                slot: root.slot
+                source: task.iconSource
+                placeholder: true
+            }
 
             ChipTip {
                 owner: task

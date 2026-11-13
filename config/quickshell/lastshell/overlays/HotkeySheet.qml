@@ -102,7 +102,7 @@ Overlay {
                                             anchors.verticalCenter: parent.verticalCenter
                                             text: "+"
                                             color: Qt.alpha(Theme.text, 0.35)
-                                            font.family: Theme.fontFamily; font.pixelSize: 11
+                                            font.family: Theme.fontFamily; font.pixelSize: Theme.fs(11)
                                         }
                                         Rectangle { // keycap
                                             width: capText.implicitWidth + 14
@@ -116,7 +116,7 @@ Overlay {
                                                 anchors.centerIn: parent
                                                 text: parent.parent.modelData
                                                 color: Theme.accent
-                                                font.family: Theme.fontFamily; font.pixelSize: 11
+                                                font.family: Theme.fontFamily; font.pixelSize: Theme.fs(11)
                                             }
                                         }
                                     }
@@ -128,7 +128,7 @@ Overlay {
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: bindRow.modelData.desc
                                 color: Qt.alpha(Theme.text, 0.85)
-                                font.family: Theme.fontFamily; font.pixelSize: 13
+                                font.family: Theme.fontFamily; font.pixelSize: Theme.fs(13)
                                 width: 150; elide: Text.ElideRight
                                 horizontalAlignment: Text.AlignRight
                             }

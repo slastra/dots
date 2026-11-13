@@ -156,7 +156,7 @@ Rectangle {
                         id: actionText
                         anchors.centerIn: parent
                         text: parent.modelData.text
-                        color: Theme.agent; font.family: Theme.fontFamily; font.pixelSize: 12
+                        color: Theme.agent; font.family: Theme.fontFamily; font.pixelSize: Theme.fs(12)
                     }
                     TapHandler { gesturePolicy: TapHandler.WithinBounds; onTapped: root.actionChosen(parent.modelData) }
                 }

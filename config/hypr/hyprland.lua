@@ -13,7 +13,8 @@ hl.monitor({
 	scale = 1.25,
 	bitdepth = 10,
 	cm = "hdredid", -- HDR, luminance ranges from the TV's EDID ("auto" resolved to wide-gamut SDR)
-	sdrbrightness = 1, -- lift SDR content a bit against the HDR range; tune to taste
+	sdrbrightness = 1.5, -- lift SDR content a bit against the HDR range; tune to taste
+	sdr_min_luminance = 0.005, -- true black on the OLED (default 0.2 nits lifts #000 to gray)
 })
 
 -----------------

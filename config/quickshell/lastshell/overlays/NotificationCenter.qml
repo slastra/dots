@@ -46,7 +46,7 @@ Overlay {
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "clear"
-                        color: Theme.crit; font.family: Theme.fontFamily; font.pixelSize: 12
+                        color: Theme.crit; font.family: Theme.fontFamily; font.pixelSize: Theme.fs(12)
                     }
                 }
                 TapHandler {
@@ -134,7 +134,7 @@ Overlay {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: "all clear"
                     color: Qt.alpha(Theme.text, 0.4)
-                    font.family: Theme.fontFamily; font.pixelSize: 13; font.italic: true
+                    font.family: Theme.fontFamily; font.pixelSize: Theme.fs(13); font.italic: true
                 }
             }
         }

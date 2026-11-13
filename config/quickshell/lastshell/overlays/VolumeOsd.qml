@@ -47,7 +47,7 @@ PanelWindow {
             spacing: 12
             Text {
                 anchors.verticalCenter: parent.verticalCenter
-                font.family: Theme.fontFamily; font.pixelSize: 18
+                font.family: Theme.fontFamily; font.pixelSize: Theme.fs(18)
                 color: root.muted ? Theme.crit : Theme.text
                 text: root.muted ? "󰝟" : root.vol < 0.34 ? "󰕿" : root.vol < 0.67 ? "󰖀" : "󰕾"
             }
@@ -59,7 +59,7 @@ PanelWindow {
             }
             Text {
                 anchors.verticalCenter: parent.verticalCenter
-                font.family: Theme.fontFamily; font.pixelSize: 15
+                font.family: Theme.fontFamily; font.pixelSize: Theme.fs(15)
                 color: Theme.text
                 text: `${Math.round(root.vol * 100)}%`
             }

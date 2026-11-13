@@ -10,13 +10,19 @@ dest = "~/.config/kitty/colors.conf"
 reload = "pkill -USR1 -x kitty"
 live = true
 
+# The font pair (`tint look --font`, fonts.toml). kitty.conf includes this.
+[[target]]
+template = "kitty-font.conf"
+dest = "~/.config/kitty/font.conf"
+reload = "pkill -USR1 -x kitty"
+
 [[target]]
 template = "hypr-theme.lua"
 dest = "~/.config/hypr/theme.lua"
 live = true
 
-# Corner radius and border thickness (`tint shape`), for lastshell: its
-# Theme.qml watches this file. Hyprland and GTK take the same two numbers
+# Corner radius, border thickness and the font (`tint look`), for lastshell:
+# its Theme.qml watches this file. Hyprland and GTK take the same two numbers
 # through their own templates.
 [[target]]
 template = "shape.json"
@@ -123,3 +129,10 @@ reload = "~/.config/tint/hooks/start-page"
 template = "palette.json"
 dest = "~/.config/tint/out/palette.json"
 reload = "~/.config/tint/hooks/assets"
+
+# The font pair as JSON, for the hook that hands it to GTK, Qt and mpv, which
+# keep fonts in their own settings files. lastshell takes it from shape.json.
+[[target]]
+template = "fonts.json"
+dest = "~/.config/tint/out/fonts.json"
+reload = "~/.config/tint/hooks/fonts"

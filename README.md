@@ -140,9 +140,9 @@ config/
 ├── quickshell/lastshell/   the shell (QML)
 ├── hypr/                   hyprland.lua, binds.lua, theme.lua, hypridle.conf, hyprglaze.toml, scripts/
 ├── lastshell/              lamp.sh (shell-adjacent)
-├── tint/                   targets.toml, templates/, schemes/, hooks/ (the theming setup)
+├── tint/                   targets.toml, fonts.toml, templates/, schemes/, hooks/ (the theming setup)
 ├── qt6ct/colors/           tint.conf (Qt palette, generated)
-├── kitty/                  kitty.conf, colors.conf (generated, and the shell's palette source)
+├── kitty/                  kitty.conf, colors.conf and font.conf (generated; colors.conf is the shell's palette source)
 ├── nvim/lua/               colors.lua (generated), plugins/vague.lua
 └── starship.toml
 hosts/lap/                  the laptop (below)

@@ -13,6 +13,8 @@ Chip {
 
     readonly property var shown: Claude.quota.frames[frame % Math.max(1, Claude.quota.frames.length)] ?? { id: "", pct: 0 }
     readonly property color accent: Theme.level(Claude.quota.worstPct, 70, 90)
+    // the ring's arc: the accent while usage is normal, warn and crit past 70 and 90
+    readonly property color arc: Theme.level(Claude.quota.worstPct, 70, 90, Theme.accent)
 
     // The animated value the arc actually draws — sweeps on frame change
     // and on live quota movement alike.
@@ -39,7 +41,7 @@ Chip {
                 ctx.strokeStyle = Qt.alpha(Theme.text, 0.22)
                 ctx.beginPath(); ctx.arc(c, c, r, 0, 2 * Math.PI); ctx.stroke()
                 if (root.drawnPct > 0) {
-                    ctx.strokeStyle = Qt.alpha(root.accent, Claude.quota.stale ? 0.5 : 1)
+                    ctx.strokeStyle = Qt.alpha(root.arc, Claude.quota.stale ? 0.5 : 1)
                     ctx.beginPath()
                     ctx.arc(c, c, r, -Math.PI / 2,
                             -Math.PI / 2 + 2 * Math.PI * Math.min(1, root.drawnPct / 100))
@@ -50,6 +52,7 @@ Chip {
                 target: root
                 function onDrawnPctChanged() { ring.requestPaint() }
                 function onAccentChanged() { ring.requestPaint() }
+                function onArcChanged() { ring.requestPaint() }
             }
         }
 
